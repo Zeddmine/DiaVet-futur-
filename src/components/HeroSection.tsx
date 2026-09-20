@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Language } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { ArrowRight, ShieldCheck, Heart, Sparkles, Activity, Clock, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const HERO_SCENES_DATA: Record<Language, Array<{
@@ -156,7 +156,7 @@ export default function HeroSection({
   onOpenDirectory,
   onOpenVideos
 }: HeroSectionProps) {
-  const t = translations[currentLang] || translations.fr;
+  const t = getTranslations(currentLang);
   const isRtl = currentLang === 'ar';
   const scenes = HERO_SCENES_DATA[currentLang] || HERO_SCENES_DATA.fr;
 

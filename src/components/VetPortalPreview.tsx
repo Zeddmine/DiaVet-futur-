@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language, VetAnswers } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { tabContentVariants } from '../utils/transitions';
 import { 
   Stethoscope, Calendar, Users, FileText, Pill, 
@@ -23,7 +23,7 @@ export default function VetPortalPreview({
   onGoHome,
   userAnswers
 }: VetPortalPreviewProps) {
-  const t = translations[currentLang] || translations.fr;
+  const t = getTranslations(currentLang);
   const isRtl = currentLang === 'ar';
   const isEn = currentLang === 'en';
   const [activeTab, setActiveTab] = useState<'analytics' | 'schedule' | 'rx' | 'stock'>('analytics');

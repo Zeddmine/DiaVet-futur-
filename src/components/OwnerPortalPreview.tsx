@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language, OwnerAnswers, Badge } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { tabContentVariants } from '../utils/transitions';
 import { 
   Heart, Calendar, AlertTriangle, ShieldCheck, 
@@ -26,7 +26,7 @@ export default function OwnerPortalPreview({
   badges = [],
   onOpenProfile
 }: OwnerPortalPreviewProps) {
-  const t = translations[currentLang];
+  const t = getTranslations(currentLang);
   const [activeTab, setActiveTab] = useState<'health' | 'scanner' | 'appointments' | 'sos' | 'badges'>('health');
   const [bookedSuccess, setBookedSuccess] = useState(false);
   const [selectedDate, setSelectedDate] = useState('2026-09-25');

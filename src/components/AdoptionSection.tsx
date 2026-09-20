@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Language, AdoptionPet } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { INITIAL_ADOPTION_PETS } from '../data/adoptionData';
 import { ALGERIAN_WILAYAS } from '../data/mockData';
 import { 
@@ -14,7 +14,7 @@ interface AdoptionSectionProps {
 }
 
 export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSectionProps) {
-  const t = translations[currentLang] || translations.fr;
+  const t = getTranslations(currentLang);
   const isRtl = currentLang === 'ar';
   const isEn = currentLang === 'en';
 

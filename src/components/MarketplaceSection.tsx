@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Language, MarketplaceItem } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { INITIAL_MARKETPLACE_ITEMS, UPCOMING_SERVICES } from '../data/marketplaceData';
 import { 
   ShoppingBag, Sparkles, Filter, Search, ChevronLeft, 
@@ -13,7 +13,7 @@ interface MarketplaceSectionProps {
 }
 
 export default function MarketplaceSection({ currentLang, onGoHome }: MarketplaceSectionProps) {
-  const t = translations[currentLang] || translations.fr;
+  const t = getTranslations(currentLang);
   const isRtl = currentLang === 'ar';
   const isEn = currentLang === 'en';
 

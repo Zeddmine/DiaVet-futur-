@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   AppScreen, Language, Theme 
 } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { navDrawerVariants } from '../utils/transitions';
 import { 
   Menu, X, Sun, Moon, Smartphone, Monitor, Instagram, 
@@ -66,7 +66,7 @@ export default function Navbar({
   onOpenAuth,
   onLogout
 }: NavbarProps) {
-  const t = translations[currentLang] || translations.fr;
+  const t = getTranslations(currentLang);
   const isAr = currentLang === 'ar';
   const isEn = currentLang === 'en';
   const isRtl = isAr;

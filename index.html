@@ -10,7 +10,8 @@
     <meta name="theme-color" content="#020617" />
     <title>DiaVet Algérie — La Plateforme Unifiée de Santé Animale 🇩🇿</title>
     <meta name="description" content="Plateforme numérique vétérinaire pour l'Algérie connectant propriétaires et vétérinaires avec carnet de santé, système de badges et jalons santé, articles et conseils cliniques, et annuaire d'urgences." />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/pwa-192x192.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,5 +20,34 @@
   <body class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white overscroll-none overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // iOS Standalone PWA blank-screen auto-recovery safeguard
+      window.addEventListener('error', function(e) {
+        console.error('DiaVet PWA Global Error:', e);
+      });
+      setTimeout(function() {
+        var rootNode = document.getElementById('root');
+        if (rootNode && (!rootNode.children || rootNode.children.length === 0)) {
+          console.warn('Empty root on iOS PWA - unregistering service workers & refreshing cache...');
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              for (var i = 0; i < regs.length; i++) {
+                regs[i].unregister();
+              }
+              if ('caches' in window) {
+                caches.keys().then(function(names) {
+                  for (var j = 0; j < names.length; j++) {
+                    caches.delete(names[j]);
+                  }
+                  window.location.reload();
+                });
+              } else {
+                window.location.reload();
+              }
+            });
+          }
+        }
+      }, 2800);
+    </script>
   </body>
 </html>

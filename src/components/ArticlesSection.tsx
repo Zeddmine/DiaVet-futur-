@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Language, Article } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { 
   BookOpen, Bookmark, Heart, Search, Filter, Plus, 
   Clock, Calendar, User, ChevronLeft, X, Check, 
@@ -24,7 +24,10 @@ export default function ArticlesSection({
   onAddArticle,
   onGoHome
 }: ArticlesSectionProps) {
-  const t = translations[currentLang];
+  const t = getTranslations(currentLang);
+  const isEn = currentLang === 'en';
+  const isAr = currentLang === 'ar';
+  const isRtl = isAr;
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

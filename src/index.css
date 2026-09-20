@@ -34,12 +34,13 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   overflow-x: hidden;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
 }
 
 body {
   overflow-x: hidden;
-  max-width: 100vw;
+  max-width: 100%;
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
@@ -48,6 +49,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
+}
+
+/* iOS iPhone Safe Area paddings */
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 /* Touch targets and scrolling fluidity across iOS, Android, and Desktop */

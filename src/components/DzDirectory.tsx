@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language } from '../types';
-import { translations } from '../data/translations';
+import { getTranslations } from '../data/translations';
 import { MOCK_CLINICS, ALGERIAN_WILAYAS } from '../data/mockData';
 import { 
   Search, MapPin, Phone, Clock, ChevronLeft, 
@@ -20,7 +20,10 @@ export default function DzDirectory({
   onGoHome,
   onOpenVetQuestionnaire
 }: DzDirectoryProps) {
-  const t = translations[currentLang];
+  const t = getTranslations(currentLang);
+  const isEn = currentLang === 'en';
+  const isAr = currentLang === 'ar';
+  const isRtl = isAr;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWilaya, setSelectedWilaya] = useState('all');
   const [only24h, setOnly24h] = useState(false);
@@ -55,10 +58,12 @@ export default function DzDirectory({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold mb-2">
               <Hammer className="w-3.5 h-3.5 animate-bounce" />
-              <span>Module Annuaire Officiel · En cours de développement & déploiement</span>
+              <span>
+                {isAr ? "دليل الأطباء البيطريين الرسمي · قيد التطوير والتطبيق الميداني" : isEn ? "Official Veterinary Directory · National Deployment" : "Module Annuaire Officiel · En cours de développement & déploiement"}
+              </span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black text-white dark:text-white light:text-slate-900 tracking-tight">
-              Réseau Vétérinaire en Algérie
+              {isAr ? "الشبكة البيطرية الوطنية في الجزائر 🇩🇿" : isEn ? "National Veterinary Network in Algeria 🇩🇿" : "Réseau Vétérinaire en Algérie 🇩🇿"}
             </h1>
           </div>
         </div>
@@ -70,13 +75,13 @@ export default function DzDirectory({
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-              <span>Déploiement Territorial Bêta 2026</span>
+              <span>{isAr ? "التوسع عبر الولايات الـ 58" : isEn ? "National Deployment across 58 Wilayas" : "Déploiement Territorial Bêta 2026"}</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              Le conventionnement des cliniques vétérinaires est en cours dans les 58 Wilayas !
+              {isAr ? "جارٍ اعتماد وتوثيق العيادات البيطرية عبر 58 ولاية !" : isEn ? "Veterinary clinic accreditations ongoing in all 58 Wilayas!" : "Le conventionnement des cliniques vétérinaires est en cours dans les 58 Wilayas !"}
             </h2>
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-              Nos équipes finalisent actuellement les protocoles d'intégration et de vérification avec les praticiens inscrits à l'Ordre Vétérinaire en Algérie. Les fiches ci-dessous constituent un aperçu des premiers centres pilotes conventionnés.
+              {isAr ? "تقوم فرقنا حالياً بإتمام بروتوكولات التحقق مع الأطباء المسجلين في عمادة الأطباء البيطريين. القائمة أدناه هي نموذج للمراكز الأولى المعتمدة." : isEn ? "Our teams are finalizing onboarding protocols with licensed practitioners registered with the National Veterinary Order (ONMV). Below are pilot verified clinics." : "Nos équipes finalisent actuellement les protocoles d'intégration et de vérification avec les praticiens inscrits à l'Ordre Vétérinaire en Algérie. Les fiches ci-dessous constituent un aperçu des premiers centres pilotes conventionnés."}
             </p>
           </div>
 
@@ -99,7 +104,7 @@ export default function DzDirectory({
                 className="px-5 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 active:scale-95 cursor-pointer"
               >
                 <Stethoscope className="w-4 h-4" />
-                <span>Rejoindre en tant que Vétérinaire</span>
+                <span>{isAr ? "الانضمام كطبيب بيطري" : isEn ? "Join as a Veterinarian" : "Rejoindre en tant que Vétérinaire"}</span>
               </button>
             )}
           </div>
@@ -112,13 +117,13 @@ export default function DzDirectory({
           
           {/* Keyword search input */}
           <div className="md:col-span-6 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className={`w-4 h-4 text-slate-400 absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2`} />
             <input
               type="text"
-              placeholder="Rechercher par clinique, vétérinaire ou ville..."
+              placeholder={isAr ? "البحث حسب العيادة، الطبيب أو المدينة..." : isEn ? "Search by clinic, vet name, or city..." : "Rechercher par clinique, vétérinaire ou ville..."}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-cyan-400"
+              className={`w-full ${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'} py-3 rounded-xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-cyan-400`}
             />
           </div>
 
@@ -129,7 +134,7 @@ export default function DzDirectory({
               onChange={e => setSelectedWilaya(e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-white/10 text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-400 cursor-pointer"
             >
-              <option value="all">Toutes les 58 wilayas</option>
+              <option value="all">{isAr ? "جميع الولايات الـ 58" : isEn ? "All 58 Wilayas" : "Toutes les 58 wilayas"}</option>
               {ALGERIAN_WILAYAS.map(w => (
                 <option key={w} value={w}>
                   {w}

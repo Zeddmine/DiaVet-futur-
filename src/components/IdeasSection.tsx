@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Language, UserFeedback } from '../types';
-import { translations } from '../data/translations';
+import { translations, getTranslations } from '../data/translations';
 import { INITIAL_COMMUNITY_IDEAS } from '../data/ideasData';
 import { ALGERIAN_WILAYAS } from '../data/mockData';
 import { 
@@ -14,7 +14,7 @@ interface IdeasSectionProps {
 }
 
 export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProps) {
-  const t = translations[currentLang] || translations.fr;
+  const t = getTranslations(currentLang);
   const isRtl = currentLang === 'ar';
   const isEn = currentLang === 'en';
 
