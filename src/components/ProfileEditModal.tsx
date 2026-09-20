@@ -192,6 +192,28 @@ L'équipe DiaVet Algérie`
 
         {/* Profile Edit Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* DEFINITIVE USER ROLE BADGE (LOCKED) */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/60 to-cyan-950/60 border border-cyan-500/40 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-400/30 flex items-center justify-center font-bold text-lg">
+                {userProfile.userRole === 'vet' ? '🩺' : '🐾'}
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-cyan-400 tracking-wider block">
+                  {isRtl ? 'الصفة الرسمية للحساب (نهائية 🔒)' : isEn ? 'Official Account Role (Definitive 🔒)' : 'Rôle Officiel du Compte (Définitif 🔒)'}
+                </span>
+                <p className="text-sm font-black text-white">
+                  {userProfile.userRole === 'vet' 
+                    ? (isRtl ? 'Docteur Vétérinaire Agréé (طبيب بيطري معتمد)' : isEn ? 'Licensed Veterinarian (ONMV)' : 'Docteur Vétérinaire Praticien (ONMV)')
+                    : (isRtl ? 'Propriétaire d\'Animal (مربي / صاحب حيوان)' : isEn ? 'Pet Owner' : 'Propriétaire d\'Animal de Compagnie')}
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shrink-0">
+              {isRtl ? 'ثابت ولا يمكن تغييره' : isEn ? 'Definitive Choice' : 'Choix Définitif Non Modifiable'}
+            </span>
+          </div>
           
           {/* Name */}
           <div>

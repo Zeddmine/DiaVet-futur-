@@ -278,17 +278,21 @@ export default function Navbar({
               <button
                 onClick={() => {
                   soundEngine.playCyberClick();
-                  onNavigate('profile');
+                  if (onOpenProfile) {
+                    onOpenProfile();
+                  } else {
+                    onNavigate('profile');
+                  }
                 }}
-                title={isAr ? "الدخول إلى ملفي الشخصي" : isEn ? "Access My DiaVet Profile" : "Accéder à mon Profil Réel DiaVet"}
-                className="hidden lg:inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-800/80 border border-white/10 hover:border-cyan-400/40 text-xs text-white transition-all cursor-pointer shadow-inner"
+                title={isAr ? "انقر لرؤية وتعديل ملفك الشخصي" : isEn ? "Click to view and edit your profile" : "Cliquer pour voir et modifier votre profil"}
+                className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-xl bg-slate-800/90 dark:bg-slate-800/90 light:bg-slate-200 border border-cyan-400/30 hover:border-cyan-400 text-xs text-white dark:text-white light:text-slate-900 transition-all cursor-pointer shadow-md hover:scale-105 active:scale-95"
               >
                 <div className="w-5 h-5 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black text-[10px]">
                   {userName.charAt(0).toUpperCase()}
                 </div>
-                <span className="font-bold truncate max-w-[100px]">{userName}</span>
+                <span className="font-bold truncate max-w-[90px] sm:max-w-[120px] text-cyan-300 dark:text-cyan-300 light:text-cyan-800">{userName}</span>
                 {typeof userPoints === 'number' && (
-                  <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black">
+                  <span className="hidden sm:inline-block px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black">
                     {userPoints} pts
                   </span>
                 )}
@@ -564,19 +568,33 @@ export default function Navbar({
               )}
             </div>
           ) : (
-            <div className="p-3.5 rounded-2xl bg-slate-900 border border-white/15 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center font-black text-sm">
+            <div className="p-3.5 rounded-2xl bg-slate-900 border border-cyan-500/30 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  soundEngine.playCyberClick();
+                  setMobileMenuOpen(false);
+                  if (onOpenProfile) {
+                    onOpenProfile();
+                  } else {
+                    onNavigate('profile');
+                  }
+                }}
+                className="flex items-center gap-2.5 text-left cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center font-black text-sm shadow-md">
                   {userName ? userName.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white leading-tight">{userName}</p>
-                  <p className="text-[10px] text-cyan-400 font-medium">
+                  <p className="text-xs font-bold text-white leading-tight flex items-center gap-1">
+                    <span>{userName}</span>
+                    <Sparkles className="w-3 h-3 text-cyan-400" />
+                  </p>
+                  <p className="text-[10px] text-cyan-300 font-medium">
                     {userRole === 'vet' ? '🩺 Vétérinaire PRO' : '🐾 Propriétaire'}
                     {typeof userPoints === 'number' && ` • ${userPoints} pts`}
                   </p>
                 </div>
-              </div>
+              </button>
               {onLogout && (
                 <button
                   onClick={() => {
