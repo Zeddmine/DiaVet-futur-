@@ -3,48 +3,143 @@ import { Language } from '../types';
 import { translations } from '../data/translations';
 import { ArrowRight, ShieldCheck, Heart, Sparkles, Activity, Clock, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const HERO_SCENES = [
-  {
-    id: 1,
-    tag: "Nature & Émerveillement",
-    badge: "1. Deux compagnons contemplant la nature",
-    title: "Deux animaux observant la nature",
-    description: "La beauté et la sérénité des animaux en harmonie avec les paysages algériens.",
-    image: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&q=85&w=1200",
-    fallback: "https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&q=85&w=1200",
-    icon: "🐾"
-  },
-  {
-    id: 2,
-    tag: "Complicité & Joie",
-    badge: "2. Une personne jouant avec son animal",
-    title: "Complicité et tendresse partagée",
-    description: "Des moments de jeux inoubliables entre le maître et son fidèle compagnon.",
-    image: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&q=85&w=1200",
-    fallback: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=85&w=1200",
-    icon: "❤️"
-  },
-  {
-    id: 3,
-    tag: "Soin Vétérinaire Expert",
-    badge: "3. Vétérinaire examinant un chien ou chat",
-    title: "Auscultation médicale bienveillante",
-    description: "Le docteur vétérinaire ausculte avec soin et douceur pour un diagnostic précis.",
-    image: "https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&q=85&w=1200",
-    fallback: "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&q=85&w=1200",
-    icon: "🩺"
-  },
-  {
-    id: 4,
-    tag: "Santé Connectée & Carnet",
-    badge: "4. Vétérinaire consultant son profil numérique",
-    title: "Dossier médical & profil digitalisé",
-    description: "Consultation en temps réel des antécédents, vaccins et rappels sur tablette.",
-    image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=85&w=1200",
-    fallback: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=85&w=1200",
-    icon: "📱"
-  }
-];
+const HERO_SCENES_DATA: Record<Language, Array<{
+  id: number;
+  tag: string;
+  badge: string;
+  title: string;
+  description: string;
+  image: string;
+  fallback: string;
+  icon: string;
+}>> = {
+  fr: [
+    {
+      id: 1,
+      tag: "Nature & Émerveillement",
+      badge: "1. Deux compagnons contemplant la nature",
+      title: "Deux animaux observant la nature",
+      description: "La beauté et la sérénité des animaux en harmonie avec les paysages algériens.",
+      image: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&q=85&w=1200",
+      icon: "🐾"
+    },
+    {
+      id: 2,
+      tag: "Complicité & Joie",
+      badge: "2. Une personne jouant avec son animal",
+      title: "Complicité et tendresse partagée",
+      description: "Des moments de jeux inoubliables entre le maître et son fidèle compagnon.",
+      image: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=85&w=1200",
+      icon: "❤️"
+    },
+    {
+      id: 3,
+      tag: "Soin Vétérinaire Expert",
+      badge: "3. Vétérinaire examinant un chien ou chat",
+      title: "Auscultation médicale bienveillante",
+      description: "Le docteur vétérinaire ausculte avec soin et douceur pour un diagnostic précis.",
+      image: "https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&q=85&w=1200",
+      icon: "🩺"
+    },
+    {
+      id: 4,
+      tag: "Santé Connectée & Carnet",
+      badge: "4. Vétérinaire consultant son profil numérique",
+      title: "Dossier médical & profil digitalisé",
+      description: "Consultation en temps réel des antécédents, vaccins et rappels sur tablette.",
+      image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=85&w=1200",
+      icon: "📱"
+    }
+  ],
+  en: [
+    {
+      id: 1,
+      tag: "Nature & Wonder",
+      badge: "1. Two animal companions in nature",
+      title: "Animals observing nature",
+      description: "The serene bond and harmony of pets across Algerian landscapes.",
+      image: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&q=85&w=1200",
+      icon: "🐾"
+    },
+    {
+      id: 2,
+      tag: "Bond & Joy",
+      badge: "2. Pet owner playing with their companion",
+      title: "Shared love and companionship",
+      description: "Precious play moments between pet parents and their faithful companions.",
+      image: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=85&w=1200",
+      icon: "❤️"
+    },
+    {
+      id: 3,
+      tag: "Expert Veterinary Care",
+      badge: "3. Vet examining dog or cat",
+      title: "Gentle and precise clinical exam",
+      description: "Licensed veterinarians conducting thorough clinical checkups with empathy.",
+      image: "https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&q=85&w=1200",
+      icon: "🩺"
+    },
+    {
+      id: 4,
+      tag: "Connected Digital Health",
+      badge: "4. Vet checking digital medical records",
+      title: "Electronic health records & profile",
+      description: "Real-time access to vaccination histories, reminders, and charts on mobile.",
+      image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=85&w=1200",
+      icon: "📱"
+    }
+  ],
+  ar: [
+    {
+      id: 1,
+      tag: "الطبيعة والانسجام",
+      badge: "1. رفيقان يتأملان الطبيعة",
+      title: "حيوانان في تناغم مع الطبيعة",
+      description: "جمال وهدوء الحيوانات في تناسق تام مع الطبيعة والمناظر الجزائرية.",
+      image: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&q=85&w=1200",
+      icon: "🐾"
+    },
+    {
+      id: 2,
+      tag: "المحبة والمرح",
+      badge: "2. مربي يلعب مع حيوانه الأليف",
+      title: "علاقة مودة وثقة متبادلة",
+      description: "لحظات لعب وترفيه لا تُنسى تجمع الصديق الوفي بصاحبه.",
+      image: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=85&w=1200",
+      icon: "❤️"
+    },
+    {
+      id: 3,
+      tag: "رعاية بيطرية متخصصة",
+      badge: "3. فحص بيطري دقيق وشامل",
+      title: "معاينة طبية رحيمة ودقيقة",
+      description: "أطباء بيطريون يقدمون الفحص الشخيصي بأحدث المعايير والرحمة.",
+      image: "https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&q=85&w=1200",
+      icon: "🩺"
+    },
+    {
+      id: 4,
+      tag: "الصحة الرقمية المتصلة",
+      badge: "4. طبيب يراجع الملف الصحي الرقمي",
+      title: "ملف طبي رقمي فوري",
+      description: "اطلاع فوري على التلقيحات والسوابق المرضية والوصفات عبر اللوحة والهاتف.",
+      image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=85&w=1200",
+      fallback: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=85&w=1200",
+      icon: "📱"
+    }
+  ]
+};
 
 interface HeroSectionProps {
   currentLang: Language;
@@ -61,19 +156,20 @@ export default function HeroSection({
   onOpenDirectory,
   onOpenVideos
 }: HeroSectionProps) {
-  const t = translations[currentLang];
+  const t = translations[currentLang] || translations.fr;
   const isRtl = currentLang === 'ar';
+  const scenes = HERO_SCENES_DATA[currentLang] || HERO_SCENES_DATA.fr;
 
   const [activeScene, setActiveScene] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveScene(prev => (prev + 1) % HERO_SCENES.length);
+      setActiveScene(prev => (prev + 1) % scenes.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [scenes.length]);
 
-  const current = HERO_SCENES[activeScene];
+  const current = scenes[activeScene] || scenes[0];
 
   return (
     <section className="relative overflow-hidden pt-6 sm:pt-12 pb-16 sm:pb-24">
@@ -134,7 +230,7 @@ export default function HeroSection({
                   onClick={onOpenVideos}
                   className="w-full sm:w-auto px-6 py-4 rounded-2xl font-bold text-base text-cyan-300 bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 backdrop-blur-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
-                  <span>DiaVet TV 🎬</span>
+                  <span>{currentLang === 'ar' ? 'فيديوهات TV 🎬' : currentLang === 'en' ? 'DiaVet TV 🎬' : 'DiaVet TV 🎬'}</span>
                 </button>
               )}
             </div>
@@ -168,7 +264,7 @@ export default function HeroSection({
                 
                 {/* Images Container */}
                 <div className="relative w-full h-84 sm:h-96 xl:h-[430px]">
-                  {HERO_SCENES.map((scene, idx) => (
+                  {scenes.map((scene, idx) => (
                     <img
                       key={scene.id}
                       src={scene.image}
@@ -201,9 +297,9 @@ export default function HeroSection({
                   {/* Carousel Controls (Previous / Next) */}
                   <div className="flex items-center gap-1 bg-slate-950/70 backdrop-blur-md p-1 rounded-full border border-white/10">
                     <button
-                      onClick={() => setActiveScene(prev => (prev - 1 + HERO_SCENES.length) % HERO_SCENES.length)}
+                      onClick={() => setActiveScene(prev => (prev - 1 + scenes.length) % scenes.length)}
                       className="p-1 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                      title="Scène précédente"
+                      title="Previous"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -211,9 +307,9 @@ export default function HeroSection({
                       {activeScene + 1}/4
                     </span>
                     <button
-                      onClick={() => setActiveScene(prev => (prev + 1) % HERO_SCENES.length)}
+                      onClick={() => setActiveScene(prev => (prev + 1) % scenes.length)}
                       className="p-1 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                      title="Scène suivante"
+                      title="Next"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -239,7 +335,7 @@ export default function HeroSection({
                   {/* 4 dots indicators */}
                   <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      {HERO_SCENES.map((_, i) => (
+                      {scenes.map((_, i) => (
                         <button
                           key={i}
                           onClick={() => setActiveScene(i)}
@@ -248,7 +344,7 @@ export default function HeroSection({
                               ? 'w-6 bg-cyan-400' 
                               : 'w-2 bg-white/30 hover:bg-white/60'
                           }`}
-                          title={`Voir scène ${i + 1}`}
+                          title={`Slide ${i + 1}`}
                         />
                       ))}
                     </div>
@@ -263,13 +359,13 @@ export default function HeroSection({
               {/* Floating Pill Accent 1 */}
               <div className="absolute -top-4 -right-4 hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-cyan-500/40 shadow-lg shadow-cyan-500/10 text-xs font-bold text-white">
                 <span className="text-base">🐾</span>
-                <span>DiaVet Écosystème</span>
+                <span>{currentLang === 'ar' ? 'منظومة DiaVet' : currentLang === 'en' ? 'DiaVet Ecosystem' : 'DiaVet Écosystème'}</span>
               </div>
 
               {/* Floating Pill Accent 2 */}
               <div className="absolute -bottom-4 -left-4 hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-emerald-500/40 shadow-lg shadow-emerald-500/10 text-xs font-bold text-white">
                 <span className="text-base">🩺</span>
-                <span>Cliniques Agréées DZ</span>
+                <span>{currentLang === 'ar' ? 'عيادات معتمدة في الجزائر' : currentLang === 'en' ? 'Licensed DZ Clinics' : 'Cliniques Agréées DZ'}</span>
               </div>
 
             </div>

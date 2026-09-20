@@ -18,10 +18,18 @@ export const translations: Record<Language, Record<string, string>> = {
     navAdoption: "Adoption DZ",
     navMarketplace: "Animalerie",
     navIdeas: "Boîte à Idées",
+    navVideos: "Vidéos TV 🎬",
     switchDevice: "Vue iPhone",
     switchFull: "Plein écran",
     musicOn: "Musique ON",
     musicMute: "Muet",
+    inDev: "En dev",
+    login: "Connexion",
+    logout: "Déconnexion",
+    memberSpace: "Espace Membre DiaVet",
+    notConnected: "Non connecté",
+    changeLang: "Changer la langue",
+    ambientAudio: "Bande-son d'ambiance",
 
     // Onboarding Gateway
     onboardingOfficialPortal: "Portail d'Accès Officiel · Algérie 🇩🇿",
@@ -94,12 +102,36 @@ export const translations: Record<Language, Record<string, string>> = {
     roleVetDesc: "Gérez votre cabinet ou clinique depuis n'importe où : dossiers médicaux, ordonnances, planning et stocks.",
 
     // Spaces Cards
+    spacesHeading: "Espace Propriétaire & Espace Vétérinaire Pro",
+    spacesSubheading: "Les 2 Pôles Majeurs DiaVet Algérie",
+    spacesDesc: "Une plateforme bilatérale connectant propriétaires d'animaux et docteurs vétérinaires à travers les 58 Wilayas d'Algérie.",
     ownerCardHeading: "Prenez soin de votre animal",
     ownerCardText: "Suivez sa santé en temps réel, prenez rendez-vous chez votre vétérinaire, accédez à des conseils fiables et trouvez de l'aide en urgence.",
     ownerCardAction: "Découvrir l'espace →",
     vetCardHeading: "Gérez votre cabinet depuis partout",
     vetCardText: "Logiciel vétérinaire complet accessible sur PC et mobile. Dossiers patients, ordonnances homologuées, rappels SMS et cloud sécurisé.",
     vetCardAction: "Accéder au logiciel →",
+    vetSuiteAction: "Accéder à la Suite Vétérinaire Pro →",
+
+    // Showcase Ecosystem
+    ecosystemBadge: "Écosystème National DiaVet Algérie 🇩🇿",
+    ecosystemTitle: "Services Solidaires & Nouveautés Connectées",
+    ecosystemSubtitle: "Au-delà de la santé vétérinaire : adoptez un animal rescapé, accédez à l'animalerie officielle et donnez votre avis sur le futur de DiaVet.",
+    adoptionCardTitle: "Adoption Responsable",
+    adoptionCardTag: "Solidarité Animale DZ",
+    adoptionCardDesc: "Chiots, chatons et animaux rescapés vaccinés et stérilisés dans 58 wilayas. Trouvez votre futur compagnon sans frais marchands.",
+    marketplaceCardTitle: "Animalerie & Pharmacie Vétérinaire",
+    marketplaceCardTag: "Boutique & Soins",
+    marketplaceCardDesc: "Nutrition premium, antiparasitaires Seresto & Frontline en Dinars Algériens (DZD), et réservation des futurs services.",
+    ideasCardTitle: "Boîte à Idées & Avis Communauté",
+    ideasCardTag: "Co-Construction",
+    ideasCardDesc: "Proposez vos fonctionnalités, donnez votre note sur 5 étoiles et votez pour les améliorations prioritaires.",
+    badgesCardTitle: "Forgez vos Badges & Jalons Santé",
+    badgesCardTag: "🏆 Atelier de Badges & Gamification",
+    badgesCardDesc: "Concevez vos propres insignes holographiques, personnalisez votre profil et suivez la vaccination de votre compagnon.",
+    vetBannerTitle: "Gestion de Cabinet & Ordonnances Homologuées",
+    vetBannerTag: "🩺 Suite Clinique Vétérinaire Pro",
+    vetBannerDesc: "Dossiers médicaux chronologiques, génération d'ordonnances avec QR code de sécurité et file d'attente intelligente.",
 
     // Space Tags
     tagAppt: "Rdv",
@@ -230,6 +262,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   en: {
+    // Brand & Header
     brandSubtitle: "The Veterinary Digital Ecosystem",
     dzBadge: "In Development · Algeria 🇩🇿",
     navHome: "Home",
@@ -245,11 +278,20 @@ export const translations: Record<Language, Record<string, string>> = {
     navAdoption: "Adoption DZ",
     navMarketplace: "Pet Store",
     navIdeas: "Ideas Box",
+    navVideos: "TV Videos 🎬",
     switchDevice: "iPhone View",
     switchFull: "Full View",
     musicOn: "Music ON",
     musicMute: "Muted",
+    inDev: "In Dev",
+    login: "Log In",
+    logout: "Log Out",
+    memberSpace: "DiaVet Member Portal",
+    notConnected: "Not connected",
+    changeLang: "Change Language",
+    ambientAudio: "Ambient Soundtrack",
 
+    // Onboarding Gateway
     onboardingOfficialPortal: "Official Access Portal · Algeria 🇩🇿",
     onboardingMandatoryNotice: "🔒 Step 1/2: Mandatory Initial Registration",
     onboardingGiftLockedNotice: "🎁 Surprise Gift: DiaVet's Mascot Cat will unlock a surprise gift pack and exclusive VIP early access once you finish the questionnaire!",
@@ -299,6 +341,7 @@ export const translations: Record<Language, Record<string, string>> = {
     onboardingBonusReward: "Registration Bonus Unlocked:",
     onboardingBonusPoints: "VIP Points Unlocked",
 
+    // Hero Section
     heroMainTitle1: "One Bond,",
     heroMainTitle2: "One Health",
     heroSubtitle: "A unified platform for better animal health across Algeria. DiaVet bridges pet parents and veterinary professionals with smart, secure digital tools.",
@@ -308,6 +351,7 @@ export const translations: Record<Language, Record<string, string>> = {
     badgeAnimalHealth: "Animal Health",
     badgeQuote: "“Because they deserve the very best”",
 
+    // Role Selection
     roleTitle: "Who are you?",
     roleSubtitle: "Select your profile to access your dedicated space and take part in building DiaVet.",
     roleOwnerTag: "Pet Owner Portal",
@@ -317,13 +361,39 @@ export const translations: Record<Language, Record<string, string>> = {
     roleVetTitle: "I am a Veterinarian",
     roleVetDesc: "Run your clinic or practice from anywhere: medical charts, certified digital prescriptions, scheduling, and inventory.",
 
+    // Spaces Cards
+    spacesHeading: "Pet Owner Space & Pro Veterinary Space",
+    spacesSubheading: "The 2 Major Pillars of DiaVet Algeria",
+    spacesDesc: "A bilateral platform connecting pet parents and veterinary practitioners across all 58 Wilayas of Algeria.",
     ownerCardHeading: "Care for your companion",
     ownerCardText: "Track health records in real-time, book veterinary consultations, browse verified medical guidance, and get emergency care in Algeria.",
     ownerCardAction: "Discover Portal →",
     vetCardHeading: "Manage your clinic anywhere",
     vetCardText: "Comprehensive clinical software for desktop and smartphone. Patient files, official prescriptions, SMS alerts, and secure cloud storage.",
     vetCardAction: "Access Software →",
+    vetSuiteAction: "Open Pro Veterinary Suite →",
 
+    // Showcase Ecosystem
+    ecosystemBadge: "DiaVet Algeria National Ecosystem 🇩🇿",
+    ecosystemTitle: "Community Services & Connected Features",
+    ecosystemSubtitle: "Beyond clinical healthcare: adopt rescued animals, access the verified pet store, and shape DiaVet's future.",
+    adoptionCardTitle: "Responsible Adoption",
+    adoptionCardTag: "DZ Animal Solidarity",
+    adoptionCardDesc: "Vaccinated, dewormed, and sterilized puppies, kittens, and rescue pets across 58 wilayas with zero retail fees.",
+    marketplaceCardTitle: "Pet Shop & Veterinary Pharmacy",
+    marketplaceCardTag: "Care & Supplies",
+    marketplaceCardDesc: "Premium nutrition, Seresto and Frontline antiparasitics in Algerian Dinars (DZD), and future groomer & ambulance bookings.",
+    ideasCardTitle: "Community Feedback & Ideas Box",
+    ideasCardTag: "Co-Creation",
+    ideasCardDesc: "Submit your feature ideas, give 5-star ratings, and vote on the highest priority updates for Algerian pet owners and doctors.",
+    badgesCardTitle: "Forge Badges & Health Milestones",
+    badgesCardTag: "🏆 Badge Forge & Gamification",
+    badgesCardDesc: "Design your custom holographic badges, personalize your profile, and track your pet's vaccination milestones.",
+    vetBannerTitle: "Clinic Management & Certified Digital Prescriptions",
+    vetBannerTag: "🩺 Pro Veterinary Clinical Suite",
+    vetBannerDesc: "Chronological medical records, secure QR-stamped prescriptions, and intelligent client waiting queue.",
+
+    // Space Tags
     tagAppt: "Appt",
     tagHealth: "Health",
     tagUrgency: "Emergency",
@@ -335,6 +405,7 @@ export const translations: Record<Language, Record<string, string>> = {
     tagStock: "Inventory",
     tagCloud: "DZ Cloud",
 
+    // Questionnaire Common
     qStep: "Step",
     qOf: "of",
     qEstimatedTime: "Estimated time: 3 to 5 minutes",
@@ -345,6 +416,7 @@ export const translations: Record<Language, Record<string, string>> = {
     btnReturnHome: "Return to Home",
     btnPreviewPortal: "Preview My Portal",
 
+    // Owner Questionnaire
     qOwnerIntroTitle: "Pet Owner Survey",
     qOwnerIntroDesc: "Help us shape the ideal companion animal application for Algeria. Your feedback directly determines our upcoming roadmap.",
     qAnimalTitle: "What animal companions do you care for?",
@@ -384,11 +456,13 @@ export const translations: Record<Language, Record<string, string>> = {
     feat4: "24/7 emergency veterinary directory across Algeria",
     feat5: "Nutrition tips and urgent first-aid guides",
 
+    // Thanks Screen
     thanksTitle: "Thank you for your valuable insight!",
     thanksSubtitle: "Your responses guide our engineering to match the exact needs of pet owners in Algeria.",
     passportTitle: "Your future DiaVet Digital Passport",
     readyLabel: "Ready for the official launch in Algeria",
 
+    // Vet Questionnaire
     qVetIntroTitle: "Veterinary Practitioner Needs Assessment",
     qVetIntroDesc: "Are you a licensed veterinarian in Algeria? Help create the first digital clinical suite built specifically for local practice realities.",
     qPracticeTypeTitle: "What is your primary mode of practice?",
@@ -417,6 +491,7 @@ export const translations: Record<Language, Record<string, string>> = {
     vfeat4: "Pharmacy stock tracking with expiration warnings",
     vfeat5: "Revenue reporting and billing in Algerian Dinars (DZD)",
 
+    // Stats bar
     statCloud: "Algeria Cloud",
     statCloudDesc: "Fast, sovereign local hosting",
     statSec: "SSL Encryption",
@@ -426,6 +501,7 @@ export const translations: Record<Language, Record<string, string>> = {
     statLocal: "100% DZ",
     statLocalDesc: "Tailored to Algerian standards",
 
+    // Directory
     directoryTitle: "Algerian Veterinary & Emergency Directory",
     directorySubtitle: "Quickly locate an open veterinary clinic or 24/7 on-call hospital near you.",
     allWilayas: "All Wilayas",
@@ -434,6 +510,7 @@ export const translations: Record<Language, Record<string, string>> = {
     statusOpen: "Currently Open",
     status24h: "24/7 On-Call Care",
 
+    // Success State
     successTitleOwner: "Registration & VIP Pass Activated!",
     successTitleVet: "Accreditation & Clinical Suite Unlocked!",
     successSubtitleOwner: "Congratulations! Your official profile and digital health passport are set.",
@@ -445,6 +522,7 @@ export const translations: Record<Language, Record<string, string>> = {
   },
 
   ar: {
+    // Brand & Header
     brandSubtitle: "المنظومة الرقمية البيطرية في الجزائر",
     dzBadge: "قيد التطوير · الجزائر 🇩🇿",
     navHome: "الرئيسية",
@@ -460,11 +538,20 @@ export const translations: Record<Language, Record<string, string>> = {
     navAdoption: "تبني حيوانات",
     navMarketplace: "متجر الحيوانات",
     navIdeas: "صندوق الأفكار",
+    navVideos: "فيديوهات TV 🎬",
     switchDevice: "شاشة آيفون",
     switchFull: "شاشة كاملة",
     musicOn: "تشغيل الموسيقى",
     musicMute: "صامت",
+    inDev: "قيد التطوير",
+    login: "تسجيل الدخول",
+    logout: "خروج",
+    memberSpace: "فضاء DiaVet للأعضاء",
+    notConnected: "غير متصل",
+    changeLang: "تغيير اللغة",
+    ambientAudio: "الموسيقى التصويرية",
 
+    // Onboarding Gateway
     onboardingOfficialPortal: "بوابة الدخول الرسمية · الجزائر 🇩🇿",
     onboardingMandatoryNotice: "🔒 المرحلة 1 من 2 : التسجيل الأولي الإجباري",
     onboardingGiftLockedNotice: "🎁 هدية مفاجأة : سيقدم لك قط DiaVet باقة هدايا مفاجأة ودعوة VIP للحصول على نسخة التطبيق قبل الإطلاق فور إتمام الاستبيان !",
@@ -514,6 +601,7 @@ export const translations: Record<Language, Record<string, string>> = {
     onboardingBonusReward: "مكافأة التسجيل المؤكد :",
     onboardingBonusPoints: "نقاط VIP مفعلة",
 
+    // Hero Section
     heroMainTitle1: "رابط واحد،",
     heroMainTitle2: "صحة واحدة",
     heroSubtitle: "منصة رقمية موحدة للارتقاء بصحة الحيوان في الجزائر. تجمع DiaVet بين أصحاب الحيوانات والأطباء البيطريين في بيئة ذكية وآمنة.",
@@ -523,6 +611,7 @@ export const translations: Record<Language, Record<string, string>> = {
     badgeAnimalHealth: "صحة الحيوان",
     badgeQuote: "« لأنهم يستحقون الأفضل دائماً »",
 
+    // Role Selection
     roleTitle: "من أنت ؟",
     roleSubtitle: "اختر ملفك الشخصي للدخول إلى فضائك المخصص والمساهمة في بناء المنصة.",
     roleOwnerTag: "فضاء المربي",
@@ -532,13 +621,39 @@ export const translations: Record<Language, Record<string, string>> = {
     roleVetTitle: "أنا طبيب بيطري ممارس",
     roleVetDesc: "إدارة عيادتك من أي مكان: ملفات المرضى، الوصفات الطبية، المواعيد ومخزون الأدوية.",
 
+    // Spaces Cards
+    spacesHeading: "فضاء المربي وفضاء الطبيب البيطري Pro",
+    spacesSubheading: "القطبان الرئيسيان لمنصة DiaVet الجزائر",
+    spacesDesc: "منصة رقمية تجمع بين مربي الحيوانات والأطباء البيطريين في 58 ولاية جزائرية.",
     ownerCardHeading: "اعتنِ بحيوانك الأليف بكل ثقة",
     ownerCardText: "تابع صحته بدقة، احجز موعدك عند الطبيب البيطري، واستفد من نصائح طبية موثوقة وأرقام الطوارئ في الجزائر.",
     ownerCardAction: "اكتشف الفضاء ←",
     vetCardHeading: "أدِر عيادتك البيطرية من أي مكان",
     vetCardText: "برنامج بيطري متكامل يعمل على الكمبيوتر والهاتف. ملفات طبية، وصفات مطابقة للمعايير، وتنبيهات تلقائية.",
     vetCardAction: "الدخول إلى البرنامج ←",
+    vetSuiteAction: "فتح البرنامج الطبي البيطري Pro ←",
 
+    // Showcase Ecosystem
+    ecosystemBadge: "المنظومة الوطنية DiaVet الجزائر 🇩🇿",
+    ecosystemTitle: "خدمات تضامنية وميزات متطورة",
+    ecosystemSubtitle: "أكثر من مجرد صحة بيطرية: تبنَّ حيوانات تم إنقاذها، تسوق من المتجر البيطري الرسمي، وشارك برأيك لتطوير المنصة.",
+    adoptionCardTitle: "تبني حيوانات مسؤولة",
+    adoptionCardTag: "تضامن الحيوان في الجزائر",
+    adoptionCardDesc: "جراء، قطط صغيرة وحيوانات تم إنقاذها ملقحة ومعقمة في 58 ولاية دون أي رسوم تجارية.",
+    marketplaceCardTitle: "متجر الحيوانات والصيدلية البيطرية",
+    marketplaceCardTag: "المتجر والعناية",
+    marketplaceCardDesc: "تغذية ممتازة ومضادات الطفيليات بالدينار الجزائري (DZD)، مع حجز خدمات الترويض والإسعاف البيطري.",
+    ideasCardTitle: "صندوق الأفكار وتقييم المجتمع",
+    ideasCardTag: "البناء المشترك",
+    ideasCardDesc: "اقترح ميزات جديدة، قيّم المنصة بـ 5 نجوم وصوت على أولويات التطوير لأصحاب الحيوانات والأطباء.",
+    badgesCardTitle: "اصنع أوسمتك ومحطات الصحة",
+    badgesCardTag: "🏆 ورشة الأوسمة والتحفيز",
+    badgesCardDesc: "صمم أوسمتك الهولوغرافية المخصصة، خصص ملفك الشخصي وتابع تلقيحات حيوانك عبر الولايات.",
+    vetBannerTitle: "إدارة العيادة والوصفات الطبية المعتمدة",
+    vetBannerTag: "🩺 المنظومة السريرية البيطرية Pro",
+    vetBannerDesc: "ملفات طبية تسلسلية، توليد وصفات مع رمز QR رسمي وطابور انتظار ذكي للمرضى.",
+
+    // Space Tags
     tagAppt: "المواعيد",
     tagHealth: "الصحة",
     tagUrgency: "طوارئ",
@@ -550,6 +665,7 @@ export const translations: Record<Language, Record<string, string>> = {
     tagStock: "المخزون",
     tagCloud: "سحابة جزائرية",
 
+    // Questionnaire Common
     qStep: "المرحلة",
     qOf: "من",
     qEstimatedTime: "الوقت المقدر: 3 إلى 5 دقائق",
@@ -560,6 +676,7 @@ export const translations: Record<Language, Record<string, string>> = {
     btnReturnHome: "العودة للرئيسية",
     btnPreviewPortal: "معاينة فضاء الحساب",
 
+    // Owner Questionnaire
     qOwnerIntroTitle: "استبيان أصحاب ومربي الحيوانات",
     qOwnerIntroDesc: "ساعدنا في تصميم التطبيق المثالي لرعاية رفقائك في الجزائر. ملاحظاتك توجه أولويات التطوير مباشرة.",
     qAnimalTitle: "ما نوع الحيوان الذي تربيه ؟",
@@ -599,11 +716,13 @@ export const translations: Record<Language, Record<string, string>> = {
     feat4: "دليل طوارئ بيطرية على مدار 24 ساعة في الجزائر",
     feat5: "إرشادات التغذية السليمة والإسعافات الأولية",
 
+    // Thanks Screen
     thanksTitle: "شكراً جزيلاً لمشاركتك القيمة !",
     thanksSubtitle: "إجاباتك تساهم في بناء منصة مخصصة تلبي احتياجات واقع الميدان البيطري في الجزائر.",
     passportTitle: "جواز السفر الرقمي المستقبلي DiaVet",
     readyLabel: "جاهز للإطلاق الرسمي في الجزائر",
 
+    // Vet Questionnaire
     qVetIntroTitle: "استبيان تشخيص احتياجات الأطباء البيطريين",
     qVetIntroDesc: "هل أنت دكتور بيطري ممارس في الجزائر؟ شارك في تطوير أول برنامج طبي رقمي مصمم خصيصاً للممارسين الجزائريين.",
     qPracticeTypeTitle: "ما هو نمط ممارستك الأساسي ؟",
@@ -632,6 +751,7 @@ export const translations: Record<Language, Record<string, string>> = {
     vfeat4: "إدارة الصيدلية ومخزون اللقاحات وتواريخ الصلاحية",
     vfeat5: "إحصائيات النشاط والفوترة بالدينار الجزائري (DZD)",
 
+    // Stats bar
     statCloud: "سحابة جزائرية",
     statCloudDesc: "استضافة سريعة ومحمية محلياً",
     statSec: "تشفير SSL",
@@ -641,6 +761,7 @@ export const translations: Record<Language, Record<string, string>> = {
     statLocal: "100% جزائري",
     statLocalDesc: "مصمم خصيصاً للواقع الجزائري",
 
+    // Directory
     directoryTitle: "دليل العيادات البيطرية وطوارئ الجزائر",
     directorySubtitle: "اعثر بسرعة على طبيب بيطري أو مركز مناوبة مفتوح بالقرب منك.",
     allWilayas: "جميع الولايات",
@@ -649,6 +770,7 @@ export const translations: Record<Language, Record<string, string>> = {
     statusOpen: "مفتوح حالياً",
     status24h: "خدمة طوارئ 24/7",
 
+    // Success State
     successTitleOwner: "تم تفعيل التسجيل وبطاقة VIP بنجاح !",
     successTitleVet: "تم تفعيل الاعتماد والبرنامج الطبي بنجاح !",
     successSubtitleOwner: "تهانينا ! ملفك الرسمي والدفتر الصحي الرقمي لحيوانك جاهزان الآن.",

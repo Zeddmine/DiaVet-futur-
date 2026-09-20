@@ -36,6 +36,7 @@ export default function OnboardingGateway({
 }: OnboardingGatewayProps) {
   const t = translations[currentLang] || translations.fr;
   const isRtl = currentLang === 'ar';
+  const isEn = currentLang === 'en';
 
   // Mode: 'register' (Form) | 'verification' (Code Email) | 'login' (Connexion)
   const [authMode, setAuthMode] = useState<'register' | 'verification' | 'login'>('register');
@@ -87,6 +88,8 @@ export default function OnboardingGateway({
     if (isEmailAlreadyRegistered(trimmed)) {
       const msg = isRtl
         ? "⚠️ هذا البريد الإلكتروني مسجل بالفعل في منصة DiaVet الجزائر! يرجى تسجيل الدخول أو إدخال بريد إلكتروني جديد."
+        : isEn
+        ? "⚠️ This email address is already registered on DiaVet Algeria! Each account is unique. Please log in or enter a new email address."
         : "⚠️ Cette adresse email est déjà enregistrée sur DiaVet Algérie ! Chaque compte est unique. Veuillez vous connecter ou utiliser une nouvelle adresse email.";
       setEmailDuplicateError(msg);
       soundEngine.playError();
@@ -127,12 +130,24 @@ export default function OnboardingGateway({
     const trimmedPassword = password.trim();
 
     if (!trimmedName || trimmedName.length < 3) {
-      setError(isRtl ? "يرجى كتابة الاسم واللقب الحقيقي (3 أحرف على الأقل)." : "Veuillez renseigner votre nom et prénom réels (au moins 3 caractères).");
+      setError(
+        isRtl 
+          ? "يرجى كتابة الاسم واللقب الحقيقي (3 أحرف على الأقل)." 
+          : isEn 
+          ? "Please provide your real full name (at least 3 characters)." 
+          : "Veuillez renseigner votre nom et prénom réels (au moins 3 caractères)."
+      );
       return;
     }
 
     if (!trimmedEmail || !trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
-      setError(isRtl ? "يرجى إدخال بريد إلكتروني صحيح لاستلام رمز التفعيل." : "Veuillez entrer une adresse email valide pour recevoir votre code de confirmation.");
+      setError(
+        isRtl 
+          ? "يرجى إدخال بريد إلكتروني صحيح لاستلام رمز التفعيل." 
+          : isEn 
+          ? "Please enter a valid email address to receive your confirmation code." 
+          : "Veuillez entrer une adresse email valide pour recevoir votre code de confirmation."
+      );
       return;
     }
 
@@ -140,6 +155,8 @@ export default function OnboardingGateway({
     if (isEmailAlreadyRegistered(trimmedEmail)) {
       const msg = isRtl
         ? "⚠️ هذا البريد الإلكتروني مسجل بالفعل في منصة DiaVet! لا يمكن استخدامه مرتين. يرجى استخدام عنوان بريد إلكتروني جديد أو تسجيل الدخول."
+        : isEn
+        ? "⚠️ This email address is already registered on DiaVet Algeria! Each account is unique. Please use a NEW EMAIL ADDRESS or log in."
         : "⚠️ Cette adresse email est déjà enregistrée sur DiaVet Algérie ! Chaque compte est unique. Veuillez utiliser une NOUVELLE ADRESSE EMAIL ou vous connecter.";
       setEmailDuplicateError(msg);
       setError(msg);
@@ -148,22 +165,45 @@ export default function OnboardingGateway({
     }
 
     if (!isValidAlgerianPhone(trimmedPhone)) {
-      setError(isRtl ? "يرجى إدخال رقم هاتف جزائري صحيح (مثال: 0550123456)." : "Veuillez entrer un numéro de téléphone algérien valide (ex: 0550123456, 0661..., 0770...).");
+      setError(
+        isRtl 
+          ? "يرجى إدخال رقم هاتف جزائري صحيح (مثال: 0550123456)." 
+          : isEn 
+          ? "Please enter a valid Algerian phone number (e.g., 0550123456, 0661..., 0770...)." 
+          : "Veuillez entrer un numéro de téléphone algérien valide (ex: 0550123456, 0661..., 0770...).");
       return;
     }
 
     if (!trimmedPassword || trimmedPassword.length < 3) {
-      setError(isRtl ? "يرجى تحديد كلمة مرور أو رمز PIN سري (3 خانات على الأقل)." : "Veuillez définir un mot de passe ou code PIN de sécurité (au moins 3 caractères).");
+      setError(
+        isRtl 
+          ? "يرجى تحديد كلمة مرور أو رمز PIN سري (3 خانات على الأقل)." 
+          : isEn 
+          ? "Please set a password or security PIN code (at least 3 characters)." 
+          : "Veuillez définir un mot de passe ou code PIN de sécurité (au moins 3 caractères)."
+      );
       return;
     }
 
     if (role === 'owner' && !petName.trim()) {
-      setError(isRtl ? "يرجى كتابة اسم حيوانك الأليف." : "Veuillez indiquer le nom de votre animal de compagnie.");
+      setError(
+        isRtl 
+          ? "يرجى كتابة اسم حيوانك الأليف." 
+          : isEn 
+          ? "Please indicate your pet's name." 
+          : "Veuillez indiquer le nom de votre animal de compagnie."
+      );
       return;
     }
 
     if (role === 'vet' && !clinicName.trim()) {
-      setError(isRtl ? "يرجى كتابة اسم العيادة أو المكتب البيطري." : "Veuillez indiquer le nom de votre cabinet ou clinique vétérinaire.");
+      setError(
+        isRtl 
+          ? "يرجى كتابة اسم العيادة أو المكتب البيطري." 
+          : isEn 
+          ? "Please enter your clinic or veterinary practice name." 
+          : "Veuillez indiquer le nom de votre cabinet ou clinique vétérinaire."
+      );
       return;
     }
 
@@ -207,13 +247,19 @@ export default function OnboardingGateway({
 
     const cleanCode = verificationCode.trim().replace(/\s+/g, '');
     if (!cleanCode || cleanCode.length !== 6) {
-      setError(isRtl ? "يرجى إدخال رمز التحقق المكون من 6 أرقام." : "Veuillez saisir le code de vérification à 6 chiffres reçu par email.");
+      setError(
+        isRtl 
+          ? "يرجى إدخال رمز التحقق المكون من 6 أرقام." 
+          : isEn 
+          ? "Please enter the 6-digit verification code received by email." 
+          : "Veuillez saisir le code de vérification à 6 chiffres reçu par email."
+      );
       soundEngine.playError();
       return;
     }
 
     setIsSubmitting(true);
-    const result = verifyEmailCode(email, cleanCode);
+    const result = verifyEmailCode(email, cleanCode, currentLang);
 
     if (!result.success || !result.account) {
       setIsSubmitting(false);
@@ -259,12 +305,24 @@ export default function OnboardingGateway({
     const trimmedPass = loginPassword.trim();
 
     if (!trimmedEmail || !trimmedEmail.includes('@')) {
-      setError(isRtl ? "يرجى إدخال عنوان بريدك الإلكتروني المسجل." : "Veuillez renseigner votre adresse email enregistrée.");
+      setError(
+        isRtl 
+          ? "يرجى إدخال عنوان بريدك الإلكتروني المسجل." 
+          : isEn 
+          ? "Please enter your registered email address." 
+          : "Veuillez renseigner votre adresse email enregistrée."
+      );
       return;
     }
 
     if (!trimmedPass) {
-      setError(isRtl ? "يرجى كتابة كلمة المرور الخاصة بك." : "Veuillez entrer votre mot de passe ou code PIN.");
+      setError(
+        isRtl 
+          ? "يرجى كتابة كلمة المرور الخاصة بك." 
+          : isEn 
+          ? "Please enter your password or PIN code." 
+          : "Veuillez entrer votre mot de passe ou code PIN."
+      );
       return;
     }
 
@@ -276,6 +334,8 @@ export default function OnboardingGateway({
       setError(
         isRtl
           ? "هذا البريد الإلكتروني غير مسجل بعد في منصة DiaVet. يرجى إنشاء حساب جديد."
+          : isEn
+          ? "No account found with this email address. Please create an account below."
           : "Aucun compte n'a été trouvé avec cette adresse email. Veuillez créer un compte ci-dessous."
       );
       soundEngine.playError();
@@ -322,7 +382,9 @@ export default function OnboardingGateway({
         isVip: true,
         isOwner: isOwnerEmail,
         points: verifiedAccount.points || (verifiedAccount.role === 'vet' ? 250 : 150),
-        badgeTitle: verifiedAccount.role === 'vet' ? 'Docteur Vétérinaire Agréé DZ' : 'Membre VIP Fondateur DZ',
+        badgeTitle: verifiedAccount.role === 'vet' 
+          ? (isRtl ? 'طبيب بيطري معتمد في الجزائر' : isEn ? 'Licensed DZ Veterinarian' : 'Docteur Vétérinaire Agréé DZ') 
+          : (isRtl ? 'عضو VIP مؤسس بالجزائر' : isEn ? 'DZ Founding VIP Member' : 'Membre VIP Fondateur DZ'),
         vipCode: verifiedAccount.vipCode
       };
       onRegister(profile, verifiedAccount.role);
@@ -363,7 +425,7 @@ export default function OnboardingGateway({
                 DiaVet Algérie 🇩🇿
               </span>
               <span className="text-[10px] text-slate-400 font-medium">
-                {isRtl ? "التسجيل الرسمي وتأكيد الحساب" : "Inscription Réelle & Vérifiée"}
+                {isRtl ? "التسجيل الرسمي وتأكيد الحساب" : isEn ? "Official & Verified Registration" : "Inscription Réelle & Vérifiée"}
               </span>
             </div>
           </div>
@@ -411,10 +473,10 @@ export default function OnboardingGateway({
                   onClose();
                 }}
                 className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 text-xs flex items-center gap-1 transition-all cursor-pointer shrink-0"
-                title={isRtl ? "إغلاق واستكشاف المنصة" : "Fermer et visiter"}
+                title={isRtl ? "إغلاق واستكشاف المنصة" : isEn ? "Close and explore platform" : "Fermer et visiter"}
               >
-                <X className="w-4 h-4" />
-                <span className="hidden sm:inline text-[11px] font-semibold">{isRtl ? "إغلاق" : "Visiter"}</span>
+                <span className="text-xs">✕</span>
+                <span className="hidden sm:inline text-[11px] font-semibold">{isRtl ? "إغلاق" : isEn ? "Explore" : "Visiter"}</span>
               </button>
             )}
           </div>
@@ -438,7 +500,7 @@ export default function OnboardingGateway({
               }`}
             >
               <UserPlus className="w-4 h-4" />
-              <span>{isRtl ? 'حساب جديد حقيقي' : 'Créer un compte'}</span>
+              <span>{isRtl ? 'حساب جديد حقيقي' : isEn ? 'Create Account' : 'Créer un compte'}</span>
             </button>
 
             <button
@@ -456,7 +518,7 @@ export default function OnboardingGateway({
               }`}
             >
               <LogIn className="w-4 h-4" />
-              <span>{isRtl ? 'تسجيل الدخول' : 'Se connecter'}</span>
+              <span>{isRtl ? 'تسجيل الدخول' : isEn ? 'Log In' : 'Se connecter'}</span>
             </button>
           </div>
         )}
@@ -476,12 +538,17 @@ export default function OnboardingGateway({
                 <Mail className="w-7 h-7 animate-bounce" />
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-white">
-                {isRtl ? "تأكيد الحساب عبر رمز البريد الإلكتروني" : "Confirmation de votre Compte par Email"}
+                {isRtl ? "تأكيد الحساب عبر رمز البريد الإلكتروني" : isEn ? "Email Account Verification" : "Confirmation de votre Compte par Email"}
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
                 {isRtl ? (
                   <>
                     لقد أرسلنا رمز تأكيد سري مكون من 6 أرقام إلى بريدك الإلكتروني :<br />
+                    <span className="font-bold text-cyan-300 font-mono bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30 inline-block mt-1">{email}</span>
+                  </>
+                ) : isEn ? (
+                  <>
+                    We sent a secure 6-digit confirmation code to:<br />
                     <span className="font-bold text-cyan-300 font-mono bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30 inline-block mt-1">{email}</span>
                   </>
                 ) : (
@@ -498,17 +565,24 @@ export default function OnboardingGateway({
               <div className="flex items-center justify-between pb-2 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="font-bold text-white">Notification de l'Email Envoyé 📬</span>
+                  <span className="font-bold text-white">
+                    {isRtl ? "إشعار البريد الإلكتروني المرسل 📬" : isEn ? "Email Dispatch Notification 📬" : "Notification de l'Email Envoyé 📬"}
+                  </span>
                 </div>
                 <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/15 px-2 py-0.5 rounded">
-                  Expéditeur: contact@diavet.com
+                  {isRtl ? "المرسل: contact@diavet.com" : isEn ? "Sender: contact@diavet.com" : "Expéditeur: contact@diavet.com"}
                 </span>
               </div>
               
               <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
-                  <p className="text-[11px] text-slate-400">Objet : <strong className="text-white">DiaVet Algérie — Votre code de confirmation : {dispatchedCode}</strong></p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Code temporaire valable 15 minutes.</p>
+                  <p className="text-[11px] text-slate-400">
+                    {isRtl ? "الموضوع : " : isEn ? "Subject: " : "Objet : "}
+                    <strong className="text-white">DiaVet Algérie — {isRtl ? "رمز التأكيد الخاص بك : " : isEn ? "Your confirmation code: " : "Votre code de confirmation : "} {dispatchedCode}</strong>
+                  </p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    {isRtl ? "رمز مؤقت صالح لمدة 15 دقيقة." : isEn ? "Temporary code valid for 15 minutes." : "Code temporaire valable 15 minutes."}
+                  </p>
                 </div>
                 {dispatchedCode && (
                   <button
@@ -522,7 +596,11 @@ export default function OnboardingGateway({
                     className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-300 font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer shrink-0"
                   >
                     <Copy className="w-3.5 h-3.5" />
-                    <span>{copiedCode ? (isRtl ? "تم النسخ بنجاح!" : "Code recopié !") : (isRtl ? "نسخ الرمز تلقائياً" : `Insérer le code (${dispatchedCode})`)}</span>
+                    <span>
+                      {copiedCode 
+                        ? (isRtl ? "تم النسخ بنجاح!" : isEn ? "Code copied!" : "Code recopié !") 
+                        : (isRtl ? `نسخ الرمز (${dispatchedCode})` : isEn ? `Insert code (${dispatchedCode})` : `Insérer le code (${dispatchedCode})`)}
+                    </span>
                   </button>
                 )}
               </div>
@@ -532,7 +610,7 @@ export default function OnboardingGateway({
             <form onSubmit={handleVerifyCodeSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5 text-center">
-                  {isRtl ? "أدخل الرمز المكون من 6 أرقام هنا :" : "Saisissez les 6 chiffres du code ici :"}
+                  {isRtl ? "أدخل الرمز المكون من 6 أرقام هنا :" : isEn ? "Enter the 6-digit code here:" : "Saisissez les 6 chiffres du code ici :"}
                 </label>
                 <div className="flex justify-center">
                   <input
@@ -570,7 +648,11 @@ export default function OnboardingGateway({
                 }`}
               >
                 <CheckCircle2 className="w-5 h-5" />
-                <span>{isSubmitting ? (isRtl ? "جاري التحقق..." : "Vérification...") : (isRtl ? "تأكيد الحساب وتفعيل الـ VIP 🇩🇿" : "Confirmer mon Compte & Débloquer le VIP 🇩🇿")}</span>
+                <span>
+                  {isSubmitting 
+                    ? (isRtl ? "جاري التحقق..." : isEn ? "Verifying..." : "Vérification...") 
+                    : (isRtl ? "تأكيد الحساب وتفعيل الـ VIP 🇩🇿" : isEn ? "Confirm Account & Unlock VIP Pass 🇩🇿" : "Confirmer mon Compte & Débloquer le VIP 🇩🇿")}
+                </span>
               </button>
 
               {/* Action Buttons : Resend Code & Change Email */}
@@ -586,8 +668,8 @@ export default function OnboardingGateway({
                   <RefreshCw className={`w-3.5 h-3.5 ${isResendDisabled ? '' : 'hover:rotate-180 transition-transform'}`} />
                   <span>
                     {isResendDisabled
-                      ? (isRtl ? `إعادة الإرسال بعد (${resendCountdown} ث)` : `Renvoyer le code (${resendCountdown}s)`)
-                      : (isRtl ? "إعادة إرسال الرمز الآن" : "Renvoyer un nouveau code")}
+                      ? (isRtl ? `إعادة الإرسال بعد (${resendCountdown} ث)` : isEn ? `Resend code (${resendCountdown}s)` : `Renvoyer le code (${resendCountdown}s)`)
+                      : (isRtl ? "إعادة إرسال الرمز الآن" : isEn ? "Resend a new code" : "Renvoyer un nouveau code")}
                   </span>
                 </button>
 
@@ -600,7 +682,7 @@ export default function OnboardingGateway({
                   }}
                   className="text-slate-400 hover:text-white underline cursor-pointer"
                 >
-                  {isRtl ? "تغيير البريد الإلكتروني" : "Corriger mon email"}
+                  {isRtl ? "تغيير البريد الإلكتروني" : isEn ? "Change email address" : "Corriger mon email"}
                 </button>
               </div>
             </form>
@@ -616,7 +698,7 @@ export default function OnboardingGateway({
             {/* Role Switcher (Propriétaire vs Vétérinaire) */}
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-2">
-                {isRtl ? "نوع العضوية المطلوبة :" : "Votre profil d'inscription :"}
+                {isRtl ? "نوع العضوية المطلوبة :" : isEn ? "Select your profile type:" : "Votre profil d'inscription :"}
               </label>
               <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
@@ -635,8 +717,8 @@ export default function OnboardingGateway({
                     <Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-rose-500/30" />
                   </div>
                   <div>
-                    <div className="text-xs font-black text-white">{isRtl ? "مربي حيوان أليف" : "Propriétaire"}</div>
-                    <div className="text-[10px] text-slate-400">{isRtl ? "كلب، قط، خيل..." : "Carnet & Soins"}</div>
+                    <div className="text-xs font-black text-white">{isRtl ? "مربي حيوان أليف" : isEn ? "Pet Owner" : "Propriétaire"}</div>
+                    <div className="text-[10px] text-slate-400">{isRtl ? "كلب، قط، خيل..." : isEn ? "Passport & Care" : "Carnet & Soins"}</div>
                   </div>
                 </button>
 
@@ -657,10 +739,10 @@ export default function OnboardingGateway({
                   </div>
                   <div>
                     <div className="text-xs font-black text-white flex items-center gap-1">
-                      <span>{isRtl ? "طبيب بيطري" : "Vétérinaire"}</span>
+                      <span>{isRtl ? "طبيب بيطري" : isEn ? "Veterinarian" : "Vétérinaire"}</span>
                       <span className="text-[9px] px-1 py-0.2 bg-emerald-400 text-slate-950 font-black rounded">PRO</span>
                     </div>
-                    <div className="text-[10px] text-slate-400">{isRtl ? "عيادة، صيدلية..." : "Cabinet & Réseau"}</div>
+                    <div className="text-[10px] text-slate-400">{isRtl ? "عيادة، صيدلية..." : isEn ? "Clinic & Practice" : "Cabinet & Réseau"}</div>
                   </div>
                 </button>
               </div>
@@ -672,14 +754,14 @@ export default function OnboardingGateway({
               {/* Full Name */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">
-                  {isRtl ? "الاسم واللقب الحقيقي *" : "Nom & Prénom réels *"}
+                  {isRtl ? "الاسم واللقب الحقيقي *" : isEn ? "Full Legal Name *" : "Nom & Prénom réels *"}
                 </label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder={role === 'vet' ? 'Ex: Dr. Amina Benali' : 'Ex: Karim Mansouri'}
+                  placeholder={role === 'vet' ? (isRtl ? 'مثال: د. أمينة بن علي' : isEn ? 'E.g., Dr. Amina Benali' : 'Ex: Dr. Amina Benali') : (isRtl ? 'مثال: كريم منصوري' : isEn ? 'E.g., Karim Mansouri' : 'Ex: Karim Mansouri')}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
                 />
               </div>
@@ -688,9 +770,9 @@ export default function OnboardingGateway({
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-bold text-slate-300">
-                    {isRtl ? "البريد الإلكتروني الحقيقي (لاستلام رمز التفعيل) *" : "Adresse Email Réelle (pour recevoir le code) *"}
+                    {isRtl ? "البريد الإلكتروني الحقيقي (لاستلام رمز التفعيل) *" : isEn ? "Real Email Address (to receive code) *" : "Adresse Email Réelle (pour recevoir le code) *"}
                   </label>
-                  <span className="text-[10px] text-cyan-400 font-mono">1 Compte = 1 Email</span>
+                  <span className="text-[10px] text-cyan-400 font-mono">{isRtl ? "1 حساب = 1 بريد" : isEn ? "1 Account = 1 Email" : "1 Compte = 1 Email"}</span>
                 </div>
                 
                 <input
@@ -733,7 +815,7 @@ export default function OnboardingGateway({
                         }}
                         className="px-2.5 py-1 rounded-lg bg-rose-500/30 hover:bg-rose-500/50 text-white font-bold text-[11px] cursor-pointer"
                       >
-                        {isRtl ? "تسجيل الدخول بهذا البريد" : "Se connecter avec cet email"}
+                        {isRtl ? "تسجيل الدخول بهذا البريد" : isEn ? "Log in with this email" : "Se connecter avec cet email"}
                       </button>
                       <button
                         type="button"
@@ -743,7 +825,7 @@ export default function OnboardingGateway({
                         }}
                         className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-medium text-[11px] cursor-pointer"
                       >
-                        {isRtl ? "كتابة بريد جديد" : "Saisir une autre adresse"}
+                        {isRtl ? "كتابة بريد جديد" : isEn ? "Enter another email" : "Saisir une autre adresse"}
                       </button>
                     </div>
                   </motion.div>
@@ -754,7 +836,7 @@ export default function OnboardingGateway({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1">
-                    {isRtl ? "رقم الهاتف الجزائري *" : "Téléphone Algérie (05/06/07) *"}
+                    {isRtl ? "رقم الهاتف الجزائري *" : isEn ? "Algerian Phone (05/06/07) *" : "Téléphone Algérie (05/06/07) *"}
                   </label>
                   <input
                     type="tel"
@@ -768,7 +850,7 @@ export default function OnboardingGateway({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-300 mb-1">
-                    {isRtl ? "الولاية (58 ولاية) *" : "Wilaya (58 Wilayas) *"}
+                    {isRtl ? "الولاية (58 ولاية) *" : isEn ? "Wilaya (58 Wilayas) *" : "Wilaya (58 Wilayas) *"}
                   </label>
                   <select
                     value={wilaya}
@@ -789,31 +871,31 @@ export default function OnboardingGateway({
                 <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <div className="sm:col-span-1">
                     <label className="block text-[11px] font-bold text-rose-300 mb-1">
-                      {isRtl ? "نوع الحيوان" : "Espèce"}
+                      {isRtl ? "نوع الحيوان" : isEn ? "Species" : "Espèce"}
                     </label>
                     <select
                       value={petType}
                       onChange={(e) => setPetType(e.target.value)}
                       className="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-white/15 text-xs text-white"
                     >
-                      <option value="Chat">Chat 🐱</option>
-                      <option value="Chien">Chien 🐶</option>
-                      <option value="Cheval">Cheval 🐴</option>
-                      <option value="Oiseau">Oiseau 🦜</option>
-                      <option value="Bovin / Ovin">Bovin / Ovin 🐑</option>
+                      <option value="Chat">{isRtl ? 'قط 🐱' : isEn ? 'Cat 🐱' : 'Chat 🐱'}</option>
+                      <option value="Chien">{isRtl ? 'كلب 🐶' : isEn ? 'Dog 🐶' : 'Chien 🐶'}</option>
+                      <option value="Cheval">{isRtl ? 'خيل 🐴' : isEn ? 'Horse 🐴' : 'Cheval 🐴'}</option>
+                      <option value="Oiseau">{isRtl ? 'طائر 🦜' : isEn ? 'Bird 🦜' : 'Oiseau 🦜'}</option>
+                      <option value="Bovin / Ovin">{isRtl ? 'مواشي 🐑' : isEn ? 'Livestock 🐑' : 'Bovin / Ovin 🐑'}</option>
                     </select>
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className="block text-[11px] font-bold text-rose-300 mb-1">
-                      {isRtl ? "اسم الحيوان الأليف *" : "Nom de votre animal *"}
+                      {isRtl ? "اسم الحيوان الأليف *" : isEn ? "Pet's Name *" : "Nom de votre animal *"}
                     </label>
                     <input
                       type="text"
                       required
                       value={petName}
                       onChange={(e) => setPetName(e.target.value)}
-                      placeholder="Ex: Simba, Maya, Rex..."
+                      placeholder={isRtl ? "مثال: سيمبا، ريكس، مايا..." : isEn ? "E.g., Simba, Maya, Rex..." : "Ex: Simba, Maya, Rex..."}
                       className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/15 text-xs text-white placeholder-slate-500"
                     />
                   </div>
@@ -822,21 +904,21 @@ export default function OnboardingGateway({
                 <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div>
                     <label className="block text-[11px] font-bold text-emerald-300 mb-1">
-                      {isRtl ? "اسم العيادة أو المكتب *" : "Cabinet / Clinique Vétérinaire *"}
+                      {isRtl ? "اسم العيادة أو المكتب *" : isEn ? "Clinic / Practice Name *" : "Cabinet / Clinique Vétérinaire *"}
                     </label>
                     <input
                       type="text"
                       required
                       value={clinicName}
                       onChange={(e) => setClinicName(e.target.value)}
-                      placeholder="Ex: Clinique Al-Chifa"
+                      placeholder={isRtl ? "مثال: عيادة الشفاء البيطرية" : isEn ? "E.g., Al-Chifa Veterinary Clinic" : "Ex: Clinique Al-Chifa"}
                       className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/15 text-xs text-white placeholder-slate-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-[11px] font-bold text-emerald-300 mb-1">
-                      {isRtl ? "رقم الاعتماد أو البلدية" : "N° Ordre ou Commune"}
+                      {isRtl ? "رقم الاعتماد أو البلدية" : isEn ? "ONMV License No. or Municipality" : "N° Ordre ou Commune"}
                     </label>
                     <input
                       type="text"
@@ -852,7 +934,7 @@ export default function OnboardingGateway({
               {/* Password / PIN */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">
-                  {isRtl ? "كلمة المرور أو رمز PIN للحساب *" : "Mot de passe / Code PIN de sécurité *"}
+                  {isRtl ? "كلمة المرور أو رمز PIN للحساب *" : isEn ? "Password / Security PIN *" : "Mot de passe / Code PIN de sécurité *"}
                 </label>
                 <input
                   type="password"
@@ -888,15 +970,19 @@ export default function OnboardingGateway({
                 <Mail className="w-4 h-4" />
                 <span>
                   {isSubmitting
-                    ? (isRtl ? "جاري الإرسال..." : "Génération du code...")
-                    : (isRtl ? "استلام رمز التفعيل عبر البريد الإلكتروني ←" : "Recevoir mon code par email ←")}
+                    ? (isRtl ? "جاري الإرسال..." : isEn ? "Generating code..." : "Génération du code...")
+                    : (isRtl ? "استلام رمز التفعيل عبر البريد الإلكتروني ←" : isEn ? "Receive confirmation code by email →" : "Recevoir mon code par email ←")}
                 </span>
               </button>
             </div>
 
             <div className="text-center pt-1">
               <p className="text-[10px] text-slate-400">
-                🔒 {isRtl ? "بياناتك محمية ورمز التفعيل يُرسل حصرياً إلى بريدك الإلكتروني" : "Sécurité garantie : un code à 6 chiffres vous sera envoyé par email pour valider l'inscription."}
+                🔒 {isRtl 
+                  ? "بياناتك محمية ورمز التفعيل يُرسل حصرياً إلى بريدك الإلكتروني" 
+                  : isEn 
+                  ? "Guaranteed security: a 6-digit code will be sent to your email to verify your registration." 
+                  : "Sécurité garantie : un code à 6 chiffres vous sera envoyé par email pour valider l'inscription."}
               </p>
             </div>
 
@@ -911,30 +997,30 @@ export default function OnboardingGateway({
             
             <div className="text-center pb-2">
               <h3 className="text-lg font-black text-white">
-                {isRtl ? "تسجيل الدخول إلى حسابك DiaVet" : "Connexion à votre Compte DiaVet"}
+                {isRtl ? "تسجيل الدخول إلى حسابك DiaVet" : isEn ? "Log In to your DiaVet Account" : "Connexion à votre Compte DiaVet"}
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                {isRtl ? "أدخل بريدك الإلكتروني المسجل وكلمة المرور" : "Entrez votre email vérifié et votre mot de passe"}
+                {isRtl ? "أدخل بريدك الإلكتروني المسجل وكلمة المرور" : isEn ? "Enter your registered email and password" : "Entrez votre email vérifié et votre mot de passe"}
               </p>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">
-                {isRtl ? "البريد الإلكتروني *" : "Adresse Email *"}
+                {isRtl ? "البريد الإلكتروني *" : isEn ? "Email Address *" : "Adresse Email *"}
               </label>
               <input
                 type="email"
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="Ex: yacine@gmail.com ou mine.mine0100@gmail.com"
+                placeholder={isEn ? "E.g., yacine@gmail.com or mine.mine0100@gmail.com" : "Ex: yacine@gmail.com ou mine.mine0100@gmail.com"}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">
-                {isRtl ? "كلمة المرور / الرمز السري *" : "Mot de passe / Code PIN *"}
+                {isRtl ? "كلمة المرور / الرمز السري *" : isEn ? "Password / PIN Code *" : "Mot de passe / Code PIN *"}
               </label>
               <input
                 type="password"
@@ -959,7 +1045,11 @@ export default function OnboardingGateway({
               className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition-all hover:scale-[1.01] cursor-pointer"
             >
               <LogIn className="w-4 h-4" />
-              <span>{isSubmitting ? (isRtl ? "جاري الدخول..." : "Connexion...") : (isRtl ? "تسجيل الدخول الآن" : "Se connecter")}</span>
+              <span>
+                {isSubmitting 
+                  ? (isRtl ? "جاري الدخول..." : isEn ? "Logging in..." : "Connexion...") 
+                  : (isRtl ? "تسجيل الدخول الآن" : isEn ? "Log In Now" : "Se connecter")}
+              </span>
             </button>
 
             <div className="text-center pt-2">
@@ -972,7 +1062,7 @@ export default function OnboardingGateway({
                 }}
                 className="text-xs text-cyan-400 hover:text-cyan-300 underline cursor-pointer"
               >
-                {isRtl ? "ليس لديك حساب بعد؟ سجل حساباً جديداً هنا" : "Pas encore de compte ? Créer un nouveau compte"}
+                {isRtl ? "ليس لديك حساب بعد؟ سجل حساباً جديداً هنا" : isEn ? "No account yet? Create a new account" : "Pas encore de compte ? Créer un nouveau compte"}
               </button>
             </div>
 
@@ -989,7 +1079,7 @@ export default function OnboardingGateway({
               }}
               className="text-xs text-slate-400 hover:text-cyan-300 transition-colors cursor-pointer py-1"
             >
-              {isRtl ? "← تصفح موقع DiaVet كزائر دون تسجيل" : "← Continuer la visite du site sans connexion"}
+              {isRtl ? "← تصفح موقع DiaVet كزائر دون تسجيل" : isEn ? "← Explore DiaVet platform as a guest" : "← Continuer la visite du site sans connexion"}
             </button>
           </div>
         )}

@@ -65,7 +65,9 @@ export default function Navbar({
   onLogout
 }: NavbarProps) {
   const t = translations[currentLang] || translations.fr;
-  const isRtl = currentLang === 'ar';
+  const isAr = currentLang === 'ar';
+  const isEn = currentLang === 'en';
+  const isRtl = isAr;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleProtectedNav = (screen: AppScreen, featureName: string) => {
@@ -98,21 +100,19 @@ export default function Navbar({
             }} 
             className="flex items-center gap-2.5 sm:gap-3 group text-left cursor-pointer transition-transform active:scale-95 shrink-0"
           >
-            <div className="relative flex items-center justify-center group-hover:scale-105 transition-transform">
-              <DiaVetLogo size="md" />
-            </div>
-            <div className={`flex flex-col ${isRtl ? 'text-right' : 'text-left'}`}>
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-white dark:text-white light:text-slate-900 leading-none">
-                Dia<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Vet</span>
+            <DiaVetLogo size="md" />
+            <div className="flex flex-col">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-white dark:text-white light:text-slate-900 group-hover:text-cyan-400 dark:group-hover:text-cyan-300 light:group-hover:text-cyan-600 transition-colors flex items-center gap-1.5">
+                DiaVet <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">DZ 🇩🇿</span>
               </span>
-              <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 dark:text-slate-400 light:text-slate-500 hidden sm:block">
+              <span className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-400 light:text-slate-500 hidden xs:inline -mt-0.5">
                 {t.brandSubtitle}
               </span>
             </div>
           </button>
 
-          {/* Center Navigation Links (Desktop) */}
-          <nav className="hidden xl:flex items-center gap-3.5 text-xs lg:text-sm font-medium text-slate-300 dark:text-slate-300 light:text-slate-600">
+          {/* Center Navigation Links - Responsive Desktop */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700">
             <button
               id="nav-home-btn"
               onClick={() => {
@@ -126,26 +126,26 @@ export default function Navbar({
               {t.navHome}
             </button>
 
-            {/* SECTION PROPRIÉTAIRE */}
+            {/* DIRECT ACCESS: SECTION PROPRIÉTAIRE */}
             <button
-              id="nav-owner-section-btn"
+              id="nav-owner-space-btn"
               onClick={() => {
                 soundEngine.playCyberClick();
                 onNavigate('owner-portal');
               }}
-              className={`hover:text-rose-300 transition-all py-1 px-2.5 rounded-xl cursor-pointer flex items-center gap-1.5 border ${
+              className={`hover:text-rose-300 transition-all py-1 px-2 rounded-xl cursor-pointer flex items-center gap-1 border ${
                 activeScreen === 'owner-portal'
                   ? 'bg-rose-500/20 text-rose-300 border-rose-400/60 font-black shadow-md shadow-rose-500/20'
-                  : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20'
+                  : 'bg-rose-500/10 text-rose-300 border-rose-500/30 hover:bg-rose-500/20'
               }`}
             >
               <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400/30" />
               <span>{t.navOwnerSpace}</span>
             </button>
 
-            {/* SECTION VÉTÉRINAIRE */}
+            {/* DIRECT ACCESS: SECTION VÉTÉRINAIRE */}
             <button
-              id="nav-vet-section-btn"
+              id="nav-vet-space-btn"
               onClick={() => {
                 soundEngine.playWarpSwitch();
                 onNavigate('vet-portal');
@@ -180,7 +180,7 @@ export default function Navbar({
             {/* Adoption DZ */}
             <button
               id="nav-adoption-btn"
-              onClick={() => handleProtectedNav('adoption', isRtl ? 'تبني الحيوانات' : 'Adoption Solidaire')}
+              onClick={() => handleProtectedNav('adoption', isAr ? 'تبني الحيوانات' : isEn ? 'Solidarity Adoption' : 'Adoption Solidaire')}
               className={`hover:text-rose-400 transition-colors py-1 cursor-pointer flex items-center gap-1.5 ${
                 activeScreen === 'adoption' ? 'text-rose-400 font-bold border-b-2 border-rose-400' : ''
               } ${!hasCompletedQuestionnaire ? 'opacity-60 hover:opacity-100' : ''}`}
@@ -193,7 +193,7 @@ export default function Navbar({
             {/* Marketplace */}
             <button
               id="nav-marketplace-btn"
-              onClick={() => handleProtectedNav('marketplace', isRtl ? 'متجر الحيوانات' : 'Marketplace & Animalerie')}
+              onClick={() => handleProtectedNav('marketplace', isAr ? 'متجر الحيوانات' : isEn ? 'Pet Store & Care' : 'Marketplace & Animalerie')}
               className={`hover:text-emerald-400 transition-colors py-1 cursor-pointer flex items-center gap-1.5 ${
                 activeScreen === 'marketplace' ? 'text-emerald-400 font-bold border-b-2 border-emerald-400' : ''
               } ${!hasCompletedQuestionnaire ? 'opacity-60 hover:opacity-100' : ''}`}
@@ -206,7 +206,7 @@ export default function Navbar({
             {/* Ideas & Community */}
             <button
               id="nav-ideas-btn"
-              onClick={() => handleProtectedNav('ideas', isRtl ? 'صندوق الأفكار' : 'Boîte à Idées')}
+              onClick={() => handleProtectedNav('ideas', isAr ? 'صندوق الأفكار' : isEn ? 'Community Ideas' : 'Boîte à Idées')}
               className={`hover:text-amber-400 transition-colors py-1 cursor-pointer flex items-center gap-1.5 ${
                 activeScreen === 'ideas' ? 'text-amber-400 font-bold border-b-2 border-amber-400' : ''
               } ${!hasCompletedQuestionnaire ? 'opacity-60 hover:opacity-100' : ''}`}
@@ -239,7 +239,7 @@ export default function Navbar({
             {/* Directory / Emergencies */}
             <button
               id="nav-emergencies-btn"
-              onClick={() => handleProtectedNav('dz-directory', isRtl ? 'طوارئ الجزائر' : 'Annuaire Vétérinaire 58 Wilayas')}
+              onClick={() => handleProtectedNav('dz-directory', isAr ? 'طوارئ الجزائر' : isEn ? 'Algeria Vet Directory' : 'Annuaire Vétérinaire 58 Wilayas')}
               className={`hover:text-cyan-400 transition-colors py-1 cursor-pointer ${
                 activeScreen === 'dz-directory' ? 'text-cyan-400 font-bold border-b-2 border-cyan-400' : ''
               }`}
@@ -247,7 +247,7 @@ export default function Navbar({
               {t.navEmergencies}
             </button>
 
-            {/* Vidéos Masterclasses DiaVet TV (En Développement) */}
+            {/* Videos TV */}
             <button
               id="nav-videos-btn"
               onClick={() => {
@@ -259,9 +259,9 @@ export default function Navbar({
               }`}
             >
               <Video className="w-3.5 h-3.5 text-amber-400" />
-              <span>Vidéos TV 🎬</span>
+              <span>{t.navVideos}</span>
               <span className="text-[9px] font-black px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                {isRtl ? 'قيد التطوير' : 'En dev'}
+                {t.inDev}
               </span>
             </button>
           </nav>
@@ -276,7 +276,7 @@ export default function Navbar({
                   soundEngine.playCyberClick();
                   onNavigate('profile');
                 }}
-                title="Accéder à mon Profil Réel DiaVet"
+                title={isAr ? "الدخول إلى ملفي الشخصي" : isEn ? "Access My DiaVet Profile" : "Accéder à mon Profil Réel DiaVet"}
                 className="hidden lg:inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-800/80 border border-white/10 hover:border-cyan-400/40 text-xs text-white transition-all cursor-pointer shadow-inner"
               >
                 <div className="w-5 h-5 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black text-[10px]">
@@ -298,11 +298,11 @@ export default function Navbar({
                   soundEngine.playCyberClick();
                   onLogout();
                 }}
-                title={isRtl ? "تسجيل الخروج الرسمي من DiaVet" : "Se déconnecter"}
+                title={isAr ? "تسجيل الخروج الرسمي من DiaVet" : isEn ? "Log out from DiaVet" : "Se déconnecter"}
                 className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition-all hover:scale-105 shrink-0 cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5 text-rose-400" />
-                <span className="hidden md:inline">{isRtl ? "خروج" : "Déconnexion"}</span>
+                <span className="hidden md:inline">{t.logout}</span>
               </button>
             )}
 
@@ -313,18 +313,18 @@ export default function Navbar({
                   soundEngine.playCyberClick();
                   onOpenAuth();
                 }}
-                title={isRtl ? "تسجيل الدخول أو فتح حساب حقيقي" : "Se connecter ou créer un compte vérifié"}
+                title={isAr ? "تسجيل الدخول أو فتح حساب حقيقي" : isEn ? "Log in or register" : "Se connecter ou créer un compte vérifié"}
                 className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-md shadow-cyan-500/25 transition-all hover:scale-105 shrink-0 cursor-pointer whitespace-nowrap"
               >
                 <Sparkles className="w-3.5 h-3.5 text-cyan-200 animate-pulse shrink-0" />
-                <span>{isRtl ? "دخول / تسجيل" : "Connexion"}</span>
+                <span>{t.login}</span>
               </button>
             )}
 
-            {/* PWA INSTALL BUTTON (hidden on small mobile, available in drawer) */}
+            {/* PWA INSTALL BUTTON */}
             <PWAInstallButton className="hidden sm:inline-flex" />
 
-            {/* FUTURISTIC CYBER AUDIO HUD (hidden on mobile, available in drawer) */}
+            {/* CYBER AUDIO HUD */}
             <div className="hidden lg:inline-flex">
               <AudioCyberHud currentLang={currentLang} />
             </div>
@@ -336,7 +336,7 @@ export default function Navbar({
                   soundEngine.playCyberClick();
                   onOpenContact();
                 }}
-                title="Contact officiel : contact@diavet.com"
+                title="contact@diavet.com"
                 className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 transition-all hover:scale-105 shrink-0 cursor-pointer"
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -351,151 +351,115 @@ export default function Navbar({
                   soundEngine.playCyberClick();
                   onOpenExcel();
                 }}
-                title="Exporter le Registre Officiel des Utilisateurs en Excel (.xls / .csv)"
-                className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 text-emerald-300 border border-emerald-400/40 transition-all hover:scale-105 shrink-0 cursor-pointer shadow-sm shadow-emerald-500/10"
+                title="Télécharger Registre Excel (.xls)"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 shrink-0 cursor-pointer"
               >
-                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
                 <span className="hidden sm:inline">Excel</span>
               </button>
             )}
 
-            {/* Google Drive Direct Sync Button — Reserved strictly for Owner */}
-            {onOpenDriveSync && isOwner && (
+            {/* Cloud Drive Sync Button */}
+            {onOpenDriveSync && (
               <button
                 onClick={() => {
                   soundEngine.playCyberClick();
                   onOpenDriveSync();
                 }}
-                title="Transférer index.html sur Google Drive (Réservé Propriétaire)"
-                className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 hover:from-emerald-500/30 hover:to-cyan-500/30 text-emerald-300 border border-emerald-400/40 transition-all hover:scale-105 shrink-0 cursor-pointer shadow-sm shadow-emerald-500/10"
+                title="Cloud Backup"
+                className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-400/30 transition-all hover:scale-105 shrink-0 cursor-pointer"
               >
-                <Cloud className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                <span className="hidden sm:inline">Drive</span>
+                <Cloud className="w-3.5 h-3.5 text-blue-400" />
+                <span className="hidden lg:inline">Cloud</span>
               </button>
             )}
 
-            {/* Direct Instagram Link */}
-            <a
-              href="https://instagram.com/dia__vet"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Instagram : @dia__vet"
-              className="hidden 2xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border border-pink-500/30 transition-all hover:scale-105 shrink-0"
-            >
-              <Instagram className="w-3.5 h-3.5" />
-              <span>@dia__vet</span>
-            </a>
-
-            {/* Language Selector FR / EN / AR - Compact & Never Overflowing */}
-            <div className="flex bg-slate-900/80 dark:bg-slate-900/80 light:bg-slate-100 p-0.5 rounded-lg border border-white/10 text-xs font-bold shrink-0">
-              {(['fr', 'ar', 'en'] as Language[]).map((lang) => (
-                <button
-                  key={lang}
-                  id={`lang-btn-${lang}`}
-                  onClick={() => {
-                    soundEngine.playCyberClick();
-                    onSelectLang(lang);
-                  }}
-                  className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all uppercase cursor-pointer text-[10px] sm:text-xs ${
-                    currentLang === lang
-                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-cyan-500/20 font-black'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {lang === 'ar' ? 'عربي' : lang.toUpperCase()}
-                </button>
-              ))}
+            {/* Language Selector in Navbar */}
+            <div className="flex items-center gap-1 bg-slate-900/90 border border-white/15 p-1 rounded-xl shadow-inner">
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playCyberClick();
+                  onSelectLang('fr');
+                }}
+                className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  currentLang === 'fr' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Français"
+              >
+                FR
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playCyberClick();
+                  onSelectLang('ar');
+                }}
+                className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  currentLang === 'ar' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+                title="العربية"
+              >
+                عربي
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playCyberClick();
+                  onSelectLang('en');
+                }}
+                className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  currentLang === 'en' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+                title="English"
+              >
+                EN
+              </button>
             </div>
 
-            {/* Dark / Light Mode Toggle */}
+            {/* Mobile Menu Toggle Button */}
             <button
-              id="theme-toggle-btn"
-              onClick={() => {
-                soundEngine.playCyberClick();
-                onToggleTheme();
-              }}
-              aria-label="Changer le thème"
-              className="p-1.5 sm:p-2 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-800 transition-colors text-slate-300 cursor-pointer shrink-0"
-            >
-              {currentTheme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-600" />
-              )}
-            </button>
-
-            {/* iPhone Frame Simulator Toggle */}
-            <button
-              id="device-frame-toggle-btn"
-              onClick={() => {
-                soundEngine.playCyberClick();
-                onToggleIphoneView();
-              }}
-              title={isIphoneView ? t.switchFull : t.switchDevice}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-all cursor-pointer shrink-0"
-            >
-              {isIphoneView ? (
-                <>
-                  <Monitor className="w-3.5 h-3.5" />
-                  <span className="hidden xl:inline">{t.switchFull}</span>
-                </>
-              ) : (
-                <>
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span className="hidden xl:inline">{t.switchDevice}</span>
-                </>
-              )}
-            </button>
-
-            {/* Mobile Menu Button - Always visible on mobile */}
-            <button
-              id="mobile-menu-toggle-btn"
               onClick={() => {
                 soundEngine.playCyberClick();
                 setMobileMenuOpen(!mobileMenuOpen);
               }}
-              aria-label="Menu principal"
-              className="p-1.5 sm:p-2 rounded-xl border border-white/15 bg-slate-900/80 hover:bg-slate-800 text-slate-200 xl:hidden cursor-pointer shrink-0"
+              className="lg:hidden p-2 rounded-xl bg-slate-900/80 text-slate-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
           </div>
+
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden border-t border-white/10 bg-slate-950/98 backdrop-blur-2xl px-4 py-5 space-y-3 animate-in slide-in-from-top duration-200 max-h-[85vh] overflow-y-auto" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="lg:hidden bg-slate-950/95 border-b border-white/10 px-4 pt-3 pb-6 space-y-4 animate-in slide-in-from-top duration-300 max-h-[85vh] overflow-y-auto">
           
-          {/* Mobile Language Switcher (FR / AR / EN) */}
-          <div className="p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/20 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                <Languages className="w-3.5 h-3.5 text-cyan-400" />
-                <span>{isRtl ? "تغيير اللغة" : currentLang === 'en' ? "Change Language" : "Changer la langue"}</span>
-              </span>
-              <span className="text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
-                {currentLang === 'ar' ? 'العربية' : currentLang === 'en' ? 'English' : 'Français'}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
+          {/* Language Selection Header */}
+          <div className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-900 border border-white/10">
+            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+              <Languages className="w-4 h-4 text-cyan-400" />
+              <span>{t.changeLang}</span>
+            </span>
+            <div className="flex items-center gap-1">
               {[
-                { code: 'fr' as Language, flag: '🇫🇷', label: 'Français' },
-                { code: 'ar' as Language, flag: '🇩🇿', label: 'العربية' },
-                { code: 'en' as Language, flag: '🇬🇧', label: 'English' },
-              ].map(({ code, flag, label }) => (
+                { code: 'fr' as Language, label: 'Français', flag: '🇫🇷' },
+                { code: 'ar' as Language, label: 'العربية', flag: '🇩🇿' },
+                { code: 'en' as Language, label: 'English', flag: '🇬🇧' }
+              ].map(({ code, label, flag }) => (
                 <button
                   key={code}
-                  id={`mobile-drawer-lang-${code}`}
                   onClick={() => {
                     soundEngine.playCyberClick();
                     onSelectLang(code);
                   }}
-                  className={`py-2 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer ${
-                    currentLang === code
-                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white border-cyan-300 shadow-md shadow-cyan-500/30 ring-1 ring-cyan-400'
-                      : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-white/10'
+                  className={`px-2.5 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                    currentLang === code 
+                      ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30 scale-105' 
+                      : 'text-slate-400 hover:text-white bg-slate-800'
                   }`}
                 >
                   <span className="text-base">{flag}</span>
@@ -511,14 +475,14 @@ export default function Navbar({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black text-cyan-300 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-                  {isRtl ? "فضاء DiaVet للأعضاء" : "Espace Membre DiaVet"}
+                  {t.memberSpace}
                 </span>
                 <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">
-                  Non connecté
+                  {t.notConnected}
                 </span>
               </div>
               <p className="text-[11px] text-slate-300">
-                {isRtl ? "سجل حسابك لتفعيل الاستبيان والتبني وحصد النقاط" : "Connectez-vous ou créez votre compte pour accéder à toutes les fonctionnalités."}
+                {isAr ? "سجل حسابك لتفعيل الاستبيان والتبني وحصد النقاط" : isEn ? "Log in or register to access all platform features." : "Connectez-vous ou créez votre compte pour accéder à toutes les fonctionnalités."}
               </p>
               {onOpenAuth && (
                 <button
@@ -530,7 +494,7 @@ export default function Navbar({
                   className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 cursor-pointer"
                 >
                   <User className="w-3.5 h-3.5" />
-                  <span>{isRtl ? "تسجيل الدخول / فتح حساب جديد" : "Connexion / Créer un compte"}</span>
+                  <span>{isAr ? "تسجيل الدخول / فتح حساب جديد" : isEn ? "Log In / Register" : "Connexion / Créer un compte"}</span>
                 </button>
               )}
             </div>
@@ -543,7 +507,7 @@ export default function Navbar({
                 <div>
                   <p className="text-xs font-bold text-white leading-tight">{userName}</p>
                   <p className="text-[10px] text-cyan-400 font-medium">
-                    {userRole === 'vet' ? '🩺 Vétérinaire PRO' : '🐾 Propriétaire d\'animaux'}
+                    {userRole === 'vet' ? '🩺 Vétérinaire PRO' : '🐾 Propriétaire'}
                     {typeof userPoints === 'number' && ` • ${userPoints} pts`}
                   </p>
                 </div>
@@ -558,7 +522,7 @@ export default function Navbar({
                   className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span>{isRtl ? "خروج" : "Déconnexion"}</span>
+                  <span>{t.logout}</span>
                 </button>
               )}
             </div>
@@ -567,11 +531,12 @@ export default function Navbar({
           {/* Sound Control & PWA inside Mobile Menu */}
           <div className="p-3 rounded-2xl bg-slate-900/60 border border-white/10 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-300">Bande-son d'ambiance</span>
+              <span className="text-xs font-semibold text-slate-300">{t.ambientAudio}</span>
               <AudioCyberHud currentLang={currentLang} />
             </div>
             <PWAInstallButton className="w-full justify-center" compactOnMobile={false} />
           </div>
+
           <nav className="flex flex-col space-y-2 text-sm font-semibold text-slate-200">
             <button
               onClick={() => { 
@@ -626,13 +591,13 @@ export default function Navbar({
                 }}
                 className="text-left py-2.5 px-3 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 font-bold transition-colors flex items-center justify-between cursor-pointer"
               >
-                <span>{isRtl ? "متابعة استبيان DiaVet" : "Continuer le Formulaire DiaVet"}</span>
+                <span>{isAr ? "متابعة استبيان DiaVet" : isEn ? "Continue DiaVet Survey" : "Continuer le Formulaire DiaVet"}</span>
                 <FileEdit className="w-4 h-4 text-cyan-400" />
               </button>
             )}
 
             <button
-              onClick={() => handleProtectedNav('adoption', isRtl ? 'تبني الحيوانات' : 'Adoption Solidaire')}
+              onClick={() => handleProtectedNav('adoption', isAr ? 'تبني الحيوانات' : isEn ? 'Solidarity Adoption' : 'Adoption Solidaire')}
               className={`text-left py-2.5 px-3 rounded-xl hover:bg-rose-500/10 text-rose-400 transition-colors flex items-center justify-between cursor-pointer ${
                 !hasCompletedQuestionnaire ? 'opacity-60' : ''
               }`}
@@ -642,7 +607,7 @@ export default function Navbar({
             </button>
 
             <button
-              onClick={() => handleProtectedNav('marketplace', isRtl ? 'متجر الحيوانات' : 'Marketplace & Animalerie')}
+              onClick={() => handleProtectedNav('marketplace', isAr ? 'متجر الحيوانات' : isEn ? 'Pet Store & Care' : 'Marketplace & Animalerie')}
               className={`text-left py-2.5 px-3 rounded-xl hover:bg-emerald-500/10 text-emerald-400 transition-colors flex items-center justify-between cursor-pointer ${
                 !hasCompletedQuestionnaire ? 'opacity-60' : ''
               }`}
@@ -652,7 +617,7 @@ export default function Navbar({
             </button>
 
             <button
-              onClick={() => handleProtectedNav('ideas', isRtl ? 'صندوق الأفكار' : 'Boîte à Idées')}
+              onClick={() => handleProtectedNav('ideas', isAr ? 'صندوق الأفكار' : isEn ? 'Community Ideas' : 'Boîte à Idées')}
               className={`text-left py-2.5 px-3 rounded-xl hover:bg-amber-500/10 text-amber-400 transition-colors flex items-center justify-between cursor-pointer ${
                 !hasCompletedQuestionnaire ? 'opacity-60' : ''
               }`}
@@ -674,13 +639,13 @@ export default function Navbar({
             </button>
 
             <button
-              onClick={() => handleProtectedNav('dz-directory', isRtl ? 'طوارئ الجزائر' : 'Annuaire Vétérinaire')}
+              onClick={() => handleProtectedNav('dz-directory', isAr ? 'طوارئ الجزائر' : isEn ? 'Algeria Vet Directory' : 'Annuaire Vétérinaire')}
               className="text-left py-2.5 px-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
             >
               {t.navEmergencies}
             </button>
 
-            {/* MOBILE: DiaVet TV Vidéos (En Développement) */}
+            {/* MOBILE: DiaVet TV Videos */}
             <button
               onClick={() => {
                 soundEngine.playCyberClick();
@@ -691,10 +656,10 @@ export default function Navbar({
             >
               <div className="flex items-center gap-2">
                 <Video className="w-4 h-4 text-amber-400" />
-                <span>🎬 DiaVet TV — Tutoriels Vidéos DZ</span>
+                <span>🎬 {t.navVideos}</span>
               </div>
               <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded uppercase">
-                {isRtl ? 'قيد التطوير' : 'En dev'}
+                {t.inDev}
               </span>
             </button>
 
@@ -710,10 +675,10 @@ export default function Navbar({
               >
                 <div className="flex items-center gap-2">
                   <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                  <span>📊 Télécharger Registre Excel (.xls)</span>
+                  <span>📊 {isAr ? "تحميل سجل Excel (.xls)" : isEn ? "Download Excel Register (.xls)" : "Télécharger Registre Excel (.xls)"}</span>
                 </div>
                 <span className="text-[10px] bg-emerald-400 text-slate-950 font-black px-1.5 py-0.5 rounded">
-                  Propriétaire
+                  {isAr ? "المسؤول" : isEn ? "Owner" : "Propriétaire"}
                 </span>
               </button>
             )}
@@ -751,7 +716,7 @@ export default function Navbar({
                 }}
                 className="text-left py-2 px-3 rounded-xl border border-dashed border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer"
               >
-                <span>{isRtl ? "🔄 إعادة التسجيل / تغيير الحساب" : "🔄 Nouvelle Inscription / Changer de profil"}</span>
+                <span>{isAr ? "🔄 إعادة التسجيل / تغيير الحساب" : isEn ? "🔄 Re-register / Change Account" : "🔄 Nouvelle Inscription / Changer de profil"}</span>
               </button>
             )}
           </nav>

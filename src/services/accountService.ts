@@ -170,11 +170,12 @@ export function getPendingVerification(email: string): PendingVerification | nul
 }
 
 /**
- * Verify code and activate account
+ * Verify code and activate account with multilingual responses
  */
 export function verifyEmailCode(
   email: string,
-  enteredCode: string
+  enteredCode: string,
+  lang: 'fr' | 'en' | 'ar' = 'fr'
 ): { success: boolean; message: string; account?: RegisteredAccount } {
   const normalized = email.trim().toLowerCase();
   const trimmedCode = enteredCode.trim().replace(/\s+/g, '');
@@ -182,24 +183,33 @@ export function verifyEmailCode(
   const pending = getPendingVerification(normalized);
 
   if (!pending) {
-    return {
-      success: false,
-      message: 'Aucun code actif pour cette adresse email ou le code a expiré. Veuillez demander un nouveau code.'
-    };
+    const message = 
+      lang === 'ar'
+        ? 'لا يوجد رمز نشط لهذا البريد الإلكتروني أو انتهت صلاحيته. يرجى طلب رمز جديد.'
+        : lang === 'en'
+        ? 'No active verification code found for this email or it has expired. Please request a new code.'
+        : 'Aucun code actif pour cette adresse email ou le code a expiré. Veuillez demander un nouveau code.';
+    return { success: false, message };
   }
 
   if (Date.now() > pending.expiresAt) {
-    return {
-      success: false,
-      message: 'Le code a expiré. Veuillez cliquer sur Renvoyer le code.'
-    };
+    const message =
+      lang === 'ar'
+        ? 'انتهت صلاحية الرمز. يرجى النقر على إعادة إرسال الرمز.'
+        : lang === 'en'
+        ? 'The verification code has expired. Please click Resend Code.'
+        : 'Le code a expiré. Veuillez cliquer sur Renvoyer le code.';
+    return { success: false, message };
   }
 
   if (pending.code !== trimmedCode) {
-    return {
-      success: false,
-      message: 'Code de confirmation incorrect. Veuillez vérifier les 6 chiffres reçus par email.'
-    };
+    const message =
+      lang === 'ar'
+        ? 'رمز التأكيد غير صحيح. يرجى التحقق من الأرقام الـ 6 المستلمة في بريدك الإلكتروني.'
+        : lang === 'en'
+        ? 'Incorrect confirmation code. Please check the 6 digits sent to your email.'
+        : 'Code de confirmation incorrect. Veuillez vérifier les 6 chiffres reçus par email.';
+    return { success: false, message };
   }
 
   // Code is valid! Create / activate account

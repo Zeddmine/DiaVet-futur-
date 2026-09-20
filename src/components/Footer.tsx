@@ -62,7 +62,7 @@ export default function Footer({ currentLang, userRole = 'owner', onNavigate, on
                 <MessageCircle className="w-4 h-4 text-amber-400" />
                 <span>WhatsApp DZ</span>
                 <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded uppercase">
-                  {isRtl ? 'قيد التطوير' : 'En dev'}
+                  {currentLang === 'ar' ? 'قيد التطوير' : currentLang === 'en' ? 'In Dev' : 'En dev'}
                 </span>
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function Footer({ currentLang, userRole = 'owner', onNavigate, on
                   onClick={() => onNavigate('videos')} 
                   className="hover:text-cyan-400 transition-colors cursor-pointer"
                 >
-                  🎬 {currentLang === 'ar' ? "فيديوهات DiaVet TV وتدريب" : "DiaVet TV & Vidéos Masterclasses"}
+                  🎬 {currentLang === 'ar' ? "فيديوهات DiaVet TV وتدريب" : currentLang === 'en' ? "DiaVet TV & Video Masterclasses" : "DiaVet TV & Vidéos Masterclasses"}
                 </button>
               </li>
               <li>

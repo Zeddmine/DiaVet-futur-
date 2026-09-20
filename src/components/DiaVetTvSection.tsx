@@ -113,13 +113,14 @@ export default function DiaVetTvSection({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDevVideo, setSelectedDevVideo] = useState<VideoTutorial | null>(null);
   const isRtl = currentLang === 'ar';
+  const isEn = currentLang === 'en';
 
   const categories = [
-    { id: 'all', label: isRtl ? 'جميع المقاطع 🎬' : 'Toutes les vidéos 🎬' },
-    { id: 'emergency', label: isRtl ? 'الطوارئ 🚨' : 'Urgences 🚨' },
-    { id: 'dog', label: isRtl ? 'الكلاب 🐶' : 'Chiens 🐶' },
-    { id: 'cat', label: isRtl ? 'القطط 🐱' : 'Chats 🐱' },
-    { id: 'general', label: isRtl ? 'الوقاية والرعاية 🛡️' : 'Prévention & Soins 🛡️' }
+    { id: 'all', label: isRtl ? 'جميع المقاطع 🎬' : isEn ? 'All Videos 🎬' : 'Toutes les vidéos 🎬' },
+    { id: 'emergency', label: isRtl ? 'الطوارئ 🚨' : isEn ? 'Emergencies 🚨' : 'Urgences 🚨' },
+    { id: 'dog', label: isRtl ? 'الكلاب 🐶' : isEn ? 'Dogs 🐶' : 'Chiens 🐶' },
+    { id: 'cat', label: isRtl ? 'القطط 🐱' : isEn ? 'Cats 🐱' : 'Chats 🐱' },
+    { id: 'general', label: isRtl ? 'الوقاية والرعاية 🛡️' : isEn ? 'Prevention & Care 🛡️' : 'Prévention & Soins 🛡️' }
   ];
 
   const filteredVideos = selectedCategory === 'all'
@@ -143,16 +144,18 @@ export default function DiaVetTvSection({
             {/* Status Pill */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-black mb-3">
               <Hammer className="w-3.5 h-3.5 animate-bounce text-amber-400" />
-              <span>{isRtl ? "قسم قيد التطوير البرمجي والإنتاج 🎬" : "SECTION EN COURS DE DÉVELOPPEMENT & TOURNAGE 🎬"}</span>
+              <span>{isRtl ? "قسم قيد التطوير البرمجي والإنتاج 🎬" : isEn ? "MODULE IN ACTIVE DEVELOPMENT & PRODUCTION 🎬" : "SECTION EN COURS DE DÉVELOPPEMENT & TOURNAGE 🎬"}</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-              {isRtl ? "قناة DiaVet TV — مقاطع الفيديو الإرشادية" : "DiaVet TV — Tutoriels Vidéos & Masterclasses"}
+              {isRtl ? "قناة DiaVet TV — مقاطع الفيديو الإرشادية" : isEn ? "DiaVet TV — Video Guides & Masterclasses" : "DiaVet TV — Tutoriels Vidéos & Masterclasses"}
             </h2>
 
             <p className="text-sm sm:text-base text-slate-300 mt-2 leading-relaxed">
               {isRtl
                 ? "يتم حالياً تسجيل ومونتاج المقاطع المصورة بالتعاون مع نخبة من الأطباء البيطريين الجزائريين. خدمة تشغيل الفيديو تحت الصيانة والتطوير وغير متاحة حالياً."
+                : isEn
+                ? "DiaVet TV video guides are currently being recorded with certified Algerian veterinary practitioners. Direct video playback is undergoing development."
                 : "La plateforme vidéo DiaVet TV est actuellement en plein tournage et post-production avec des médecins vétérinaires algériens certifiés. La lecture vidéo est en cours de développement."}
             </p>
           </div>
@@ -160,11 +163,11 @@ export default function DiaVetTvSection({
           <div className="flex items-center gap-3 shrink-0">
             <div className="p-3 sm:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center">
               <div className="text-xl sm:text-2xl font-black text-amber-400">EN DEV</div>
-              <div className="text-[10px] text-slate-400 uppercase font-bold">{isRtl ? "قيد الإنتاج" : "Bientôt disponible"}</div>
+              <div className="text-[10px] text-slate-400 uppercase font-bold">{isRtl ? "قيد الإنتاج" : isEn ? "Coming soon" : "Bientôt disponible"}</div>
             </div>
             <div className="p-3 sm:p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
               <div className="text-xl sm:text-2xl font-black text-cyan-400">58</div>
-              <div className="text-[10px] text-slate-400 uppercase font-bold">{isRtl ? "ولاية جزائرية" : "Wilayas"}</div>
+              <div className="text-[10px] text-slate-400 uppercase font-bold">{isRtl ? "ولاية جزائرية" : isEn ? "DZ Wilayas" : "Wilayas"}</div>
             </div>
           </div>
         </div>
@@ -175,6 +178,8 @@ export default function DiaVetTvSection({
           <p className="font-semibold">
             {isRtl
               ? "تنبيه: قسم الفيديوهات قيد التطوير البرمجي — لا يوجد وصول أو تشغيل للمقاطع في الوقت الحالي حتى اكتمال إطلاق الاستوديو."
+              : isEn
+              ? "Notice: Video streaming module is in active development. Video clips are temporarily locked pending studio release."
               : "Avis aux utilisateurs : Le module de streaming vidéo est en cours de développement. Les vidéos ne sont pas accessibles pour le moment."}
           </p>
         </div>
@@ -220,7 +225,7 @@ export default function DiaVetTvSection({
                 </span>
                 <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
                   <Hammer className="w-2.5 h-2.5" />
-                  <span>{isRtl ? "قيد التطوير" : "En développement"}</span>
+                  <span>{isRtl ? "قيد التطوير" : isEn ? "In Dev" : "En développement"}</span>
                 </span>
               </div>
 
@@ -235,7 +240,7 @@ export default function DiaVetTvSection({
               <div className="relative z-10 flex items-center justify-between text-xs text-white/80 font-mono">
                 <span className="flex items-center gap-1 bg-black/70 px-2 py-0.5 rounded-lg backdrop-blur-sm text-amber-300 font-bold">
                   <Clock className="w-3 h-3" />
-                  <span>{isRtl ? "قريباً" : "Bientôt"}</span>
+                  <span>{isRtl ? "قريباً" : isEn ? "Soon" : "Bientôt"}</span>
                 </span>
                 <span className="text-[10px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300">
                   {vid.duration}
@@ -259,7 +264,7 @@ export default function DiaVetTvSection({
                   {vid.vetAuthor}
                 </span>
                 <span className="text-amber-400 font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  <span>{isRtl ? "قيد التطوير" : "En développement"}</span>
+                  <span>{isRtl ? "قيد التطوير" : isEn ? "In Dev" : "En développement"}</span>
                   <Lock className="w-3 h-3 text-amber-400" />
                 </span>
               </div>
@@ -282,7 +287,7 @@ export default function DiaVetTvSection({
 
             <div className="text-center space-y-2 mb-6">
               <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black border border-amber-500/40 uppercase">
-                {isRtl ? "ميزة قيد التطوير البرمجي" : "Fonctionnalité en développement"}
+                {isRtl ? "ميزة قيد التطوير البرمجي" : isEn ? "Module Under Active Development" : "Fonctionnalité en développement"}
               </span>
               <h3 className="text-xl font-black text-white pt-1">
                 {selectedDevVideo.title}
@@ -290,18 +295,20 @@ export default function DiaVetTvSection({
               <p className="text-xs text-slate-300 leading-relaxed pt-1">
                 {isRtl
                   ? "قسم الفيديوهات وقناة DiaVet TV قيد التطوير البرمجي حالياً. لا يوجد وصول أو تشغيل مباشر للمقاطع في الوقت الراهن."
+                  : isEn
+                  ? "DiaVet TV video player is currently undergoing development. Direct playback will be unlocked upon studio release."
                   : "Le lecteur de vidéos et les tutoriels DiaVet TV sont actuellement en cours de développement. Aucun accès ni lecture n'est disponible pour le moment."}
               </p>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 text-xs text-slate-300 mb-6 space-y-1.5">
               <div className="flex items-center justify-between text-slate-400">
-                <span>{isRtl ? "الطبيب المشرف :" : "Praticien auteur :"}</span>
+                <span>{isRtl ? "الطبيب المشرف :" : isEn ? "Practitioner author:" : "Praticien auteur :"}</span>
                 <span className="text-white font-bold">{selectedDevVideo.vetAuthor}</span>
               </div>
               <div className="flex items-center justify-between text-slate-400">
-                <span>{isRtl ? "الحالة البرمجية :" : "Statut technique :"}</span>
-                <span className="text-amber-400 font-bold">{isRtl ? "قيد الإنجاز ⏳" : "En cours de développement ⏳"}</span>
+                <span>{isRtl ? "الحالة البرمجية :" : isEn ? "Technical status:" : "Statut technique :"}</span>
+                <span className="text-amber-400 font-bold">{isRtl ? "قيد الإنجاز ⏳" : isEn ? "In progress ⏳" : "En cours de développement ⏳"}</span>
               </div>
             </div>
 
@@ -315,7 +322,7 @@ export default function DiaVetTvSection({
                   }}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-transform hover:scale-[1.02]"
                 >
-                  <span>{isRtl ? "تصفح دليل العيادات والأطباء" : "Consulter l'annuaire des vétérinaires"}</span>
+                  <span>{isRtl ? "تصفح دليل العيادات والأطباء" : isEn ? "Explore Algerian Vet Directory" : "Consulter l'annuaire des vétérinaires"}</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               )}
@@ -324,7 +331,7 @@ export default function DiaVetTvSection({
                 onClick={() => setSelectedDevVideo(null)}
                 className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer transition-colors"
               >
-                {isRtl ? "إغلاق" : "Fermer"}
+                {isRtl ? "إغلاق" : isEn ? "Close" : "Fermer"}
               </button>
             </div>
           </div>

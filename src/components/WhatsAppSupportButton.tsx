@@ -13,6 +13,7 @@ export default function WhatsAppSupportButton({
 }: WhatsAppSupportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isRtl = currentLang === 'ar';
+  const isEn = currentLang === 'en';
 
   return (
     <aside aria-label="Support WhatsApp DiaVet" className={`fixed bottom-5 z-40 ${isRtl ? 'left-4 sm:left-6' : 'right-4 sm:right-6'}`}>
@@ -32,14 +33,14 @@ export default function WhatsAppSupportButton({
                 </div>
                 <div>
                   <h4 className="text-sm font-black text-white flex items-center gap-1.5">
-                    <span>{isRtl ? "واتساب المباشر" : "Support WhatsApp Direct"}</span>
+                    <span>{isRtl ? "واتساب المباشر" : isEn ? "Live WhatsApp Support" : "Support WhatsApp Direct"}</span>
                     <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-bold">
-                      {isRtl ? "قيد التطوير" : "EN DÉVELOPPEMENT"}
+                      {isRtl ? "قيد التطوير" : isEn ? "IN DEV" : "EN DÉVELOPPEMENT"}
                     </span>
                   </h4>
                   <p className="text-[11px] text-amber-400 font-medium flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    <span>{isRtl ? "الخدمة غير متاحة حالياً" : "Accès temporairement suspendu"}</span>
+                    <span>{isRtl ? "الخدمة غير متاحة حالياً" : isEn ? "Access temporarily paused" : "Accès temporairement suspendu"}</span>
                   </p>
                 </div>
               </div>
@@ -50,7 +51,7 @@ export default function WhatsAppSupportButton({
                   setIsOpen(false);
                 }}
                 className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
-                title="Fermer"
+                title={isRtl ? "إغلاق" : isEn ? "Close" : "Fermer"}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -63,6 +64,8 @@ export default function WhatsAppSupportButton({
                 <p className="text-xs text-slate-200 leading-relaxed font-medium">
                   {isRtl
                     ? "خدمة المحادثة المباشرة عبر واتساب قيد التطوير والصيانة البرمجية حالياً. لا يوجد وصول مباشر في الوقت الراهن وسيتم إطلاقها قريباً."
+                    : isEn
+                    ? "The direct WhatsApp chat channel is currently under development. Direct chat access will launch shortly."
                     : "Le service de liaison WhatsApp en direct est actuellement en cours de développement. Aucun accès direct n'est disponible pour le moment."}
                 </p>
               </div>
@@ -70,6 +73,8 @@ export default function WhatsAppSupportButton({
               <p className="text-[11px] text-slate-400 leading-relaxed text-center">
                 {isRtl
                   ? "لأي استفسار طارئ، يرجى التواصل عبر البريد الإلكتروني الرسمي: contact@diavet.com"
+                  : isEn
+                  ? "For inquiries, please reach out via our official email: contact@diavet.com"
                   : "Pour toute demande officielle, veuillez utiliser notre email de contact : contact@diavet.com"}
               </p>
             </div>
@@ -78,7 +83,7 @@ export default function WhatsAppSupportButton({
             <div className="pt-1">
               <div className="w-full py-3 rounded-2xl bg-slate-800/80 border border-white/10 text-slate-400 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed select-none opacity-80">
                 <Clock className="w-4 h-4 text-amber-400" />
-                <span>{isRtl ? "ميزة قيد التطوير — غير متاحة 🔒" : "En cours de développement 🔒"}</span>
+                <span>{isRtl ? "ميزة قيد التطوير — غير متاحة 🔒" : isEn ? "Module in development 🔒" : "En cours de développement 🔒"}</span>
               </div>
             </div>
           </motion.div>
@@ -95,7 +100,7 @@ export default function WhatsAppSupportButton({
           setIsOpen(!isOpen);
         }}
         className="group relative flex items-center gap-2.5 px-4 py-3 sm:px-5 sm:py-3.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-white shadow-2xl shadow-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400 transition-all cursor-pointer backdrop-blur-xl"
-        aria-label="Support WhatsApp DiaVet en développement"
+        aria-label="Support WhatsApp DiaVet"
       >
         {/* Development Tool Icon */}
         <div className="relative w-6 h-6 flex items-center justify-center">
@@ -108,7 +113,7 @@ export default function WhatsAppSupportButton({
         <div className="flex flex-col text-left">
           <span className="text-[9px] font-mono font-black uppercase tracking-wider text-amber-300 opacity-95 leading-tight flex items-center gap-1">
             <Hammer className="w-2.5 h-2.5 text-amber-400" />
-            {isRtl ? "قيد التطوير" : "En dev"}
+            {isRtl ? "قيد التطوير" : isEn ? "In Dev" : "En dev"}
           </span>
           <span className="text-xs sm:text-sm font-extrabold text-slate-200 leading-tight">
             {isRtl ? "واتساب المباشر" : "WhatsApp DZ"}
@@ -116,7 +121,7 @@ export default function WhatsAppSupportButton({
         </div>
 
         <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[9px] font-black border border-amber-500/40 ml-0.5 uppercase">
-          {isRtl ? "مغلق" : "Bientôt"}
+          {isRtl ? "مغلق" : isEn ? "Soon" : "Bientôt"}
         </span>
       </motion.button>
     </aside>
