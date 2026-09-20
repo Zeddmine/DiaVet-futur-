@@ -313,9 +313,11 @@ export default function OnboardingGateway({
     });
 
     if (!parseResult.success) {
-      const firstError = parseResult.error.errors[0]?.message || (
-        isRtl ? "يرجى تصحيح الأخطاء في النموذج." : isEn ? "Please fix the input errors in the form." : "Veuillez corriger les erreurs de saisie."
-      );
+      const errObj = (parseResult as any)?.error;
+      const firstError = errObj?.errors?.[0]?.message 
+        || errObj?.issues?.[0]?.message 
+        || (typeof errObj?.message === 'string' ? errObj.message : null)
+        || (isRtl ? "يرجى تصحيح الأخطاء في النموذج." : isEn ? "Please fix the input errors in the form." : "Veuillez corriger les erreurs de saisie.");
       setError(firstError);
       soundEngine.playError();
       return;

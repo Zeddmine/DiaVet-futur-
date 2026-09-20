@@ -146,7 +146,11 @@ export const validateField = (
   if (result.success) {
     return { isValid: true, error: null };
   } else {
-    const firstError = result.error.errors[0]?.message || 'Valeur non valide';
+    const errObj = (result as any)?.error;
+    const firstError = errObj?.errors?.[0]?.message 
+      || errObj?.issues?.[0]?.message 
+      || (typeof errObj?.message === 'string' ? errObj.message : null)
+      || 'Valeur non valide';
     return { isValid: false, error: firstError };
   }
 };
