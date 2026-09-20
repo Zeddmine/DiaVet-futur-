@@ -74,8 +74,17 @@ export default function App() {
     }
   });
 
-  // Auth / Registration Modal state
-  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  // Auth / Registration Modal state - Direct registration on entry if not registered
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(() => {
+    try {
+      if (!localStorage.getItem('diavet_clean_reset_v2')) {
+        return true;
+      }
+      return localStorage.getItem('diavet_registered') !== 'true';
+    } catch {
+      return true;
+    }
+  });
 
   // Questionnaire completion status - unlocks adoption, marketplace, ideas, etc.
   const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState<boolean>(() => {
@@ -1051,7 +1060,7 @@ export default function App() {
               currentLang={currentLang}
               onSelectLang={setCurrentLang}
               onRegister={handleRegisterSuccess}
-              onClose={() => setShowAuthModal(false)}
+              onClose={isRegistered ? () => setShowAuthModal(false) : undefined}
             />
           </div>
         </div>
