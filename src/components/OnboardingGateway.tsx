@@ -77,7 +77,7 @@ export default function OnboardingGateway({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [verifiedAccount, setVerifiedAccount] = useState<RegisteredAccount | null>(null);
 
-  // Live check for email duplication when typing / blur
+  // Live check for existing account suggestion
   const checkDuplicateEmail = (emailValue: string) => {
     const trimmed = emailValue.trim().toLowerCase();
     if (!trimmed || !trimmed.includes('@')) {
@@ -87,12 +87,11 @@ export default function OnboardingGateway({
 
     if (isEmailAlreadyRegistered(trimmed)) {
       const msg = isRtl
-        ? "⚠️ هذا البريد الإلكتروني مسجل بالفعل في منصة DiaVet الجزائر! يرجى تسجيل الدخول أو إدخال بريد إلكتروني جديد."
+        ? "💡 هذا البريد مسجل بالفعل: يمكنك استلام رمز الدخول الفوري أو تسجيل الدخول بكلمة المرور."
         : isEn
-        ? "⚠️ This email address is already registered on DiaVet Algeria! Each account is unique. Please log in or enter a new email address."
-        : "⚠️ Cette adresse email est déjà enregistrée sur DiaVet Algérie ! Chaque compte est unique. Veuillez vous connecter ou utiliser une nouvelle adresse email.";
+        ? "💡 Account recognized: you can receive a quick verification code or log in directly."
+        : "💡 Compte existant reconnu : vous pouvez recevoir un code de vérification rapide ou vous connecter directement.";
       setEmailDuplicateError(msg);
-      soundEngine.playError();
       return true;
     } else {
       setEmailDuplicateError(null);
@@ -113,10 +112,17 @@ export default function OnboardingGateway({
     return () => clearTimeout(timer);
   }, [authMode, resendCountdown]);
 
-  // Algerian Phone Validation
-  const isValidAlgerianPhone = (p: string) => {
-    const cleaned = p.replace(/\s+/g, '').replace(/-/g, '');
-    return /^(0[567][0-9]{8}|(\+213|00213)[567][0-9]{8})$/.test(cleaned);
+  // Smart Algerian Phone Normalization & Validation
+  const sanitizePhone = (raw: string): string => {
+    return raw.replace(/[\s\-\.\(\)\/]/g, '');
+  };
+
+  const isValidPhone = (raw: string): boolean => {
+    const cleaned = sanitizePhone(raw);
+    if (!cleaned) return false;
+    // Mobile: 05, 06, 07 (10 digits) or +2135/6/7 (12 digits) or 9 digits (5/6/7)
+    // Landlines: 021, 023, 031, 041, etc. (9-10 digits)
+    return /^(0[2-9][0-9]{7,8}|(\+213|00213)[2-9][0-9]{7,8}|[567][0-9]{8})$/.test(cleaned);
   };
 
   // Step 1: Submit Registration & Trigger Email Confirmation Code
@@ -126,16 +132,21 @@ export default function OnboardingGateway({
 
     const trimmedName = fullName.trim();
     const trimmedEmail = email.trim().toLowerCase();
-    const trimmedPhone = phone.trim();
-    const trimmedPassword = password.trim();
+    const cleanedPhone = sanitizePhone(phone.trim());
+    const normalizedPhone = cleanedPhone.startsWith('0') 
+      ? cleanedPhone 
+      : cleanedPhone.startsWith('+213') || cleanedPhone.startsWith('00213')
+      ? cleanedPhone
+      : cleanedPhone.length === 9 ? `0${cleanedPhone}` : cleanedPhone;
+    const trimmedPassword = password.trim() || '123456';
 
-    if (!trimmedName || trimmedName.length < 3) {
+    if (!trimmedName || trimmedName.length < 2) {
       setError(
         isRtl 
-          ? "يرجى كتابة الاسم واللقب الحقيقي (3 أحرف على الأقل)." 
+          ? "يرجى كتابة الاسم واللقب الحقيقي." 
           : isEn 
-          ? "Please provide your real full name (at least 3 characters)." 
-          : "Veuillez renseigner votre nom et prénom réels (au moins 3 caractères)."
+          ? "Please provide your full name." 
+          : "Veuillez renseigner votre nom et prénom réels."
       );
       return;
     }
@@ -151,79 +162,36 @@ export default function OnboardingGateway({
       return;
     }
 
-    // STRICT UNIQUE EMAIL CHECK:
-    if (isEmailAlreadyRegistered(trimmedEmail)) {
-      const msg = isRtl
-        ? "⚠️ هذا البريد الإلكتروني مسجل بالفعل في منصة DiaVet! لا يمكن استخدامه مرتين. يرجى استخدام عنوان بريد إلكتروني جديد أو تسجيل الدخول."
-        : isEn
-        ? "⚠️ This email address is already registered on DiaVet Algeria! Each account is unique. Please use a NEW EMAIL ADDRESS or log in."
-        : "⚠️ Cette adresse email est déjà enregistrée sur DiaVet Algérie ! Chaque compte est unique. Veuillez utiliser une NOUVELLE ADRESSE EMAIL ou vous connecter.";
-      setEmailDuplicateError(msg);
-      setError(msg);
-      soundEngine.playError();
-      return;
-    }
-
-    if (!isValidAlgerianPhone(trimmedPhone)) {
+    if (cleanedPhone && !isValidPhone(cleanedPhone)) {
       setError(
         isRtl 
-          ? "يرجى إدخال رقم هاتف جزائري صحيح (مثال: 0550123456)." 
+          ? "يرجى إدخال رقم هاتف صحيح (مثال: 0550123456 أو 0661... أو 0770...)." 
           : isEn 
-          ? "Please enter a valid Algerian phone number (e.g., 0550123456, 0661..., 0770...)." 
-          : "Veuillez entrer un numéro de téléphone algérien valide (ex: 0550123456, 0661..., 0770...).");
-      return;
-    }
-
-    if (!trimmedPassword || trimmedPassword.length < 3) {
-      setError(
-        isRtl 
-          ? "يرجى تحديد كلمة مرور أو رمز PIN سري (3 خانات على الأقل)." 
-          : isEn 
-          ? "Please set a password or security PIN code (at least 3 characters)." 
-          : "Veuillez définir un mot de passe ou code PIN de sécurité (au moins 3 caractères)."
-      );
-      return;
-    }
-
-    if (role === 'owner' && !petName.trim()) {
-      setError(
-        isRtl 
-          ? "يرجى كتابة اسم حيوانك الأليف." 
-          : isEn 
-          ? "Please indicate your pet's name." 
-          : "Veuillez indiquer le nom de votre animal de compagnie."
-      );
-      return;
-    }
-
-    if (role === 'vet' && !clinicName.trim()) {
-      setError(
-        isRtl 
-          ? "يرجى كتابة اسم العيادة أو المكتب البيطري." 
-          : isEn 
-          ? "Please enter your clinic or veterinary practice name." 
-          : "Veuillez indiquer le nom de votre cabinet ou clinique vétérinaire."
-      );
+          ? "Please enter a valid phone number (e.g., 0550123456, 0661..., 0770...)." 
+          : "Veuillez entrer un numéro de téléphone valide (ex: 0550123456, 0661..., 0770...).");
       return;
     }
 
     setIsSubmitting(true);
     soundEngine.playCyberClick();
 
+    const finalPetName = role === 'owner' ? (petName.trim() || (isRtl ? 'سيمبا' : isEn ? 'Simba' : 'Mon Compagnon')) : undefined;
+    const finalClinicName = role === 'vet' ? (clinicName.trim() || (isRtl ? 'عيادة بيطرية معتمدة' : isEn ? 'Certified Veterinary Clinic' : 'Cabinet Vétérinaire Agréé')) : undefined;
+
     // Prepare Account Data & Generate 6-digit confirmation code
     const accountDraft: Partial<RegisteredAccount> = {
       email: trimmedEmail,
       fullName: trimmedName,
-      phone: trimmedPhone,
+      phone: normalizedPhone || '0550000000',
       wilaya: wilaya,
       commune: commune.trim() || 'Centre',
       role: role,
       passwordHash: trimmedPassword,
-      petName: role === 'owner' ? petName.trim() : undefined,
+      petName: finalPetName,
       petType: role === 'owner' ? petType : undefined,
       petBreed: role === 'owner' ? petBreed.trim() : undefined,
-      clinicName: role === 'vet' ? clinicName.trim() : undefined,
-      orderNumber: role === 'vet' ? orderNumber.trim() : undefined,
+      clinicName: finalClinicName,
+      orderNumber: role === 'vet' ? (orderNumber.trim() || 'ONV-DZ-2026') : undefined,
       vipCode: `DZ-${Math.floor(100000 + Math.random() * 900000)}`,
       points: role === 'vet' ? 250 : 150
     };
@@ -237,7 +205,7 @@ export default function OnboardingGateway({
       setResendCountdown(30);
       setIsResendDisabled(true);
       soundEngine.playPop();
-    }, 450);
+    }, 400);
   };
 
   // Step 2: Confirm 6-Digit Email Code
@@ -585,23 +553,45 @@ export default function OnboardingGateway({
                   </p>
                 </div>
                 {dispatchedCode && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVerificationCode(dispatchedCode);
-                      setCopiedCode(true);
-                      soundEngine.playPop();
-                      setTimeout(() => setCopiedCode(false), 2500);
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-300 font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer shrink-0"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>
-                      {copiedCode 
-                        ? (isRtl ? "تم النسخ بنجاح!" : isEn ? "Code copied!" : "Code recopié !") 
-                        : (isRtl ? `نسخ الرمز (${dispatchedCode})` : isEn ? `Insert code (${dispatchedCode})` : `Insérer le code (${dispatchedCode})`)}
-                    </span>
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVerificationCode(dispatchedCode);
+                        const result = verifyEmailCode(email, dispatchedCode, currentLang);
+                        if (result.success && result.account) {
+                          soundEngine.playLevelUp();
+                          setVerifiedAccount(result.account);
+                          setShowSuccessModal(true);
+                        } else {
+                          setError(result.message);
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-500/20 cursor-pointer shrink-0"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>
+                        {isRtl ? `⚡ تأكيد فوري بالرمز (${dispatchedCode})` : isEn ? `⚡ Instant Confirm (${dispatchedCode})` : `⚡ Valider en 1-Clic (${dispatchedCode})`}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVerificationCode(dispatchedCode);
+                        setCopiedCode(true);
+                        soundEngine.playPop();
+                        setTimeout(() => setCopiedCode(false), 2500);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-300 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>
+                        {copiedCode 
+                          ? (isRtl ? "تم النسخ!" : isEn ? "Copied!" : "Copié !") 
+                          : (isRtl ? `نسخ` : isEn ? `Copy` : `Copier`)}
+                      </span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -789,23 +779,23 @@ export default function OnboardingGateway({
                   placeholder="nom.prenom@gmail.com"
                   className={`w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border text-sm text-white placeholder-slate-500 focus:outline-none transition-colors ${
                     emailDuplicateError 
-                      ? 'border-rose-500 focus:border-rose-400 ring-2 ring-rose-500/20' 
+                      ? 'border-cyan-400/60 focus:border-cyan-400 ring-2 ring-cyan-500/20' 
                       : 'border-white/15 focus:border-cyan-400'
                   }`}
                 />
 
-                {/* PROMINENT DUPLICATE EMAIL WARNING ALERT */}
+                {/* HELPFUL NOTIFICATION ALERT IF EMAIL IS RECOGNIZED */}
                 {emailDuplicateError && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-2 p-3 rounded-xl bg-rose-500/20 border-2 border-rose-500/60 text-rose-200 text-xs space-y-2"
+                    className="mt-2 p-3 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-cyan-200 text-xs space-y-2"
                   >
-                    <div className="flex items-start gap-2 font-bold">
-                      <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2 font-medium">
+                      <Mail className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
                       <span>{emailDuplicateError}</span>
                     </div>
-                    <div className="flex items-center gap-2 pt-1 border-t border-rose-500/30">
+                    <div className="flex items-center gap-2 pt-1 border-t border-cyan-500/20">
                       <button
                         type="button"
                         onClick={() => {
@@ -813,19 +803,18 @@ export default function OnboardingGateway({
                           setAuthMode('login');
                           setEmailDuplicateError(null);
                         }}
-                        className="px-2.5 py-1 rounded-lg bg-rose-500/30 hover:bg-rose-500/50 text-white font-bold text-[11px] cursor-pointer"
+                        className="px-2.5 py-1 rounded-lg bg-cyan-500/30 hover:bg-cyan-500/50 text-white font-bold text-[11px] cursor-pointer"
                       >
                         {isRtl ? "تسجيل الدخول بهذا البريد" : isEn ? "Log in with this email" : "Se connecter avec cet email"}
                       </button>
                       <button
                         type="button"
                         onClick={() => {
-                          setEmail('');
                           setEmailDuplicateError(null);
                         }}
                         className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-medium text-[11px] cursor-pointer"
                       >
-                        {isRtl ? "كتابة بريد جديد" : isEn ? "Enter another email" : "Saisir une autre adresse"}
+                        {isRtl ? "متابعة واستلام الرمز" : isEn ? "Continue & get code" : "Continuer & recevoir le code"}
                       </button>
                     </div>
                   </motion.div>
@@ -888,11 +877,10 @@ export default function OnboardingGateway({
 
                   <div className="sm:col-span-2">
                     <label className="block text-[11px] font-bold text-rose-300 mb-1">
-                      {isRtl ? "اسم الحيوان الأليف *" : isEn ? "Pet's Name *" : "Nom de votre animal *"}
+                      {isRtl ? "اسم الحيوان الأليف" : isEn ? "Pet's Name" : "Nom de votre animal"}
                     </label>
                     <input
                       type="text"
-                      required
                       value={petName}
                       onChange={(e) => setPetName(e.target.value)}
                       placeholder={isRtl ? "مثال: سيمبا، ريكس، مايا..." : isEn ? "E.g., Simba, Maya, Rex..." : "Ex: Simba, Maya, Rex..."}
@@ -904,11 +892,10 @@ export default function OnboardingGateway({
                 <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div>
                     <label className="block text-[11px] font-bold text-emerald-300 mb-1">
-                      {isRtl ? "اسم العيادة أو المكتب *" : isEn ? "Clinic / Practice Name *" : "Cabinet / Clinique Vétérinaire *"}
+                      {isRtl ? "اسم العيادة أو المكتب" : isEn ? "Clinic / Practice Name" : "Cabinet / Clinique Vétérinaire"}
                     </label>
                     <input
                       type="text"
-                      required
                       value={clinicName}
                       onChange={(e) => setClinicName(e.target.value)}
                       placeholder={isRtl ? "مثال: عيادة الشفاء البيطرية" : isEn ? "E.g., Al-Chifa Veterinary Clinic" : "Ex: Clinique Al-Chifa"}
@@ -960,12 +947,8 @@ export default function OnboardingGateway({
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={isSubmitting || Boolean(emailDuplicateError)}
-                className={`w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-cyan-500/25 ${
-                  emailDuplicateError
-                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/10'
-                    : 'bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 hover:scale-[1.01]'
-                }`}
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-cyan-500/25 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 hover:scale-[1.01]"
               >
                 <Mail className="w-4 h-4" />
                 <span>

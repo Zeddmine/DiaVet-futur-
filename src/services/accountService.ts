@@ -33,24 +33,8 @@ interface PendingVerification {
 const ACCOUNTS_STORAGE_KEY = 'diavet_registered_accounts';
 const PENDING_CODE_STORAGE_KEY = 'diavet_pending_verifications';
 
-// Pre-seeded accounts (including official owner account)
+// Initial demo accounts
 const INITIAL_ACCOUNTS: RegisteredAccount[] = [
-  {
-    id: 'acc-admin-founder-dz',
-    email: 'mine.mine0100@gmail.com',
-    fullName: 'Administrateur Fondateur DiaVet DZ',
-    phone: '0550000100',
-    wilaya: '16 - Alger',
-    commune: 'Alger-Centre',
-    role: 'vet',
-    clinicName: 'Clinique Vétérinaire Centrale DiaVet Alger',
-    orderNumber: 'ONV-ALG-0100',
-    isEmailVerified: true,
-    vipCode: 'DZ-VIP-0100-SUPER',
-    points: 1000,
-    registeredAt: '2026-01-01 00:00:00',
-    verifiedAt: '2026-01-01 00:00:00',
-  },
   {
     id: 'acc-demo-owner',
     email: 'contact@diavet.com',
