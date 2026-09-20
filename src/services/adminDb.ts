@@ -1,4 +1,4 @@
-import { AdminLead, OwnerAnswers, VetAnswers } from '../types';
+import { AdminLead, OwnerAnswers, VetAnswers, UserProfile } from '../types';
 import { syncSubmissionToFirestore, DIAVET_OFFICIAL_EMAIL, OWNER_TARGET_EMAIL } from './firebase';
 
 const ADMIN_DB_KEY = 'diavet_secure_admin_db';
@@ -149,11 +149,236 @@ export function generateMailtoForLead(lead: AdminLead): string {
     `Défis en Algérie:\n- ${(lead.challenges || []).join('\n- ')}\n\n` +
     `Besoins prioritaires:\n- ${(lead.expectedFeatures || []).join('\n- ')}\n\n` +
     `====================================================\n` +
-    `Enregistré dans Firebase Firestore (ID: gen-lang-client-0335742396)\n` +
-    `Email officiel: ${DIAVET_OFFICIAL_EMAIL} -> Boite mail propriétaire: ${OWNER_TARGET_EMAIL}`
+    `Enregistré dans le Registre Cloud DiaVet Santé Animale Algérie\n` +
+    `Email officiel: ${DIAVET_OFFICIAL_EMAIL}`
   );
 
-  return `mailto:${OWNER_TARGET_EMAIL}?cc=${DIAVET_OFFICIAL_EMAIL}&subject=${subject}&body=${body}`;
+  return `mailto:${DIAVET_OFFICIAL_EMAIL}?subject=${subject}&body=${body}`;
+}
+
+/**
+ * Generates an automated HTML auto-invoicing / billing email template for veterinarians
+ * after a consultation lead or registration submission.
+ * Uses dynamic form data and official branding without any hardcoded developer credentials.
+ */
+export function generateVetAutoInvoiceEmailHtml(
+  leadData: Partial<AdminLead> | Partial<VetAnswers> | Record<string, any>,
+  options?: {
+    officialEmail?: string;
+    currency?: string;
+    platformName?: string;
+  }
+): string {
+  const platform = options?.platformName || 'DiaVet Algérie Santé Animale';
+  const officialEmail = options?.officialEmail || DIAVET_OFFICIAL_EMAIL;
+  const currency = options?.currency || 'DZD';
+
+  // Extract vet & clinic dynamic details safely from various form submission shapes
+  const vetName = leadData.vetFullName || leadData.name || leadData.rawDetails?.vetFullName || 'Dr. Vétérinaire Agréé';
+  const clinicName = leadData.clinicName || leadData.petNameOrClinic || leadData.rawDetails?.clinicName || 'Cabinet Vétérinaire';
+  const orderNumber = leadData.orderRegistrationNumber || leadData.rawDetails?.orderRegistrationNumber || leadData.rawDetails?.orderNumber || 'ONMV-DZ-VALIDÉ';
+  const phone = leadData.phoneContact || leadData.phone || leadData.rawDetails?.phoneContact || 'Non spécifié';
+  const email = leadData.email || leadData.rawDetails?.email || 'Inscrit via Plateforme';
+  const wilaya = leadData.wilaya || leadData.rawDetails?.wilaya || 'Algérie';
+  const commune = leadData.commune || leadData.rawDetails?.commune || '';
+  const location = commune ? `${commune}, ${wilaya}` : wilaya;
+
+  const vipCode = leadData.vipCode || leadData.vipPartnerId || leadData.rawDetails?.vipCode || `VET-PRO-DZ-${Math.floor(1000 + Math.random() * 9000)}`;
+  const submittedAt = leadData.submittedAt || new Date().toLocaleString('fr-DZ', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const invoiceNumber = `FACT-AUT-${vipCode.replace(/[^A-Z0-9]/gi, '')}-${Date.now().toString().slice(-6)}`;
+
+  const specialtiesList: string[] = Array.isArray(leadData.specialties)
+    ? leadData.specialties
+    : Array.isArray(leadData.animalTypesOrSpecialties)
+      ? leadData.animalTypesOrSpecialties
+      : ['Pratique Vétérinaire Générale', 'Consultation & Urgences'];
+
+  const patientsVolume = leadData.dailyPatientsCount || leadData.annualBudgetOrPatients || leadData.rawDetails?.dailyPatientsCount || 'Patientèle Active DZ';
+
+  return `
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto-Facture & Validation Vétérinaire - ${platform}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #e2e8f0;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0f172a; padding: 20px 10px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" max-width="650" border="0" cellspacing="0" cellpadding="0" style="max-width: 650px; background-color: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);">
+          
+          <!-- Header Banner -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%); padding: 30px 25px; text-align: center;">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center">
+                    <div style="display: inline-block; background-color: #ffffff; padding: 10px 18px; border-radius: 12px; margin-bottom: 12px; font-weight: 800; color: #047857; font-size: 20px; letter-spacing: -0.5px;">
+                      🩺 ${platform}
+                    </div>
+                    <h1 style="margin: 8px 0 4px 0; color: #ffffff; font-size: 22px; font-weight: 700; line-height: 1.3;">
+                      Attestation d'Auto-Facturation & Validation Pro
+                    </h1>
+                    <p style="margin: 0; color: #a7f3d0; font-size: 13px; font-weight: 500;">
+                      Reçu officiel automatique suite au dépôt de lead consultation vétérinaire
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Notice Badge -->
+          <tr>
+            <td style="padding: 20px 25px 10px 25px;">
+              <div style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 10px; padding: 14px 18px; text-align: center;">
+                <span style="color: #34d399; font-weight: 700; font-size: 14px;">✓ Dépôt de Lead / Consultation Confirmé</span>
+                <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 12px;">
+                  Ce document certifie la prise en compte de vos informations professionnelles dans le registre officiel des praticiens.
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Invoice Details Grid -->
+          <tr>
+            <td style="padding: 15px 25px;">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0f172a; border-radius: 12px; border: 1px solid #334155; padding: 16px;">
+                <tr>
+                  <td width="50%" valign="top" style="padding: 6px 10px; border-right: 1px solid #334155;">
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Référence Facture</div>
+                    <div style="font-size: 14px; color: #10b981; font-weight: 800; margin-top: 2px;">${invoiceNumber}</div>
+                    
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; margin-top: 12px;">Date & Heure</div>
+                    <div style="font-size: 13px; color: #f1f5f9; font-weight: 600; margin-top: 2px;">${submittedAt}</div>
+                  </td>
+                  <td width="50%" valign="top" style="padding: 6px 10px 6px 20px;">
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px;">Pass Partenaire VIP</div>
+                    <div style="font-size: 14px; color: #fbbf24; font-weight: 800; margin-top: 2px;">${vipCode}</div>
+                    
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; margin-top: 12px;">Statut Paiement</div>
+                    <div style="font-size: 13px; color: #34d399; font-weight: 700; margin-top: 2px;">Acquitté / Offert (Partenaire Fondateur)</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Vet & Practice Info -->
+          <tr>
+            <td style="padding: 10px 25px;">
+              <h2 style="font-size: 15px; color: #38bdf8; margin: 0 0 12px 0; font-weight: 700; border-bottom: 1px solid #334155; padding-bottom: 8px;">
+                👨‍⚕️ Informations du Praticien & Cabinet
+              </h2>
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size: 13px; line-height: 1.6;">
+                <tr>
+                  <td width="40%" style="color: #94a3b8; padding: 4px 0;">Nom du Docteur:</td>
+                  <td width="60%" style="color: #ffffff; font-weight: 700; padding: 4px 0;">${vetName}</td>
+                </tr>
+                <tr>
+                  <td style="color: #94a3b8; padding: 4px 0;">Clinique / Cabinet:</td>
+                  <td style="color: #ffffff; font-weight: 600; padding: 4px 0;">${clinicName}</td>
+                </tr>
+                <tr>
+                  <td style="color: #94a3b8; padding: 4px 0;">N° Ordre Vétérinaire (ONMV):</td>
+                  <td style="color: #38bdf8; font-weight: 700; padding: 4px 0;">${orderNumber}</td>
+                </tr>
+                <tr>
+                  <td style="color: #94a3b8; padding: 4px 0;">Téléphone DZ:</td>
+                  <td style="color: #ffffff; font-weight: 600; padding: 4px 0;">${phone}</td>
+                </tr>
+                <tr>
+                  <td style="color: #94a3b8; padding: 4px 0;">Email de Contact:</td>
+                  <td style="color: #ffffff; font-weight: 600; padding: 4px 0;">${email}</td>
+                </tr>
+                <tr>
+                  <td style="color: #94a3b8; padding: 4px 0;">Wilaya / Commune:</td>
+                  <td style="color: #ffffff; font-weight: 600; padding: 4px 0;">${location}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Services / Package Table -->
+          <tr>
+            <td style="padding: 15px 25px;">
+              <h2 style="font-size: 15px; color: #38bdf8; margin: 0 0 12px 0; font-weight: 700; border-bottom: 1px solid #334155; padding-bottom: 8px;">
+                📋 Récapitulatif du Service & Avantages Débloqués
+              </h2>
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                  <tr style="background-color: #0f172a; text-align: left;">
+                    <th style="padding: 10px; color: #94a3b8; font-weight: 700; border: 1px solid #334155;">Prestation</th>
+                    <th style="padding: 10px; color: #94a3b8; font-weight: 700; border: 1px solid #334155;">Détails</th>
+                    <th style="padding: 10px; color: #94a3b8; font-weight: 700; border: 1px solid #334155; text-align: right;">Montant</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 10px; color: #f1f5f9; font-weight: 600; border: 1px solid #334155;">
+                      Abonnement Vétérinaire PRO (Fondateur)
+                    </td>
+                    <td style="padding: 10px; color: #cbd5e1; border: 1px solid #334155;">
+                      Accès privilégié aux leads consultations, téléconsultations & annuaire national DZ
+                    </td>
+                    <td style="padding: 10px; color: #10b981; font-weight: 700; border: 1px solid #334155; text-align: right;">
+                      0,00 ${currency}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; color: #f1f5f9; font-weight: 600; border: 1px solid #334155;">
+                      Volume Patients & Spécialités
+                    </td>
+                    <td style="padding: 10px; color: #cbd5e1; border: 1px solid #334155;">
+                      ${patientsVolume} | ${specialtiesList.join(', ')}
+                    </td>
+                    <td style="padding: 10px; color: #10b981; font-weight: 700; border: 1px solid #334155; text-align: right;">
+                      Inclus
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr style="background-color: #0f172a;">
+                    <td colspan="2" style="padding: 12px 10px; text-align: right; font-weight: 700; color: #ffffff; border: 1px solid #334155;">
+                      TOTAL NET (HT / TTC) :
+                    </td>
+                    <td style="padding: 12px 10px; text-align: right; font-weight: 800; color: #10b981; font-size: 14px; border: 1px solid #334155;">
+                      0,00 ${currency}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer / Support -->
+          <tr>
+            <td style="background-color: #0f172a; padding: 20px 25px; text-align: center; border-top: 1px solid #334155;">
+              <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 12px;">
+                Ce reçu d'auto-facture est généré automatiquement par la plateforme <strong>${platform}</strong>.
+              </p>
+              <p style="margin: 0; color: #64748b; font-size: 11px;">
+                Pour toute assistance technique ou mise à jour de vos informations : <a href="mailto:${officialEmail}" style="color: #38bdf8; text-decoration: none;">${officialEmail}</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
 }
 
 export function recordRegistrationLead(profile: Partial<UserProfile>, role: 'owner' | 'vet'): AdminLead {
