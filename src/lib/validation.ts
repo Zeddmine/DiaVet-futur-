@@ -129,6 +129,25 @@ export const getRegistrationSchema = (lang: Language = 'fr') => {
 
 export type RegistrationFormData = z.infer<ReturnType<typeof getRegistrationSchema>>;
 
+export function extractZodError(result: any, fallbackMessage: string = 'Valeur non valide'): string {
+  if (!result || result.success) return fallbackMessage;
+  const err = result?.error;
+  if (!err) return fallbackMessage;
+  
+  // Zod 3 provides err.issues array
+  const issuesList = Array.isArray(err.issues) ? err.issues : Array.isArray(err['issues']) ? err['issues'] : Array.isArray(err['errors']) ? err['errors'] : null;
+  if (issuesList && issuesList.length > 0) {
+    const item = issuesList[0];
+    if (item && typeof item.message === 'string') {
+      return item.message;
+    }
+  }
+  if (typeof err.message === 'string' && err.message) {
+    return err.message;
+  }
+  return fallbackMessage;
+}
+
 // Real-time Single Field Validator
 export const validateField = (
   fieldName: 'fullName' | 'email' | 'phone' | 'password' | 'wilaya',
@@ -146,11 +165,7 @@ export const validateField = (
   if (result.success) {
     return { isValid: true, error: null };
   } else {
-    const errObj = (result as any)?.error;
-    const firstError = errObj?.errors?.[0]?.message 
-      || errObj?.issues?.[0]?.message 
-      || (typeof errObj?.message === 'string' ? errObj.message : null)
-      || 'Valeur non valide';
+    const firstError = extractZodError(result, 'Valeur non valide');
     return { isValid: false, error: firstError };
   }
 };

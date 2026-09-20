@@ -24,6 +24,7 @@ import {
 import { 
   getRegistrationSchema, 
   validateField, 
+  extractZodError,
   getPasswordStrength, 
   isValidAlgerianPhone 
 } from '../lib/validation';
@@ -313,11 +314,8 @@ export default function OnboardingGateway({
     });
 
     if (!parseResult.success) {
-      const errObj = (parseResult as any)?.error;
-      const firstError = errObj?.errors?.[0]?.message 
-        || errObj?.issues?.[0]?.message 
-        || (typeof errObj?.message === 'string' ? errObj.message : null)
-        || (isRtl ? "يرجى تصحيح الأخطاء في النموذج." : isEn ? "Please fix the input errors in the form." : "Veuillez corriger les erreurs de saisie.");
+      const defaultMsg = isRtl ? "يرجى تصحيح الأخطاء في النموذج." : isEn ? "Please fix the input errors in the form." : "Veuillez corriger les erreurs de saisie.";
+      const firstError = extractZodError(parseResult, defaultMsg);
       setError(firstError);
       soundEngine.playError();
       return;
