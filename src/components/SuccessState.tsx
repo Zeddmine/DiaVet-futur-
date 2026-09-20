@@ -199,26 +199,28 @@ export default function SuccessState({
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-xl rounded-[2.5rem] bg-slate-950/95 border-2 border-emerald-500/40 p-6 sm:p-10 shadow-2xl shadow-emerald-500/20 backdrop-blur-2xl text-center text-slate-100"
       >
-        {/* Glowing Status Icon Badge */}
+        {/* Glowing Status Icon Badge with Mascot Illustration */}
         <motion.div
           initial={{ scale: 0, rotate: -30 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.15 }}
-          className="relative mx-auto mb-6 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center bg-gradient-to-tr from-emerald-500 to-cyan-400 p-1 shadow-xl shadow-emerald-500/30"
+          className="relative mx-auto mb-5 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl flex items-center justify-center bg-gradient-to-tr from-emerald-500 via-cyan-400 to-blue-500 p-1 shadow-2xl shadow-cyan-500/40"
         >
-          <div className="w-full h-full rounded-[1.4rem] bg-slate-950 flex items-center justify-center">
-            {isVet ? (
-              <Stethoscope className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400 stroke-[2.2]" />
-            ) : (
-              <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-cyan-400 stroke-[2.2]" />
-            )}
+          <div className="w-full h-full rounded-[1.4rem] bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-emerald-500/10 pointer-events-none" />
+            <span className="text-4xl sm:text-5xl select-none animate-bounce">
+              🐱🐶
+            </span>
+            <span className="text-[10px] font-black text-cyan-300 uppercase tracking-widest mt-0.5">
+              DiaVet DZ
+            </span>
           </div>
           <motion.div
             animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
             transition={{ repeat: Infinity, duration: 2.4 }}
-            className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-slate-950 shadow-md"
+            className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-slate-950 shadow-lg border-2 border-slate-950"
           >
-            <Sparkles className="w-3.5 h-3.5 fill-current" />
+            <Sparkles className="w-4 h-4 fill-current" />
           </motion.div>
         </motion.div>
 

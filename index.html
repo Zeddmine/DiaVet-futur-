@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" class="dark">
+<html lang="fr" class="dark" style="background-color: #020617; color: #f8fafc; margin: 0; padding: 0; height: 100%;">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -10,39 +10,58 @@
     <meta name="theme-color" content="#020617" />
     <title>DiaVet Algérie — La Plateforme Unifiée de Santé Animale 🇩🇿</title>
     <meta name="description" content="Plateforme numérique vétérinaire pour l'Algérie connectant propriétaires et vétérinaires avec carnet de santé, système de badges et jalons santé, articles et conseils cliniques, et annuaire d'urgences." />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" sizes="180x180" href="/pwa-192x192.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body, html {
+        background-color: #020617 !important;
+        color: #f8fafc !important;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
+      }
+      @keyframes pulseGlow {
+        0%, 100% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 35px rgba(6,182,212,0.6); }
+      }
+      .diavet-splash-icon {
+        animation: pulseGlow 2s infinite ease-in-out;
+      }
+    </style>
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white overscroll-none overflow-x-hidden">
-    <div id="root"></div>
+  <body class="bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white overscroll-none overflow-x-hidden" style="background-color: #020617;">
+    <div id="root">
+      <!-- Instant 0ms Dark Splash Screen prevents white flash on mobile home screen launcher -->
+      <div style="min-height: 100vh; width: 100vw; background-color: #020617; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div class="diavet-splash-icon" style="width: 80px; height: 80px; border-radius: 24px; background: linear-gradient(135deg, #06b6d4, #10b981); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 12px 30px -5px rgba(6,182,212,0.5);">
+          <span style="font-size: 40px; line-height: 1;">🐾</span>
+        </div>
+        <h1 style="font-size: 24px; font-weight: 900; color: #ffffff; margin: 0 0 8px 0; tracking: -0.02em;">DiaVet Algérie</h1>
+        <p style="font-size: 13px; color: #06b6d4; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 24px 0;">Chargement sécurisé...</p>
+        <div style="width: 48px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; position: relative;">
+          <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #06b6d4, #10b981); animation: loadingBar 1.5s infinite linear;"></div>
+        </div>
+        <style>
+          @keyframes loadingBar {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        </style>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       // iOS / Android Standalone PWA Fallback Safeguard
       window.addEventListener('error', function(e) {
         console.error('DiaVet PWA Error:', e);
       });
-      setTimeout(function() {
-        var rootNode = document.getElementById('root');
-        if (rootNode && (!rootNode.children || rootNode.children.length === 0)) {
-          console.warn('Initializing DiaVet Application interface...');
-          rootNode.innerHTML = `
-            <div style="min-height:100vh;background-color:#020617;color:#ffffff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;">
-              <div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#06b6d4,#10b981);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 10px 25px -5px rgba(6,182,212,0.4);">
-                <span style="font-size:32px;font-weight:bold;">🐾</span>
-              </div>
-              <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">DiaVet Algérie</h1>
-              <p style="font-size:14px;color:#94a3b8;max-width:320px;margin-bottom:24px;line-height:1.5;">La plateforme unifiée de santé animale en Algérie</p>
-              <button onclick="window.location.reload()" style="background:linear-gradient(90deg,#06b6d4,#10b981);color:#020617;font-weight:bold;font-size:14px;padding:12px 24px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(6,182,212,0.3);">
-                Lancer l'application
-              </button>
-            </div>
-          `;
-        }
-      }, 5000);
     </script>
   </body>
 </html>
