@@ -193,6 +193,22 @@ L'équipe DiaVet Algérie`
         {/* Profile Edit Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
 
+          {/* SAVED AI WELCOME BANNER DISPLAY */}
+          {userProfile.welcomeBannerUrl && (
+            <div className="rounded-2xl overflow-hidden border border-cyan-500/30 relative group shadow-lg">
+              <div className="absolute top-2 left-2 z-10 px-2.5 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-cyan-400/40 text-cyan-300 text-[10px] font-black uppercase flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Bannière AI Imagen Personnalisée</span>
+              </div>
+              <img 
+                src={userProfile.welcomeBannerUrl} 
+                alt="DiaVet AI Welcome Banner"
+                referrerPolicy="no-referrer"
+                className="w-full h-28 sm:h-36 object-cover"
+              />
+            </div>
+          )}
+
           {/* DEFINITIVE USER ROLE BADGE (LOCKED) */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/60 to-cyan-950/60 border border-cyan-500/40 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">

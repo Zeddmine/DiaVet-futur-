@@ -27,6 +27,7 @@ import {
   getPasswordStrength, 
   isValidAlgerianPhone 
 } from '../lib/validation';
+import { generateWelcomeBanner } from '../services/aiBannerService';
 
 const DRAFT_STORAGE_KEY = 'diavet_onboarding_form_draft_v1';
 
@@ -106,6 +107,10 @@ export default function OnboardingGateway({
   const [resendCountdown, setResendCountdown] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // AI Welcome Banner Generation state
+  const [aiBannerUrl, setAiBannerUrl] = useState<string | null>(null);
+  const [isGeneratingBanner, setIsGeneratingBanner] = useState<boolean>(false);
 
   // Autosave indicators
   const [hasRestoredDraft, setHasRestoredDraft] = useState(Boolean(initialDraft && (initialDraft.fullName || initialDraft.email || initialDraft.phone)));
@@ -399,8 +404,26 @@ export default function OnboardingGateway({
     } catch {}
     soundEngine.playLevelUp();
     setVerifiedAccount(result.account);
-    setIsSubmitting(false);
-    setShowSuccessModal(true);
+    setIsGeneratingBanner(true);
+
+    // Trigger AI Welcome Banner generation via Imagen / Canvas Service
+    const name = result.account.fullName;
+    const accountRole = result.account.role;
+    const petOrClinic = accountRole === 'vet' ? result.account.clinicName : result.account.petName;
+
+    generateWelcomeBanner(name, accountRole, petOrClinic)
+      .then((bannerUrl) => {
+        setAiBannerUrl(bannerUrl);
+        setIsGeneratingBanner(false);
+        setIsSubmitting(false);
+        setShowSuccessModal(true);
+      })
+      .catch((err) => {
+        console.warn("AI Banner Generation error:", err);
+        setIsGeneratingBanner(false);
+        setIsSubmitting(false);
+        setShowSuccessModal(true);
+      });
   };
 
   // Resend code handler
@@ -519,7 +542,8 @@ export default function OnboardingGateway({
         badgeTitle: verifiedAccount.role === 'vet' 
           ? (isRtl ? 'طبيب بيطري معتمد في الجزائر' : isEn ? 'Licensed DZ Veterinarian' : 'Docteur Vétérinaire Agréé DZ') 
           : (isRtl ? 'عضو VIP مؤسس بالجزائر' : isEn ? 'DZ Founding VIP Member' : 'Membre VIP Fondateur DZ'),
-        vipCode: verifiedAccount.vipCode
+        vipCode: verifiedAccount.vipCode,
+        welcomeBannerUrl: aiBannerUrl || undefined
       };
       onRegister(profile, verifiedAccount.role);
     }
@@ -536,6 +560,7 @@ export default function OnboardingGateway({
         clinicName={verifiedAccount.clinicName}
         role={verifiedAccount.role}
         vipCode={verifiedAccount.vipCode}
+        welcomeBannerUrl={aiBannerUrl || undefined}
         pointsEarned={verifiedAccount.points || (verifiedAccount.role === 'vet' ? 250 : 150)}
         onContinue={handleProceedToApp}
       />

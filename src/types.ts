@@ -79,6 +79,7 @@ export interface UserProfile {
   isVipEarlyAccess?: boolean;
   vipCode?: string;
   badgeTitle?: string;
+  welcomeBannerUrl?: string;
   points?: number;
   referralsCount?: number;
   milestonesCompletedCount?: number;

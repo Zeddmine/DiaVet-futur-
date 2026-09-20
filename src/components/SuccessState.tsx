@@ -29,6 +29,7 @@ interface SuccessStateProps {
   clinicName?: string;
   role?: 'owner' | 'vet';
   vipCode?: string;
+  welcomeBannerUrl?: string;
   pointsEarned?: number;
   onContinue: () => void;
   onSecondaryAction?: () => void;
@@ -43,6 +44,7 @@ export default function SuccessState({
   clinicName = 'Cabinet Vétérinaire',
   role = 'owner',
   vipCode,
+  welcomeBannerUrl,
   pointsEarned = 100,
   onContinue,
   onSecondaryAction,
@@ -244,6 +246,27 @@ export default function SuccessState({
             {getSubtitle()}
           </p>
         </motion.div>
+
+        {/* AI Imagen Generated Welcome Banner Showcase */}
+        {welcomeBannerUrl && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-6 rounded-3xl overflow-hidden border-2 border-cyan-400/50 shadow-2xl shadow-cyan-500/20 relative group"
+          >
+            <div className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-cyan-400/60 text-cyan-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>{isRtl ? 'بانيير ترحيبي ذكي (Imagen AI 🎨)' : 'Bannière AI Imagen Générée ✨'}</span>
+            </div>
+            <img 
+              src={welcomeBannerUrl} 
+              alt="DiaVet AI Welcome Banner" 
+              referrerPolicy="no-referrer"
+              className="w-full h-auto object-cover max-h-[220px] sm:max-h-[260px] transform group-hover:scale-105 transition-transform duration-500"
+            />
+          </motion.div>
+        )}
 
         {/* VIP Digital Card Showcase */}
         <motion.div
