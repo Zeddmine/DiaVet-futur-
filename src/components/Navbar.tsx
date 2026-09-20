@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   AppScreen, Language, Theme 
 } from '../types';
 import { translations } from '../data/translations';
+import { navDrawerVariants } from '../utils/transitions';
 import { 
   Menu, X, Sun, Moon, Smartphone, Monitor, Instagram, 
   Award, Heart, ShoppingBag, Lightbulb, 
@@ -375,19 +377,22 @@ export default function Navbar({
             )}
 
             {/* Language Selector in Navbar */}
-            <div className="flex items-center gap-1 bg-slate-900/90 border border-white/15 p-1 rounded-xl shadow-inner">
+            <div className="flex items-center gap-1 bg-slate-900/95 dark:bg-slate-900/95 light:bg-slate-100 border-2 border-cyan-500/40 light:border-cyan-600/40 p-1 rounded-2xl shadow-md">
               <button
                 type="button"
                 onClick={() => {
                   soundEngine.playCyberClick();
                   onSelectLang('fr');
                 }}
-                className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  currentLang === 'fr' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                className={`px-2 py-0.5 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  currentLang === 'fr' 
+                    ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black shadow-sm scale-105' 
+                    : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-white light:hover:text-slate-900'
                 }`}
                 title="Français"
               >
-                FR
+                <span>🇫🇷</span>
+                <span>FR</span>
               </button>
               <button
                 type="button"
@@ -395,12 +400,15 @@ export default function Navbar({
                   soundEngine.playCyberClick();
                   onSelectLang('ar');
                 }}
-                className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  currentLang === 'ar' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                className={`px-2 py-0.5 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  currentLang === 'ar' 
+                    ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black shadow-sm scale-105' 
+                    : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-white light:hover:text-slate-900'
                 }`}
                 title="العربية"
               >
-                عربي
+                <span>🇩🇿</span>
+                <span>عربي</span>
               </button>
               <button
                 type="button"
@@ -408,14 +416,43 @@ export default function Navbar({
                   soundEngine.playCyberClick();
                   onSelectLang('en');
                 }}
-                className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  currentLang === 'en' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                className={`px-2 py-0.5 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  currentLang === 'en' 
+                    ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black shadow-sm scale-105' 
+                    : 'text-slate-400 dark:text-slate-400 light:text-slate-600 hover:text-white light:hover:text-slate-900'
                 }`}
                 title="English"
               >
-                EN
+                <span>🇬🇧</span>
+                <span>EN</span>
               </button>
             </div>
+
+            {/* Theme Switcher Toggle Button (Sombre 🌙 / Clair ☀️) */}
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playCyberClick();
+                onToggleTheme();
+              }}
+              title={
+                currentTheme === 'dark'
+                  ? (isAr ? "التبديل إلى الوضع الفاتح" : isEn ? "Switch to Light Mode" : "Passer au Mode Clair")
+                  : (isAr ? "التبديل إلى الوضع الداكن" : isEn ? "Switch to Dark Mode" : "Passer au Mode Sombre")
+              }
+              className={`p-2 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center shadow-md active:scale-95 ${
+                currentTheme === 'dark'
+                  ? 'bg-slate-900/90 border-cyan-500/40 text-amber-300 hover:text-amber-200 hover:border-amber-400/60'
+                  : 'bg-amber-100 border-amber-400 text-amber-800 hover:text-amber-950 hover:bg-amber-200'
+              }`}
+              aria-label="Toggle theme mode"
+            >
+              {currentTheme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-300 animate-pulse" />
+              ) : (
+                <Moon className="w-4 h-4 text-amber-800" />
+              )}
+            </button>
 
             {/* Mobile Menu Toggle Button */}
             <button
@@ -434,17 +471,43 @@ export default function Navbar({
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-slate-950/95 border-b border-white/10 px-4 pt-3 pb-6 space-y-4 animate-in slide-in-from-top duration-300 max-h-[85vh] overflow-y-auto">
+      {/* Mobile Drawer Menu with AnimatePresence exit animations */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            variants={navDrawerVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="lg:hidden bg-slate-950/95 border-b border-white/10 px-4 pt-3 pb-6 space-y-4 max-h-[85vh] overflow-y-auto"
+          >
           
-          {/* Language Selection Header */}
-          <div className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-900 border border-white/10">
-            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-              <Languages className="w-4 h-4 text-cyan-400" />
-              <span>{t.changeLang}</span>
-            </span>
-            <div className="flex items-center gap-1">
+          {/* Theme & Language Selection Header */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-2.5 rounded-2xl bg-slate-900 border border-white/10">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Languages className="w-4 h-4 text-cyan-400" />
+                <span>{t.changeLang}</span>
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playCyberClick();
+                  onToggleTheme();
+                }}
+                className={`px-2.5 py-1 rounded-xl border text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                  currentTheme === 'dark'
+                    ? 'bg-slate-800 text-amber-300 border-amber-500/40 hover:bg-slate-700'
+                    : 'bg-amber-100 text-amber-900 border-amber-400 hover:bg-amber-200'
+                }`}
+              >
+                {currentTheme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-300" /> : <Moon className="w-3.5 h-3.5 text-amber-700" />}
+                <span className="text-[11px] font-black">{currentTheme === 'dark' ? (isAr ? 'فاتح' : isEn ? 'Light' : 'Clair') : (isAr ? 'داكن' : isEn ? 'Dark' : 'Sombre')}</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1 justify-end">
               {[
                 { code: 'fr' as Language, label: 'Français', flag: '🇫🇷' },
                 { code: 'ar' as Language, label: 'العربية', flag: '🇩🇿' },
@@ -720,8 +783,9 @@ export default function Navbar({
               </button>
             )}
           </nav>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import MagicEnvelopeModal from './MagicEnvelopeModal';
 import DiaVetLogo from './DiaVetLogo';
+import { isValidAlgerianPhone } from '../lib/validation';
 
 interface OwnerQuestionnaireProps {
   currentLang: Language;
@@ -52,14 +53,14 @@ export default function OwnerQuestionnaire({
 
   const savedDraft = getSavedOwnerDraft();
 
-  // STEP STATE: 0=Intro, 1..10=Questions, 11=Suspense calculation, 12=VIP Pass
+  // STEP STATE: 0=Intro, 1..14=Questions, 15=Suspense calculation, 16=VIP Pass
   const [step, setStep] = useState<number>(() => {
-    if (savedDraft?.step && savedDraft.step > 0 && savedDraft.step <= 10) {
+    if (savedDraft?.step && savedDraft.step > 0 && savedDraft.step <= 14) {
       return savedDraft.step;
     }
     return 0;
   });
-  const totalSteps = 10;
+  const totalSteps = 14;
 
   // Selected preview photo index for showcase
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<{ [key: string]: number }>({});
@@ -101,7 +102,7 @@ export default function OwnerQuestionnaire({
 
   // Autosave answers & step to localStorage
   useEffect(() => {
-    if (step >= 1 && step <= 10) {
+    if (step >= 1 && step <= 14) {
       try {
         localStorage.setItem(OWNER_DRAFT_STORAGE_KEY, JSON.stringify({
           step,
@@ -203,14 +204,14 @@ export default function OwnerQuestionnaire({
 
   // Suspense progress timer
   useEffect(() => {
-    if (step === 11) {
+    if (step === 15) {
       soundEngine.playSuccess();
       const interval = setInterval(() => {
         setSuspenseProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
             setTimeout(() => {
-              setStep(12);
+              setStep(16);
               setShowMagicEnvelope(true);
             }, 600);
             return 100;
@@ -330,19 +331,19 @@ export default function OwnerQuestionnaire({
         }
         break;
       case 10:
-        if (!answers.ownerName?.trim()) {
+        if (!answers.ownerName?.trim() || answers.ownerName.trim().length < 2) {
           triggerShake(
             isRtl 
-              ? 'يرجى كتابة اسمك ولقبك لتفعيل بطاقة VIP.'
-              : 'Veuillez indiquer votre prénom et nom pour générer votre pass.'
+              ? 'يرجى كتابة اسمك ولقبك الكامل (حرفين على الأقل) لتفعيل بطاقة VIP.'
+              : 'Veuillez indiquer votre prénom et nom (au moins 2 caractères) pour générer votre pass.'
           );
           return false;
         }
-        if (!answers.ownerPhone?.trim() || answers.ownerPhone.trim().length < 8) {
+        if (!answers.ownerPhone?.trim() || !isValidAlgerianPhone(answers.ownerPhone)) {
           triggerShake(
             isRtl 
-              ? 'يرجى إدخال رقم هاتف محمول جزائري صحيح.'
-              : 'Veuillez indiquer un numéro de portable algérien valide.'
+              ? 'يرجى إدخال رقم هاتف محمول جزائري صحيح (05 أو 06 أو 07 أو +213).'
+              : 'Veuillez indiquer un numéro de portable algérien valide (ex: 05, 06, 07 ou +213).'
           );
           return false;
         }
@@ -1662,30 +1663,63 @@ export default function OwnerQuestionnaire({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1.5">
-                      {isRtl ? 'الاسم واللقب الرسمي *' : 'Votre Prénom et Nom *'}
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-bold text-slate-300">
+                        {isRtl ? 'الاسم واللقب الرسمي *' : 'Votre Prénom et Nom *'}
+                      </label>
+                      {answers.ownerName && answers.ownerName.trim().length >= 2 && (
+                        <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                          <Check className="w-3 h-3" />
+                          {isRtl ? 'صحيح' : 'Valide'}
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="text"
                       required
                       placeholder={isRtl ? 'مثال: سارة بن علي، كريم منصوري...' : 'Ex: Sarah Benali, Karim Mansouri...'}
                       value={answers.ownerName || ''}
                       onChange={e => setAnswers({ ...answers, ownerName: e.target.value })}
-                      className="w-full p-3.5 rounded-2xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-400"
+                      className={`w-full p-3.5 rounded-2xl bg-slate-900 border text-white placeholder-slate-500 text-sm focus:outline-none transition-all ${
+                        answers.ownerName && answers.ownerName.trim().length >= 2
+                          ? 'border-emerald-500/50 focus:border-emerald-400'
+                          : 'border-white/10 focus:border-cyan-400'
+                      }`}
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1.5">
-                      {isRtl ? 'رقم الهاتف المحمول الجزائري *' : 'Numéro de portable algérien *'}
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-bold text-slate-300">
+                        {isRtl ? 'رقم الهاتف المحمول الجزائري *' : 'Numéro de portable algérien *'}
+                      </label>
+                      {answers.ownerPhone && (
+                        isValidAlgerianPhone(answers.ownerPhone) ? (
+                          <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            {isRtl ? 'رقم صحيح' : 'Valide'}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-rose-400 font-semibold flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {isRtl ? 'غير مطابق (05/06/07)' : 'Invalide (05/06/07)'}
+                          </span>
+                        )
+                      )}
+                    </div>
                     <input
                       type="tel"
                       required
                       placeholder={isRtl ? 'مثال: 0550 12 34 56 أو 0661 23 45 67' : 'Ex: 0550 12 34 56 ou 0661 23 45 67'}
                       value={answers.ownerPhone || ''}
                       onChange={e => setAnswers({ ...answers, ownerPhone: e.target.value })}
-                      className="w-full p-3.5 rounded-2xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-sm font-mono focus:outline-none focus:border-cyan-400"
+                      className={`w-full p-3.5 rounded-2xl bg-slate-900 border text-white placeholder-slate-500 text-sm font-mono focus:outline-none transition-all ${
+                        answers.ownerPhone
+                          ? isValidAlgerianPhone(answers.ownerPhone)
+                            ? 'border-emerald-500/50 focus:border-emerald-400'
+                            : 'border-rose-500/60 focus:border-rose-400'
+                          : 'border-white/10 focus:border-cyan-400'
+                      }`}
                     />
                   </div>
                 </div>

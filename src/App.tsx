@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Language, Theme, AppScreen, OwnerAnswers, VetAnswers, 
   Badge, HealthMilestone, UserProfile, Article 
@@ -31,9 +32,13 @@ import DiaVetTvSection from './components/DiaVetTvSection';
 import WhatsAppSupportButton from './components/WhatsAppSupportButton';
 import { recordRegistrationLead } from './services/adminDb';
 import { translations } from './data/translations';
+import { useLanguage } from './context/LanguageContext';
+import { useLoading } from './context/LoadingContext';
+import GlobalLoadingOverlay from './components/GlobalLoadingOverlay';
 import { INITIAL_BADGES, INITIAL_MILESTONES, DEFAULT_USER_PROFILE } from './data/badgeData';
 import { INITIAL_ARTICLES } from './data/articlesData';
 import { soundEngine } from './utils/soundEngine';
+import { getScreenArchetype, screenArchetypeVariants } from './utils/transitions';
 import { 
   Smartphone, Sparkles, Heart, Activity, Award, X, CheckCircle2, 
   Instagram, ShoppingBag, Lightbulb, ArrowRight, ShieldCheck, Lock,
@@ -46,16 +51,39 @@ interface ToastNotification {
   icon: string;
 }
 
+const screenTransitionVariants = {
+  initial: { opacity: 0, y: 12, scale: 0.995 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1, 
+    transition: { 
+      duration: 0.32, 
+      ease: [0.16, 1, 0.3, 1] 
+    } 
+  },
+  exit: { 
+    opacity: 0, 
+    y: -8, 
+    scale: 0.995, 
+    transition: { 
+      duration: 0.2, 
+      ease: [0.16, 1, 0.3, 1] 
+    } 
+  }
+};
+
 export default function App() {
-  const [currentLang, setCurrentLang] = useState<Language>(() => {
+  const { currentLang, setLanguage } = useLanguage();
+  const { triggerNavigationLoading } = useLoading();
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
     try {
-      const savedLang = localStorage.getItem('diavet_lang') as Language;
-      return savedLang && ['fr', 'en', 'ar'].includes(savedLang) ? savedLang : 'fr';
+      const savedTheme = localStorage.getItem('diavet_theme') as Theme;
+      return savedTheme === 'light' ? 'light' : 'dark';
     } catch {
-      return 'fr';
+      return 'dark';
     }
   });
-  const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
   const [activeScreen, setActiveScreen] = useState<AppScreen>('home');
   const [isIphoneView, setIsIphoneView] = useState<boolean>(false);
 
@@ -187,35 +215,34 @@ export default function App() {
     } catch {}
   }, [favoriteArticleIds]);
 
-  // Sync HTML root and language preference
+  // Sync HTML root and body theme
   useEffect(() => {
     const root = document.documentElement;
+    const body = document.body;
     if (currentTheme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
+      if (body) {
+        body.classList.add('dark');
+        body.classList.remove('light');
+      }
     } else {
       root.classList.add('light');
       root.classList.remove('dark');
+      if (body) {
+        body.classList.add('light');
+        body.classList.remove('dark');
+      }
     }
-
-    if (currentLang === 'ar') {
-      root.setAttribute('dir', 'rtl');
-      root.setAttribute('lang', 'ar');
-      document.title = "DiaVet Algérie — المنصة الوطنية الموحدة للصحة الحيوانية 🇩🇿";
-    } else if (currentLang === 'en') {
-      root.setAttribute('dir', 'ltr');
-      root.setAttribute('lang', 'en');
-      document.title = "DiaVet Algeria — Unified Animal Health Platform 🇩🇿";
-    } else {
-      root.setAttribute('dir', 'ltr');
-      root.setAttribute('lang', 'fr');
-      document.title = "DiaVet Algérie — La Plateforme Unifiée de Santé Animale 🇩🇿";
-    }
-
     try {
-      localStorage.setItem('diavet_lang', currentLang);
+      localStorage.setItem('diavet_theme', currentTheme);
     } catch {}
-  }, [currentTheme, currentLang]);
+  }, [currentTheme]);
+
+  const handleSelectLang = (lang: Language) => {
+    soundEngine.playCyberClick();
+    setLanguage(lang);
+  };
 
   const toggleTheme = () => {
     setCurrentTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
@@ -235,6 +262,7 @@ export default function App() {
         );
         return;
       }
+      triggerNavigationLoading();
       setActiveScreen('vet-portal');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -242,6 +270,7 @@ export default function App() {
 
     // 2. Accessing Veterinary Questionnaire
     if (screen === 'questionnaire-vet') {
+      triggerNavigationLoading();
       setActiveScreen('questionnaire-vet');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -261,6 +290,7 @@ export default function App() {
       return;
     }
 
+    triggerNavigationLoading();
     setActiveScreen(screen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -281,8 +311,12 @@ export default function App() {
           const nextVal = !m.isCompleted;
           if (nextVal) {
             triggerRewardToast(
-              "Jalon Santé Validé ! 🩺",
-              `Bravo ! Vous avez validé "${m.title}" (+${m.points} Points Santé).`,
+              currentLang === 'ar' ? "تم تأكيد المرحلة الصحية ! 🩺" : currentLang === 'en' ? "Health Milestone Validated! 🩺" : "Jalon Santé Validé ! 🩺",
+              currentLang === 'ar' 
+                ? `أحسنت ! لقد أكدت "${m.titleAr || m.title}" (+${m.points} نقاط صحية).` 
+                : currentLang === 'en' 
+                ? `Bravo! You validated "${m.titleEn || m.title}" (+${m.points} Health Points).` 
+                : `Bravo ! Vous avez validé "${m.title}" (+${m.points} Points Santé).`,
               '🛡️'
             );
           }
@@ -311,8 +345,12 @@ export default function App() {
       return updated;
     });
     triggerRewardToast(
-      "Nouveau Badge Forgé ! 🌟",
-      `Le badge "${newBadge.title}" a été forgé et gravé dans votre collection.`,
+      currentLang === 'ar' ? "تم صياغة شارة جديدة ! 🌟" : currentLang === 'en' ? "New Badge Forged! 🌟" : "Nouveau Badge Forgé ! 🌟",
+      currentLang === 'ar' 
+        ? `تم صياغة الشارة "${newBadge.titleAr || newBadge.title}" ونقشها في مجموعتك.` 
+        : currentLang === 'en' 
+        ? `The badge "${newBadge.titleEn || newBadge.title}" has been forged into your collection.` 
+        : `Le badge "${newBadge.title}" a été forgé et gravé dans votre collection.`,
       '⚡'
     );
   };
@@ -326,8 +364,8 @@ export default function App() {
       return updated;
     });
     triggerRewardToast(
-      "Badge Retiré",
-      "Le badge a été retiré de votre collection.",
+      currentLang === 'ar' ? "تمت إزالة الشارة" : currentLang === 'en' ? "Badge Removed" : "Badge Retiré",
+      currentLang === 'ar' ? "تمت إزالة الشارة من مجموعتك." : currentLang === 'en' ? "The badge was removed from your collection." : "Le badge a été retiré de votre collection.",
       '🗑️'
     );
   };
@@ -350,8 +388,12 @@ export default function App() {
     );
 
     triggerRewardToast(
-      "Parrainage Validé ! 🎉",
-      `Vous avez maintenant ${nextCount} filleul(s) actif(s) ! +150 Points Santé ajoutés.`,
+      currentLang === 'ar' ? "تم تأكيد الإحالة ! 🎉" : currentLang === 'en' ? "Referral Validated! 🎉" : "Parrainage Validé ! 🎉",
+      currentLang === 'ar' 
+        ? `لديك الآن ${nextCount} صديق(أصدقاء) مدعو(ون) ! تمت إضافة +150 نقطة صحية.` 
+        : currentLang === 'en' 
+        ? `You now have ${nextCount} active referral(s)! +150 Health Points added.` 
+        : `Vous avez maintenant ${nextCount} filleul(s) actif(s) ! +150 Points Santé ajoutés.`,
       '🤝'
     );
   };
@@ -373,8 +415,8 @@ export default function App() {
       points: (up.points || 0) + 30
     }));
     triggerRewardToast(
-      "Conseil publié avec succès !",
-      "+30 Points de contribution communautaire ajoutés.",
+      currentLang === 'ar' ? "تم نشر النصيحة بنجاح !" : currentLang === 'en' ? "Tip Published Successfully!" : "Conseil publié avec succès !",
+      currentLang === 'ar' ? "تمت إضافة مشاركتك وتكافؤ +30 نقطة صحية." : currentLang === 'en' ? "Your contribution was added (+30 Health Pts)." : "Votre contribution a été ajoutée (+30 Points Santé).",
       '✍️'
     );
   };
@@ -454,8 +496,38 @@ export default function App() {
 
   const unlockedCount = badges.filter(b => b.isUnlocked).length;
 
-  // Screen Switcher
-  const renderScreen = () => {
+  // Animation variants for smooth screen transitions
+  const screenTransitionVariants = {
+    initial: {
+      opacity: 0,
+      y: 12,
+      scale: 0.995,
+      filter: 'blur(3px)',
+    },
+    animate: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: 'blur(0px)',
+      transition: {
+        duration: 0.32,
+        ease: [0.22, 1, 0.36, 1], // Smooth cubic bezier easing
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: -8,
+      scale: 0.995,
+      filter: 'blur(2px)',
+      transition: {
+        duration: 0.18,
+        ease: [0.4, 0, 1, 1],
+      },
+    },
+  };
+
+  // Screen Switcher Content
+  const renderScreenContent = () => {
     switch (activeScreen) {
       case 'roles':
         return (
@@ -633,13 +705,13 @@ export default function App() {
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="text-center max-w-2xl mx-auto mb-8">
                 <span className="text-xs font-black uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
-                  Écosystème National DiaVet Algérie 🇩🇿
+                  {currentLang === 'ar' ? 'منظومة ديافيت الوطنية بالجزائر 🇩🇿' : currentLang === 'en' ? 'DiaVet National Ecosystem Algeria 🇩🇿' : 'Écosystème National DiaVet Algérie 🇩🇿'}
                 </span>
                 <h2 className="text-2xl sm:text-4xl font-black text-white mt-3">
-                  Services Solidaires & Nouveautés Connectées
+                  {currentLang === 'ar' ? 'الخدمات التضامنية والميزات الجديدة' : currentLang === 'en' ? 'Solidarity Services & Connected Features' : 'Services Solidaires & Nouveautés Connectées'}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 mt-2">
-                  Au-delà de la santé vétérinaire : adoptez un animal rescapé, accédez à l'animalerie officielle et donnez votre avis sur le futur de DiaVet.
+                  {currentLang === 'ar' ? 'أكثر من مجرد صحة بيطرية: تبنَّ حيواناً مُنقذاً، وادخل إلى المتجر المعتمد وشارك برأيك في مستقبل ديافيت.' : currentLang === 'en' ? 'Beyond veterinary health: adopt a rescued pet, access the official pet shop, and share your feedback on DiaVet\'s future.' : 'Au-delà de la santé vétérinaire : adoptez un animal rescapé, accédez à l\'animalerie officielle et donnez votre avis sur le futur de DiaVet.'}
                 </p>
               </div>
 
@@ -653,7 +725,7 @@ export default function App() {
                   {!hasCompletedQuestionnaire && (
                     <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/90 border border-amber-500/40 text-[10px] font-bold text-amber-300 shadow-md">
                       <Lock className="w-3 h-3 text-amber-400" />
-                      <span>Verrouillé</span>
+                      <span>{currentLang === 'ar' ? 'مغلق' : currentLang === 'en' ? 'Locked' : 'Verrouillé'}</span>
                     </div>
                   )}
                   <div>
@@ -661,17 +733,20 @@ export default function App() {
                       <Heart className="w-6 h-6 fill-current" />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/30">
-                      Solidarité Animale DZ
+                      {currentLang === 'ar' ? 'التضامن مع الحيوانات بالجزائر' : currentLang === 'en' ? 'Animal Solidarity DZ' : 'Solidarité Animale DZ'}
                     </span>
                     <h3 className="text-xl font-black text-white mt-3 mb-2">
-                      Adoption Responsable
+                      {currentLang === 'ar' ? 'التبني المسؤول' : currentLang === 'en' ? 'Responsible Adoption' : 'Adoption Responsable'}
                     </h3>
                     <p className="text-xs text-slate-300 leading-relaxed mb-6">
-                      Chiots, chatons et animaux rescapés vaccinés et stérilisés dans 58 wilayas. Trouvez votre futur compagnon sans frais marchands.
+                      {currentLang === 'ar' ? 'جراء وقطط وحيوانات منقذة ملقحة ومخصاة في 58 ولاية. اعثر على رفيقك المستقبلي بدون تكاليف تجارية.' : currentLang === 'en' ? 'Puppies, kittens, and rescued pets vaccinated and neutered across 58 wilayas. Find your future companion free of commercial fees.' : 'Chiots, chatons et animaux rescapés vaccinés et stérilisés dans 58 wilayas. Trouvez votre futur compagnon sans frais marchands.'}
                     </p>
                   </div>
                   <div className="flex items-center text-xs font-bold text-rose-400 group-hover:text-rose-300">
-                    <span>{hasCompletedQuestionnaire ? 'Voir les animaux à adopter →' : 'Débloqué après formulaire & enveloppe 🔒'}</span>
+                    <span>{hasCompletedQuestionnaire 
+                      ? (currentLang === 'ar' ? 'عرض الحيوانات للتبني ←' : currentLang === 'en' ? 'View pets for adoption →' : 'Voir les animaux à adopter →') 
+                      : (currentLang === 'ar' ? 'يفتح بعد الاستبيان والهدية 🔒' : currentLang === 'en' ? 'Unlocked after form & gift 🔒' : 'Débloqué après formulaire & enveloppe 🔒')}
+                    </span>
                   </div>
                 </div>
 
@@ -683,7 +758,7 @@ export default function App() {
                   {!hasCompletedQuestionnaire && (
                     <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/90 border border-amber-500/40 text-[10px] font-bold text-amber-300 shadow-md">
                       <Lock className="w-3 h-3 text-amber-400" />
-                      <span>Verrouillé</span>
+                      <span>{currentLang === 'ar' ? 'مغلق' : currentLang === 'en' ? 'Locked' : 'Verrouillé'}</span>
                     </div>
                   )}
                   <div>
@@ -691,17 +766,20 @@ export default function App() {
                       <ShoppingBag className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                      Boutique & Soins
+                      {currentLang === 'ar' ? 'المتجر والرعاية' : currentLang === 'en' ? 'Shop & Care' : 'Boutique & Soins'}
                     </span>
                     <h3 className="text-xl font-black text-white mt-3 mb-2">
-                      Animalerie & Pharmacie Vétérinaire
+                      {currentLang === 'ar' ? 'متجر الحيوانات والصيدلية البيطرية' : currentLang === 'en' ? 'Pet Shop & Veterinary Pharmacy' : 'Animalerie & Pharmacie Vétérinaire'}
                     </h3>
                     <p className="text-xs text-slate-300 leading-relaxed mb-6">
-                      Nutrition premium, antiparasitaires Seresto & Frontline en Dinars Algériens (DZD), et réservation des futurs services de toilettage et ambulance.
+                      {currentLang === 'ar' ? 'تغذية ممتازة ومضادات الطفيليات Seresto و Frontline بالدينار الجزائري، وحجز خدمات الحلاقة والإسعاف.' : currentLang === 'en' ? 'Premium nutrition, Seresto & Frontline antiparasitics in DZD, and booking for future grooming and ambulance services.' : 'Nutrition premium, antiparasitaires Seresto & Frontline en Dinars Algériens (DZD), et réservation des futurs services de toilettage et ambulance.'}
                     </p>
                   </div>
                   <div className="flex items-center text-xs font-bold text-emerald-400 group-hover:text-emerald-300">
-                    <span>{hasCompletedQuestionnaire ? 'Explorer la boutique & feuille de route →' : 'Débloqué après formulaire & enveloppe 🔒'}</span>
+                    <span>{hasCompletedQuestionnaire 
+                      ? (currentLang === 'ar' ? 'استكشاف المتجر وخارطة الطريق ←' : currentLang === 'en' ? 'Explore shop & roadmap →' : 'Explorer la boutique & feuille de route →') 
+                      : (currentLang === 'ar' ? 'يفتح بعد الاستبيان والهدية 🔒' : currentLang === 'en' ? 'Unlocked after form & gift 🔒' : 'Débloqué après formulaire & enveloppe 🔒')}
+                    </span>
                   </div>
                 </div>
 
@@ -713,7 +791,7 @@ export default function App() {
                   {!hasCompletedQuestionnaire && (
                     <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/90 border border-amber-500/40 text-[10px] font-bold text-amber-300 shadow-md">
                       <Lock className="w-3 h-3 text-amber-400" />
-                      <span>Verrouillé</span>
+                      <span>{currentLang === 'ar' ? 'مغلق' : currentLang === 'en' ? 'Locked' : 'Verrouillé'}</span>
                     </div>
                   )}
                   <div>
@@ -721,17 +799,20 @@ export default function App() {
                       <Lightbulb className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/30">
-                      Co-Construction
+                      {currentLang === 'ar' ? 'البناء المشترك' : currentLang === 'en' ? 'Co-Construction' : 'Co-Construction'}
                     </span>
                     <h3 className="text-xl font-black text-white mt-3 mb-2">
-                      Boîte à Idées & Avis Communauté
+                      {currentLang === 'ar' ? 'صندوق الأفكار وآراء المجتمع' : currentLang === 'en' ? 'Idea Box & Community Reviews' : 'Boîte à Idées & Avis Communauté'}
                     </h3>
                     <p className="text-xs text-slate-300 leading-relaxed mb-6">
-                      Proposez vos fonctionnalités, donnez votre note sur 5 étoiles et votez pour les améliorations prioritaires pour les vétérinaires et propriétaires algériens.
+                      {currentLang === 'ar' ? 'اقترح ميزات جديدة، وأعطِ تقييمك بـ 5 نجوم وصوت للتحسينات ذات الأولوية للبياطرة والمربين الجزائريين.' : currentLang === 'en' ? 'Propose new features, leave your 5-star review, and vote on priority improvements for Algerian vets and owners.' : 'Proposez vos fonctionnalités, donnez votre note sur 5 étoiles et votez pour les améliorations prioritaires pour les vétérinaires et propriétaires algériens.'}
                     </p>
                   </div>
                   <div className="flex items-center text-xs font-bold text-amber-400 group-hover:text-amber-300">
-                    <span>{hasCompletedQuestionnaire ? 'Partager une idée ou voter →' : 'Débloqué après formulaire & enveloppe 🔒'}</span>
+                    <span>{hasCompletedQuestionnaire 
+                      ? (currentLang === 'ar' ? 'مشاركة فكرة أو التصويت ←' : currentLang === 'en' ? 'Share an idea or vote →' : 'Partager une idée ou voter →') 
+                      : (currentLang === 'ar' ? 'يفتح بعد الاستبيان والهدية 🔒' : currentLang === 'en' ? 'Unlocked after form & gift 🔒' : 'Débloqué après formulaire & enveloppe 🔒')}
+                    </span>
                   </div>
                 </div>
 
@@ -747,17 +828,17 @@ export default function App() {
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xs font-black uppercase text-amber-300 tracking-wider bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
-                        🏆 Atelier de Badges & Gamification
+                        {currentLang === 'ar' ? '🏆 ورشة الشارات والتفاعل' : currentLang === 'en' ? '🏆 Badge Workshop & Gamification' : '🏆 Atelier de Badges & Gamification'}
                       </span>
                       <span className="text-xs text-amber-200 font-bold">
-                        {unlockedCount} / {badges.length} débloqués
+                        {unlockedCount} / {badges.length} {currentLang === 'ar' ? 'مفعلة' : currentLang === 'en' ? 'unlocked' : 'débloqués'}
                       </span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mb-2">
-                      Forgez vos Badges & Jalons Santé
+                      {currentLang === 'ar' ? 'اصنع شاراتك ومحطات الصحة' : currentLang === 'en' ? 'Forge Badges & Health Milestones' : 'Forgez vos Badges & Jalons Santé'}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-                      Concevez vos propres insignes holographiques, personnalisez votre profil et suivez la vaccination de votre compagnon à travers les 58 wilayas.
+                      {currentLang === 'ar' ? 'صمم شاراتك الثلاثية الأبعاد، وخصص ملفك الشخصي وتابع تلقيح أليفك عبر 58 ولاية.' : currentLang === 'en' ? 'Design holographic badges, customize your profile, and track your pet\'s vaccination schedule across 58 wilayas.' : 'Concevez vos propres insignes holographiques, personnalisez votre profil et suivez la vaccination de votre compagnon à travers les 58 wilayas.'}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -765,7 +846,7 @@ export default function App() {
                       onClick={() => navigateTo('profile')}
                       className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
                     >
-                      Voir mon profil & forger des badges →
+                      {currentLang === 'ar' ? 'عرض ملفي وصناعة الشارات ←' : currentLang === 'en' ? 'View my profile & forge badges →' : 'Voir mon profil & forger des badges →'}
                     </button>
                   </div>
                 </div>
@@ -775,17 +856,17 @@ export default function App() {
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xs font-black uppercase text-emerald-300 tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                        🩺 Suite Clinique Vétérinaire Pro
+                        {currentLang === 'ar' ? '🩺 الحزمة السريرية للبيطري المحترف' : currentLang === 'en' ? '🩺 Pro Veterinary Clinical Suite' : '🩺 Suite Clinique Vétérinaire Pro'}
                       </span>
                       <span className="text-xs text-emerald-400 font-bold">
-                        Accès Direct DZ
+                        {currentLang === 'ar' ? 'وصول مباشر بالجزائر' : currentLang === 'en' ? 'Direct Access DZ' : 'Accès Direct DZ'}
                       </span>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-black text-white mb-2">
-                      Gestion de Cabinet & Ordonnances Homologuées
+                      {currentLang === 'ar' ? 'إدارة العيادة الوصفات الطبية المعتمدة' : currentLang === 'en' ? 'Practice Management & Certified Prescriptions' : 'Gestion de Cabinet & Ordonnances Homologuées'}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-                      Dossiers médicaux chronologiques, génération d'ordonnances avec QR code de sécurité et file d'attente intelligente.
+                      {currentLang === 'ar' ? 'ملفات طبية زمنية، وإنشاء وصفات طبية برمز QR الأمني وإدارة صف الانتظار الذكي.' : currentLang === 'en' ? 'Chronological medical records, prescription generation with security QR codes, and smart queue management.' : 'Dossiers médicaux chronologiques, génération d\'ordonnances avec QR code de sécurité et file d\'attente intelligente.'}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -793,7 +874,7 @@ export default function App() {
                       onClick={() => navigateTo('vet-portal')}
                       className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
                     >
-                      Ouvrir la Suite Vétérinaire Pro →
+                      {currentLang === 'ar' ? 'فتح الحزمة البيطرية المحترفة ←' : currentLang === 'en' ? 'Open Pro Vet Suite →' : 'Ouvrir la Suite Vétérinaire Pro →'}
                     </button>
                   </div>
                 </div>
@@ -803,6 +884,27 @@ export default function App() {
           </>
         );
     }
+  };
+
+  // Animated Screen Wrapper with Framer Motion and archetype-specific transitions
+  const renderScreen = () => {
+    const archetype = getScreenArchetype(activeScreen);
+    const variants = screenArchetypeVariants[archetype] || screenArchetypeVariants.home;
+
+    return (
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={activeScreen}
+          variants={variants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="w-full flex-1"
+        >
+          {renderScreenContent()}
+        </motion.div>
+      </AnimatePresence>
+    );
   };
 
   // Real Registration / Auth handler with unique email & verification code
@@ -837,12 +939,12 @@ export default function App() {
 
     setUserProfile(fullProfile);
     setIsRegistered(true);
-    setHasCompletedQuestionnaire(true);
+    setHasCompletedQuestionnaire(false);
     setShowAuthModal(false);
 
     try {
       localStorage.setItem('diavet_registered', 'true');
-      localStorage.setItem('diavet_completed_questionnaire', 'true');
+      localStorage.setItem('diavet_completed_questionnaire', 'false');
       localStorage.setItem('diavet_user_profile', JSON.stringify(fullProfile));
       if (isOwnerUser) {
         localStorage.setItem('diavet_is_owner', 'true');
@@ -854,17 +956,24 @@ export default function App() {
     // Record in leads registry for Excel export
     recordRegistrationLead(fullProfile, selectedRole);
 
-    if (selectedRole === 'vet') {
-      setActiveScreen('questionnaire-vet');
-    } else {
-      setActiveScreen('questionnaire-owner');
-    }
+    // Direct redirection to questionnaire form
+    const targetScreen = selectedRole === 'vet' ? 'questionnaire-vet' : 'questionnaire-owner';
+    setActiveScreen(targetScreen);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     setShowCelebrationModal(true);
 
     triggerRewardToast(
-      currentLang === 'ar' ? "تم تفعيل حسابك واستلام الهدية ! 🇩🇿" : "Profil & Cadeau VIP Débloqués ! 🇩🇿",
-      `Bienvenue ${profile.name || 'sur DiaVet'} ! Tous les accès et votre Pass VIP sont activés (+${pointsEarned} Pts).`,
+      currentLang === 'ar' 
+        ? "تم تفعيل حسابك واستلام الهدية ! 🇩🇿" 
+        : currentLang === 'en'
+        ? "Profile & VIP Pass Unlocked! 🇩🇿"
+        : "Profil & Cadeau VIP Débloqués ! 🇩🇿",
+      currentLang === 'ar'
+        ? `مرحباً ${profile.name || 'في DiaVet'} ! تم تفعيل كافة الصلاحيات وبطاقة VIP الخاصة بك (+${pointsEarned} نقطة).`
+        : currentLang === 'en'
+        ? `Welcome ${profile.name || 'to DiaVet'}! All features and your VIP Pass are now active (+${pointsEarned} Pts).`
+        : `Bienvenue ${profile.name || 'sur DiaVet'} ! Tous les accès et votre Pass VIP sont activés (+${pointsEarned} Pts).`,
       '🎉'
     );
   };
@@ -881,8 +990,16 @@ export default function App() {
       localStorage.removeItem('diavet_user_profile');
     } catch {}
     triggerRewardToast(
-      currentLang === 'ar' ? "تم تسجيل الخروج بنجاح" : "Déconnexion réussie",
-      currentLang === 'ar' ? "لقد تم تسجيل خروجك بنجاح من حسابك." : "Vous êtes maintenant déconnecté de DiaVet.",
+      currentLang === 'ar' 
+        ? "تم تسجيل الخروج بنجاح" 
+        : currentLang === 'en' 
+        ? "Logged out successfully" 
+        : "Déconnexion réussie",
+      currentLang === 'ar' 
+        ? "لقد تم تسجيل خروجك بنجاح من حسابك." 
+        : currentLang === 'en' 
+        ? "You have been logged out of DiaVet." 
+        : "Vous êtes maintenant déconnecté de DiaVet.",
       "👋"
     );
   };
@@ -893,6 +1010,9 @@ export default function App() {
         ? 'bg-[#020617] text-slate-100' 
         : 'bg-slate-50 text-slate-900'
     }`}>
+
+      {/* GLOBAL LOADING OVERLAY */}
+      <GlobalLoadingOverlay />
 
       {/* TOP NOTIFICATION BAR */}
       <TopNotificationBar
@@ -923,7 +1043,7 @@ export default function App() {
       {/* MAIN NAVIGATION HEADER */}
       <Navbar
         currentLang={currentLang}
-        onSelectLang={setCurrentLang}
+        onSelectLang={handleSelectLang}
         currentTheme={currentTheme}
         onToggleTheme={toggleTheme}
         isIphoneView={isIphoneView}
@@ -1064,7 +1184,7 @@ export default function App() {
           <div className="w-full max-w-xl my-auto">
             <OnboardingGateway
               currentLang={currentLang}
-              onSelectLang={setCurrentLang}
+              onSelectLang={handleSelectLang}
               onRegister={handleRegisterSuccess}
               onClose={isRegistered ? () => setShowAuthModal(false) : undefined}
             />

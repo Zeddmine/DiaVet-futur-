@@ -5,7 +5,7 @@ import {
   ArrowRight, CheckCircle2, ChevronRight, 
   Lock, Mail, Building, KeyRound, AlertCircle, Award, Check,
   LogIn, UserPlus, Phone, Shield, Sparkles, RefreshCw, Copy, ExternalLink,
-  Save, RotateCcw
+  Save, RotateCcw, CheckCircle, AlertTriangle
 } from 'lucide-react';
 import { ALGERIAN_WILAYAS } from '../data/mockData';
 import { Language, UserProfile } from '../types';
@@ -21,6 +21,12 @@ import {
   getPendingVerification,
   RegisteredAccount
 } from '../services/accountService';
+import { 
+  getRegistrationSchema, 
+  validateField, 
+  getPasswordStrength, 
+  isValidAlgerianPhone 
+} from '../lib/validation';
 
 const DRAFT_STORAGE_KEY = 'diavet_onboarding_form_draft_v1';
 
@@ -104,6 +110,20 @@ export default function OnboardingGateway({
   // Autosave indicators
   const [hasRestoredDraft, setHasRestoredDraft] = useState(Boolean(initialDraft && (initialDraft.fullName || initialDraft.email || initialDraft.phone)));
   const [lastSavedTimestamp, setLastSavedTimestamp] = useState<string | null>(initialDraft?.savedAt ? new Date(initialDraft.savedAt).toLocaleTimeString() : null);
+
+  // Field touched states for real-time validation
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const markTouched = (fieldName: string) => {
+    setTouched(prev => ({ ...prev, [fieldName]: true }));
+  };
+
+  // Real-time Zod validations
+  const nameValidation = validateField('fullName', fullName, currentLang);
+  const emailValidation = validateField('email', email, currentLang);
+  const phoneValidation = validateField('phone', phone, currentLang);
+  const passwordValidation = validateField('password', password, currentLang);
+  const passwordStrength = getPasswordStrength(password);
 
   // Login Fields
   const [loginEmail, setLoginEmail] = useState('');
@@ -208,6 +228,21 @@ export default function OnboardingGateway({
     }
   };
 
+  // Language switch re-evaluator
+  useEffect(() => {
+    if (email) {
+      checkDuplicateEmail(email);
+    }
+  }, [currentLang]);
+
+  const handleLanguageChange = (newLang: Language) => {
+    soundEngine.playCyberClick();
+    if (onSelectLang) {
+      onSelectLang(newLang);
+    }
+    setError(null);
+  };
+
   // Resend Countdown Timer
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -239,6 +274,15 @@ export default function OnboardingGateway({
     e.preventDefault();
     setError(null);
 
+    // Mark all core fields as touched to show immediate visual feedback
+    setTouched({
+      fullName: true,
+      email: true,
+      phone: true,
+      password: true,
+      wilaya: true
+    });
+
     const trimmedName = fullName.trim();
     const trimmedEmail = email.trim().toLowerCase();
     const cleanedPhone = sanitizePhone(phone.trim());
@@ -249,35 +293,26 @@ export default function OnboardingGateway({
       : cleanedPhone.length === 9 ? `0${cleanedPhone}` : cleanedPhone;
     const trimmedPassword = password.trim() || '123456';
 
-    if (!trimmedName || trimmedName.length < 2) {
-      setError(
-        isRtl 
-          ? "يرجى كتابة الاسم واللقب الحقيقي." 
-          : isEn 
-          ? "Please provide your full name." 
-          : "Veuillez renseigner votre nom et prénom réels."
-      );
-      return;
-    }
+    const schema = getRegistrationSchema(currentLang);
+    const parseResult = schema.safeParse({
+      fullName: trimmedName,
+      email: trimmedEmail,
+      phone: normalizedPhone,
+      wilaya: wilaya,
+      password: trimmedPassword,
+      role: role,
+      petName: petName.trim(),
+      petType: petType,
+      clinicName: clinicName.trim(),
+      orderNumber: orderNumber.trim()
+    });
 
-    if (!trimmedEmail || !trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
-      setError(
-        isRtl 
-          ? "يرجى إدخال بريد إلكتروني صحيح لاستلام رمز التفعيل." 
-          : isEn 
-          ? "Please enter a valid email address to receive your confirmation code." 
-          : "Veuillez entrer une adresse email valide pour recevoir votre code de confirmation."
+    if (!parseResult.success) {
+      const firstError = parseResult.error.errors[0]?.message || (
+        isRtl ? "يرجى تصحيح الأخطاء في النموذج." : isEn ? "Please fix the input errors in the form." : "Veuillez corriger les erreurs de saisie."
       );
-      return;
-    }
-
-    if (cleanedPhone && !isValidPhone(cleanedPhone)) {
-      setError(
-        isRtl 
-          ? "يرجى إدخال رقم هاتف صحيح (مثال: 0550123456 أو 0661... أو 0770...)." 
-          : isEn 
-          ? "Please enter a valid phone number (e.g., 0550123456, 0661..., 0770...)." 
-          : "Veuillez entrer un numéro de téléphone valide (ex: 0550123456, 0661..., 0770...).");
+      setError(firstError);
+      soundEngine.playError();
       return;
     }
 
@@ -502,7 +537,7 @@ export default function OnboardingGateway({
         <div className="absolute -top-24 -left-24 w-60 h-60 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Top Header with Language Switcher */}
+        {/* Top Header with Prominent, Simple Language Switcher */}
         <div className="relative z-10 flex items-center justify-between gap-3 mb-5 pb-4 border-b border-white/10">
           <div className="flex items-center gap-2.5">
             <DiaVetLogo size="sm" />
@@ -517,35 +552,53 @@ export default function OnboardingGateway({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Language Switcher */}
+            {/* Simple & Effective Language Selector with flags */}
             {onSelectLang && (
-              <div className="flex items-center gap-1 bg-slate-900/90 border border-white/15 p-1 rounded-xl shadow-inner">
+              <div 
+                id="onboarding-lang-switcher"
+                className="flex items-center gap-1 bg-slate-900/95 border-2 border-cyan-500/40 p-1 rounded-2xl shadow-lg shadow-cyan-500/10"
+              >
                 <button
+                  id="onboarding-lang-fr"
                   type="button"
-                  onClick={() => onSelectLang('fr')}
-                  className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    currentLang === 'fr' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                  onClick={() => handleLanguageChange('fr')}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                    currentLang === 'fr' 
+                      ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black shadow-md shadow-cyan-500/30 scale-105' 
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
+                  title="Français"
                 >
-                  FR
+                  <span>🇫🇷</span>
+                  <span>FR</span>
                 </button>
                 <button
+                  id="onboarding-lang-ar"
                   type="button"
-                  onClick={() => onSelectLang('ar')}
-                  className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    currentLang === 'ar' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                  onClick={() => handleLanguageChange('ar')}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                    currentLang === 'ar' 
+                      ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black shadow-md shadow-cyan-500/30 scale-105' 
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
+                  title="العربية"
                 >
-                  عربي
+                  <span>🇩🇿</span>
+                  <span>عربي</span>
                 </button>
                 <button
+                  id="onboarding-lang-en"
                   type="button"
-                  onClick={() => onSelectLang('en')}
-                  className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    currentLang === 'en' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : 'text-slate-400 hover:text-white'
+                  onClick={() => handleLanguageChange('en')}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                    currentLang === 'en' 
+                      ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black shadow-md shadow-cyan-500/30 scale-105' 
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
+                  title="English"
                 >
-                  EN
+                  <span>🇬🇧</span>
+                  <span>EN</span>
                 </button>
               </div>
             )}
@@ -558,7 +611,7 @@ export default function OnboardingGateway({
                   soundEngine.playCyberClick();
                   onClose();
                 }}
-                className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 text-xs flex items-center gap-1 transition-all cursor-pointer shrink-0"
+                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 text-xs flex items-center gap-1 transition-all cursor-pointer shrink-0"
                 title={isRtl ? "إغلاق واستكشاف المنصة" : isEn ? "Close and explore platform" : "Fermer et visiter"}
               >
                 <span className="text-xs">✕</span>
@@ -915,46 +968,94 @@ export default function OnboardingGateway({
               
               {/* Full Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  {isRtl ? "الاسم واللقب الحقيقي *" : isEn ? "Full Legal Name *" : "Nom & Prénom réels *"}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder={role === 'vet' ? (isRtl ? 'مثال: د. أمينة بن علي' : isEn ? 'E.g., Dr. Amina Benali' : 'Ex: Dr. Amina Benali') : (isRtl ? 'مثال: كريم منصوري' : isEn ? 'E.g., Karim Mansouri' : 'Ex: Karim Mansouri')}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-300">
+                    {isRtl ? "الاسم واللقب الحقيقي *" : isEn ? "Full Legal Name *" : "Nom & Prénom réels *"}
+                  </label>
+                  {touched.fullName && nameValidation.isValid && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400">
+                      <Check className="w-3.5 h-3.5" />
+                      {isRtl ? "صحيح" : isEn ? "Valid" : "Valide"}
+                    </span>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      markTouched('fullName');
+                    }}
+                    onBlur={() => markTouched('fullName')}
+                    placeholder={role === 'vet' ? (isRtl ? 'مثال: د. أمينة بن علي' : isEn ? 'E.g., Dr. Amina Benali' : 'Ex: Dr. Amina Benali') : (isRtl ? 'مثال: كريم منصوري' : isEn ? 'E.g., Karim Mansouri' : 'Ex: Karim Mansouri')}
+                    className={`w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border text-sm text-white placeholder-slate-500 focus:outline-none transition-all ${
+                      touched.fullName && !nameValidation.isValid
+                        ? 'border-rose-500/80 focus:border-rose-400 ring-2 ring-rose-500/20'
+                        : touched.fullName && nameValidation.isValid
+                        ? 'border-emerald-500/60 focus:border-emerald-400'
+                        : 'border-white/15 focus:border-cyan-400'
+                    }`}
+                  />
+                </div>
+                {touched.fullName && !nameValidation.isValid && (
+                  <p className="mt-1 text-[11px] text-rose-400 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    <span>{nameValidation.error}</span>
+                  </p>
+                )}
               </div>
 
-              {/* REAL EMAIL FIELD WITH ANTI-DUPLICATE WARNING */}
+              {/* REAL EMAIL FIELD WITH ANTI-DUPLICATE WARNING & ZOD VALIDATION */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-bold text-slate-300">
                     {isRtl ? "البريد الإلكتروني الحقيقي (لاستلام رمز التفعيل) *" : isEn ? "Real Email Address (to receive code) *" : "Adresse Email Réelle (pour recevoir le code) *"}
                   </label>
-                  <span className="text-[10px] text-cyan-400 font-mono">{isRtl ? "1 حساب = 1 بريد" : isEn ? "1 Account = 1 Email" : "1 Compte = 1 Email"}</span>
+                  {touched.email && emailValidation.isValid && !emailDuplicateError && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400">
+                      <Check className="w-3.5 h-3.5" />
+                      {isRtl ? "بريد صالح" : isEn ? "Valid email" : "Email valide"}
+                    </span>
+                  )}
                 </div>
                 
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailDuplicateError) {
+                <div className="relative">
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      markTouched('email');
+                      if (emailDuplicateError) {
+                        checkDuplicateEmail(e.target.value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      markTouched('email');
                       checkDuplicateEmail(e.target.value);
-                    }
-                  }}
-                  onBlur={(e) => checkDuplicateEmail(e.target.value)}
-                  placeholder="nom.prenom@gmail.com"
-                  className={`w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border text-sm text-white placeholder-slate-500 focus:outline-none transition-colors ${
-                    emailDuplicateError 
-                      ? 'border-cyan-400/60 focus:border-cyan-400 ring-2 ring-cyan-500/20' 
-                      : 'border-white/15 focus:border-cyan-400'
-                  }`}
-                />
+                    }}
+                    placeholder="nom.prenom@gmail.com"
+                    className={`w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border text-sm text-white placeholder-slate-500 focus:outline-none transition-all ${
+                      touched.email && !emailValidation.isValid
+                        ? 'border-rose-500/80 focus:border-rose-400 ring-2 ring-rose-500/20'
+                        : emailDuplicateError
+                        ? 'border-cyan-400/60 focus:border-cyan-400 ring-2 ring-cyan-500/20'
+                        : touched.email && emailValidation.isValid
+                        ? 'border-emerald-500/60 focus:border-emerald-400'
+                        : 'border-white/15 focus:border-cyan-400'
+                    }`}
+                  />
+                </div>
+
+                {touched.email && !emailValidation.isValid && (
+                  <p className="mt-1 text-[11px] text-rose-400 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    <span>{emailValidation.error}</span>
+                  </p>
+                )}
 
                 {/* HELPFUL NOTIFICATION ALERT IF EMAIL IS RECOGNIZED */}
                 {emailDuplicateError && (
@@ -996,17 +1097,45 @@ export default function OnboardingGateway({
               {/* Phone & Wilaya in 2 columns */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                    {isRtl ? "رقم الهاتف الجزائري *" : isEn ? "Algerian Phone (05/06/07) *" : "Téléphone Algérie (05/06/07) *"}
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-slate-300">
+                      {isRtl ? "رقم الهاتف الجزائري *" : isEn ? "Algerian Phone *" : "Téléphone Algérie *"}
+                    </label>
+                    {touched.phone && phoneValidation.isValid && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400">
+                        <Check className="w-3 h-3" />
+                        {isRtl ? "صالح" : isEn ? "Valid" : "Valide"}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="tel"
                     required
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      markTouched('phone');
+                    }}
+                    onBlur={() => markTouched('phone')}
                     placeholder="0550123456"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"
+                    className={`w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border text-sm text-white placeholder-slate-500 focus:outline-none font-mono transition-all ${
+                      touched.phone && !phoneValidation.isValid
+                        ? 'border-rose-500/80 focus:border-rose-400 ring-2 ring-rose-500/20'
+                        : touched.phone && phoneValidation.isValid
+                        ? 'border-emerald-500/60 focus:border-emerald-400'
+                        : 'border-white/15 focus:border-cyan-400'
+                    }`}
                   />
+                  {touched.phone && !phoneValidation.isValid ? (
+                    <p className="mt-1 text-[11px] text-rose-400 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 shrink-0" />
+                      <span>{phoneValidation.error}</span>
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      {isRtl ? "يقبل: 05, 06, 07 أو +213" : isEn ? "Accepts: 05, 06, 07 or +213" : "Accepte : 05, 06, 07 ou +213"}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -1015,7 +1144,10 @@ export default function OnboardingGateway({
                   </label>
                   <select
                     value={wilaya}
-                    onChange={(e) => setWilaya(e.target.value)}
+                    onChange={(e) => {
+                      setWilaya(e.target.value);
+                      markTouched('wilaya');
+                    }}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-cyan-400"
                   >
                     {ALGERIAN_WILAYAS.map((w) => (
@@ -1061,48 +1193,78 @@ export default function OnboardingGateway({
                   </div>
                 </div>
               ) : (
-                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
                   <div>
                     <label className="block text-[11px] font-bold text-emerald-300 mb-1">
-                      {isRtl ? "اسم العيادة أو المكتب" : isEn ? "Clinic / Practice Name" : "Cabinet / Clinique Vétérinaire"}
+                      {isRtl ? "اسم العيادة أو المكتب البيطري" : isEn ? "Clinic / Practice Name" : "Cabinet / Clinique Vétérinaire"}
                     </label>
                     <input
                       type="text"
                       value={clinicName}
                       onChange={(e) => setClinicName(e.target.value)}
-                      placeholder={isRtl ? "مثال: عيادة الشفاء البيطرية" : isEn ? "E.g., Al-Chifa Veterinary Clinic" : "Ex: Clinique Al-Chifa"}
+                      placeholder={isRtl ? "مثال: عيادة الشفاء البيطرية، عيادة د. خليفة..." : isEn ? "E.g., Al-Chifa Veterinary Clinic, Dr. Khelifa Practice..." : "Ex: Clinique Vétérinaire El Biar, Cabinet Dr. Khelifa..."}
                       className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/15 text-xs text-white placeholder-slate-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 mb-1">
-                      {isRtl ? "رقم الاعتماد أو البلدية" : isEn ? "ONMV License No. or Municipality" : "N° Ordre ou Commune"}
-                    </label>
-                    <input
-                      type="text"
-                      value={orderNumber}
-                      onChange={(e) => setOrderNumber(e.target.value)}
-                      placeholder="Ex: ONV-16-4421"
-                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/15 text-xs text-white placeholder-slate-500 font-mono"
                     />
                   </div>
                 </div>
               )}
 
-              {/* Password / PIN */}
+              {/* Password / PIN with Live Strength Indicator */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  {isRtl ? "كلمة المرور أو رمز PIN للحساب *" : isEn ? "Password / Security PIN *" : "Mot de passe / Code PIN de sécurité *"}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-300">
+                    {isRtl ? "كلمة المرور أو رمز PIN للحساب *" : isEn ? "Password / Security PIN *" : "Mot de passe / Code PIN de sécurité *"}
+                  </label>
+                  {password && (
+                    <span className="text-[10px] font-semibold text-slate-300">
+                      {isRtl ? `قوة الرمز : ` : isEn ? `Strength: ` : `Sécurité : `}
+                      <strong className={passwordStrength.score >= 3 ? 'text-emerald-400' : passwordStrength.score >= 2 ? 'text-amber-400' : 'text-rose-400'}>
+                        {passwordStrength.label[currentLang] || passwordStrength.label.fr}
+                      </strong>
+                    </span>
+                  )}
+                </div>
                 <input
                   type="password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    markTouched('password');
+                  }}
+                  onBlur={() => markTouched('password')}
                   placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"
+                  className={`w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border text-sm text-white placeholder-slate-500 focus:outline-none font-mono transition-all ${
+                    touched.password && !passwordValidation.isValid
+                      ? 'border-rose-500/80 focus:border-rose-400 ring-2 ring-rose-500/20'
+                      : touched.password && passwordValidation.isValid
+                      ? 'border-emerald-500/60 focus:border-emerald-400'
+                      : 'border-white/15 focus:border-cyan-400'
+                  }`}
                 />
+
+                {/* Password Strength Meter Bar */}
+                {password && (
+                  <div className="mt-1.5 space-y-1">
+                    <div className="grid grid-cols-4 gap-1.5 h-1.5 rounded-full overflow-hidden bg-slate-800">
+                      {[1, 2, 3, 4].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            passwordStrength.score >= level ? passwordStrength.color : 'bg-transparent'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {touched.password && !passwordValidation.isValid && (
+                  <p className="mt-1 text-[11px] text-rose-400 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    <span>{passwordValidation.error}</span>
+                  </p>
+                )}
               </div>
 
             </div>

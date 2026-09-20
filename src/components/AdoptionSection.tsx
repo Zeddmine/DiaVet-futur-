@@ -14,7 +14,10 @@ interface AdoptionSectionProps {
 }
 
 export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSectionProps) {
-  const t = translations[currentLang];
+  const t = translations[currentLang] || translations.fr;
+  const isRtl = currentLang === 'ar';
+  const isEn = currentLang === 'en';
+
   const [pets, setPets] = useState<AdoptionPet[]>(() => {
     try {
       const saved = localStorage.getItem('diavet_adoption_pets');
@@ -58,7 +61,13 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
   const handleCreatePet = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPetName.trim() || !newPetCity.trim() || !newPetPhone.trim() || !newPetDesc.trim()) {
-      setFormError('Veuillez remplir tous les champs obligatoires (nom, ville, téléphone et description).');
+      setFormError(
+        isRtl 
+          ? 'يرجى ملء جميع الحقول الإلزامية (الاسم، المدينة، الهاتف، والوصف).'
+          : isEn
+          ? 'Please fill in all required fields (name, city, phone, and description).'
+          : 'Veuillez remplir tous les champs obligatoires (nom, ville, téléphone et description).'
+      );
       return;
     }
 
@@ -72,8 +81,8 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
       id: `adopt-user-${Date.now()}`,
       name: newPetName.trim(),
       species: newPetSpecies,
-      breed: newPetBreed.trim() || 'Croisé / Européen',
-      age: newPetAge.trim() || 'Non précisé',
+      breed: newPetBreed.trim() || (isRtl ? 'مهجن / بلدي' : isEn ? 'Mixed / European' : 'Croisé / Européen'),
+      age: newPetAge.trim() || (isRtl ? 'غير محدد' : isEn ? 'Not specified' : 'Non précisé'),
       gender: newPetGender,
       wilaya: newPetWilaya,
       city: newPetCity.trim(),
@@ -81,9 +90,9 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
       description: newPetDesc.trim(),
       isVaccinated: newPetVaccinated,
       isSterilized: newPetSterilized,
-      associationOrOwner: 'Particulier Bienveillant',
+      associationOrOwner: isRtl ? 'مربي متطوع' : isEn ? 'Caring Volunteer' : 'Particulier Bienveillant',
       contactPhone: newPetPhone.trim(),
-      publishedDate: 'À l’instant'
+      publishedDate: isRtl ? 'الآن' : isEn ? 'Just now' : 'À l’instant'
     };
 
     const updated = [newPet, ...pets];
@@ -93,7 +102,13 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
     } catch {}
 
     setIsAddModalOpen(false);
-    setSuccessMessage(`L'annonce d'adoption pour « ${newPet.name} » a été publiée avec succès !`);
+    setSuccessMessage(
+      isRtl
+        ? `تم نشر إعلان التبني لـ « ${newPet.name} » بنجاح !`
+        : isEn
+        ? `Adoption listing for “${newPet.name}” published successfully!`
+        : `L'annonce d'adoption pour « ${newPet.name} » a été publiée avec succès !`
+    );
     setTimeout(() => setSuccessMessage(null), 5000);
 
     // Reset form
@@ -107,7 +122,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in duration-300">
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in duration-300 ${isRtl ? 'text-right' : 'text-left'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       
       {/* Header */}
       <div className="mb-8">
@@ -115,7 +130,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
           onClick={onGoHome}
           className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white mb-3 cursor-pointer"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
           <span>{t.btnBack}</span>
         </button>
 
@@ -123,13 +138,13 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold mb-2">
               <Heart className="w-3.5 h-3.5 fill-rose-400 animate-pulse" />
-              <span>Adoption Solidaire & Sauvetage · Algérie 🇩🇿</span>
+              <span>{t.adoptTag}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              Offrez-leur une Seconde Chance
+              {t.adoptTitle}
             </h1>
             <p className="text-slate-300 text-xs sm:text-sm mt-2 max-w-2xl">
-              Trouvez votre futur compagnon de vie parmi les animaux rescapés par des bénévoles et refuges partenaires à travers les 58 Wilayas d'Algérie.
+              {t.adoptDesc}
             </p>
           </div>
 
@@ -138,7 +153,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
             className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-rose-600/25 flex items-center justify-center gap-2 cursor-pointer self-start md:self-auto"
           >
             <Plus className="w-4 h-4" />
-            <span>Proposer un animal à l'adoption</span>
+            <span>{t.adoptBtnSubmit}</span>
           </button>
         </div>
       </div>
@@ -158,10 +173,10 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
           {/* Species tabs */}
           <div className="md:col-span-4 flex items-center bg-slate-900 p-1 rounded-2xl border border-white/10">
             {[
-              { id: 'all', label: 'Tous' },
-              { id: 'dog', label: '🐕 Chiens' },
-              { id: 'cat', label: '🐈 Chats' },
-              { id: 'other', label: '🐰 NAC' }
+              { id: 'all', label: t.adoptFilterAll },
+              { id: 'dog', label: t.adoptFilterDogs },
+              { id: 'cat', label: t.adoptFilterCats },
+              { id: 'other', label: t.adoptFilterOther }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -179,13 +194,13 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
 
           {/* Search bar */}
           <div className="md:col-span-5 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className={`w-4 h-4 text-slate-400 absolute ${isRtl ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2`} />
             <input
               type="text"
-              placeholder="Rechercher par prénom, race, ville ou mot-clé..."
+              placeholder={t.adoptSearchPlaceholder}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-rose-400"
+              className={`w-full ${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'} py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:border-rose-400`}
             />
           </div>
 
@@ -196,7 +211,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
               onChange={e => setSelectedWilaya(e.target.value)}
               className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-xs sm:text-sm focus:outline-none focus:border-rose-400 cursor-pointer"
             >
-              <option value="all">Toutes les wilayas</option>
+              <option value="all">{t.adoptAllWilayas}</option>
               {ALGERIAN_WILAYAS.map(w => (
                 <option key={w} value={w}>{w}</option>
               ))}
@@ -206,8 +221,8 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
         </div>
 
         <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-white/5">
-          <span>{filteredPets.length} animaux en attente d'un foyer aimant</span>
-          <span className="text-rose-400 font-semibold">Adoption 100% responsable & gratuite</span>
+          <span>{filteredPets.length} {t.adoptWaitingCount}</span>
+          <span className="text-rose-400 font-semibold">{t.adoptResponsibleNotice}</span>
         </div>
       </div>
 
@@ -231,15 +246,15 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                 
                 {pet.isUrgent && (
                   <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg animate-pulse">
-                    Urgent Sauvetage
+                    {t.adoptUrgentBadge}
                   </span>
                 )}
 
                 <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-white text-[11px] font-bold border border-white/10">
-                  {pet.gender} · {pet.age}
+                  {pet.gender === 'Mâle' ? (isRtl ? 'ذكر ♂' : isEn ? 'Male ♂' : 'Mâle ♂') : (isRtl ? 'أنثى ♀' : isEn ? 'Female ♀' : 'Femelle ♀')} · {pet.age}
                 </span>
 
-                <div className="absolute bottom-3 left-4 right-4">
+                <div className={`absolute bottom-3 ${isRtl ? 'right-4 left-4' : 'left-4 right-4'}`}>
                   <h3 className="text-2xl font-black text-white">{pet.name}</h3>
                   <p className="text-xs text-slate-300 font-medium">{pet.breed}</p>
                 </div>
@@ -260,12 +275,12 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {pet.isVaccinated && (
                     <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                      ✓ Vacciné
+                      {t.adoptVaccinated}
                     </span>
                   )}
                   {pet.isSterilized && (
                     <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
-                      ✓ Stérilisé
+                      {t.adoptSterilized}
                     </span>
                   )}
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/5 text-slate-400">
@@ -282,7 +297,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                 className="w-full py-3 rounded-2xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white font-extrabold text-xs transition-all border border-rose-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 <Heart className="w-4 h-4 fill-current" />
-                <span>Rencontrer & Adopter {pet.name}</span>
+                <span>{t.adoptBtnMeet} {pet.name}</span>
               </button>
             </div>
 
@@ -293,9 +308,9 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
       {filteredPets.length === 0 && (
         <div className="p-12 text-center rounded-3xl bg-slate-950/60 border border-white/10">
           <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-          <p className="text-white font-bold text-base">Aucun animal trouvé pour ces critères</p>
+          <p className="text-white font-bold text-base">{t.adoptNoResults}</p>
           <p className="text-slate-400 text-xs mt-1">
-            Essayez de sélectionner « Toutes les wilayas » ou proposez un animal rescapé à l'adoption.
+            {t.adoptNoResultsDesc}
           </p>
         </div>
       )}
@@ -316,13 +331,13 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                 <Heart className="w-6 h-6 fill-current" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-white">Adopter {selectedPetForContact.name}</h3>
+                <h3 className="text-xl font-black text-white">{t.adoptModalTitle} {selectedPetForContact.name}</h3>
                 <p className="text-xs text-slate-400">{selectedPetForContact.city}, {selectedPetForContact.wilaya}</p>
               </div>
             </div>
 
             <p className="text-xs text-slate-300 mb-6 leading-relaxed">
-              Pour rencontrer <strong>{selectedPetForContact.name}</strong> et organiser une adoption responsable, contactez directement son tuteur ou l'association en charge :
+              {t.adoptModalIntro}
             </p>
 
             <div className="space-y-3 mb-6">
@@ -331,7 +346,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                 className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <Phone className="w-4 h-4" />
-                <span>Appeler : {selectedPetForContact.contactPhone}</span>
+                <span>{t.adoptModalCall} {selectedPetForContact.contactPhone}</span>
               </a>
 
               <a
@@ -341,12 +356,12 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                 className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-emerald-500/30"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Écrire sur WhatsApp</span>
+                <span>{t.adoptModalWhatsApp}</span>
               </a>
             </div>
 
             <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-[11px] text-slate-400">
-              💡 <em>L'adoption d'un animal est un engagement sur 10 à 15 ans. DiaVet encourage les adoptions bienveillantes, la stérilisation et le suivi vaccinal obligatoire en Algérie.</em>
+              {t.adoptModalLegalAdvice}
             </div>
           </div>
         </div>
@@ -363,8 +378,8 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
               <X className="w-4 h-4" />
             </button>
 
-            <h3 className="text-xl font-black text-white mb-1">Publier un Animal à l'Adoption</h3>
-            <p className="text-xs text-slate-400 mb-6">Gratuit pour les particuliers, refuges et sauveteurs en Algérie.</p>
+            <h3 className="text-xl font-black text-white mb-1">{t.adoptFormModalTitle}</h3>
+            <p className="text-xs text-slate-400 mb-6">{t.adoptFormModalSubtitle}</p>
 
             {formError && (
               <div className="mb-4 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold flex items-center gap-2">
@@ -376,7 +391,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
             <form onSubmit={handleCreatePet} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Prénom de l'animal *</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormPetName}</label>
                   <input
                     type="text"
                     required
@@ -387,22 +402,22 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Espèce *</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormSpecies}</label>
                   <select
                     value={newPetSpecies}
                     onChange={e => setNewPetSpecies(e.target.value as any)}
                     className="w-full p-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs cursor-pointer"
                   >
-                    <option value="cat">Chat</option>
-                    <option value="dog">Chien</option>
-                    <option value="other">Lapin / Rongeur / Oiseau</option>
+                    <option value="cat">{isRtl ? "قط 🐱" : isEn ? "Cat 🐱" : "Chat 🐱"}</option>
+                    <option value="dog">{isRtl ? "كلب 🐶" : isEn ? "Dog 🐶" : "Chien 🐶"}</option>
+                    <option value="other">{isRtl ? "أرنب / طيور / أخرى 🐰" : isEn ? "Rabbit / Bird / Other 🐰" : "Lapin / Rongeur / Oiseau 🐰"}</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Race ou type</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormBreed}</label>
                   <input
                     type="text"
                     placeholder="Ex: Européen, Berger..."
@@ -412,7 +427,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Âge approximatif</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormAge}</label>
                   <input
                     type="text"
                     placeholder="Ex: 6 mois, 2 ans..."
@@ -425,7 +440,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Wilaya *</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormWilaya}</label>
                   <select
                     value={newPetWilaya}
                     onChange={e => setNewPetWilaya(e.target.value)}
@@ -437,7 +452,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                   </select>
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">Commune / Ville *</label>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormCity}</label>
                   <input
                     type="text"
                     required
@@ -450,7 +465,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-300 block mb-1">Numéro de téléphone contact *</label>
+                <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormPhone}</label>
                 <input
                   type="tel"
                   required
@@ -462,11 +477,11 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-300 block mb-1">Histoire & Caractère *</label>
+                <label className="text-[11px] font-bold text-slate-300 block mb-1">{t.adoptFormHistory}</label>
                 <textarea
                   required
                   rows={3}
-                  placeholder="Décrivez son caractère, ses ententes avec d'autres animaux, son état de santé..."
+                  placeholder={t.adoptFormHistoryPlaceholder}
                   value={newPetDesc}
                   onChange={e => setNewPetDesc(e.target.value)}
                   className="w-full p-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs"
@@ -481,7 +496,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                     onChange={e => setNewPetVaccinated(e.target.checked)}
                     className="rounded text-rose-600 cursor-pointer"
                   />
-                  <span>Vacciné</span>
+                  <span>{t.adoptFormCheckVaccinated}</span>
                 </label>
 
                 <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
@@ -491,7 +506,7 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                     onChange={e => setNewPetSterilized(e.target.checked)}
                     className="rounded text-rose-600 cursor-pointer"
                   />
-                  <span>Stérilisé</span>
+                  <span>{t.adoptFormCheckSterilized}</span>
                 </label>
               </div>
 
@@ -499,15 +514,15 @@ export default function AdoptionSection({ currentLang, onGoHome }: AdoptionSecti
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
                 >
-                  Annuler
+                  {t.adoptFormBtnCancel}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg cursor-pointer"
                 >
-                  Publier l'annonce d'adoption
+                  {t.adoptFormBtnPublish}
                 </button>
               </div>
             </form>

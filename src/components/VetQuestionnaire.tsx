@@ -12,6 +12,7 @@ import {
   AlertCircle, Lightbulb, Check, Camera
 } from 'lucide-react';
 import DiaVetLogo from './DiaVetLogo';
+import { isValidAlgerianPhone } from '../lib/validation';
 
 interface VetQuestionnaireProps {
   currentLang: Language;
@@ -46,12 +47,12 @@ export default function VetQuestionnaire({
   const savedDraft = getSavedVetDraft();
 
   const [step, setStep] = useState<number>(() => {
-    if (savedDraft?.step && savedDraft.step > 0 && savedDraft.step <= 7) {
+    if (savedDraft?.step && savedDraft.step > 0 && savedDraft.step <= 14) {
       return savedDraft.step;
     }
     return 0;
   });
-  const totalSteps = 7;
+  const totalSteps = 14;
 
   // ANSWERS STATE: Synchronized with userProfile to avoid repeating questions
   const [answers, setAnswers] = useState<VetAnswers>(() => ({
@@ -73,7 +74,7 @@ export default function VetQuestionnaire({
 
   // Autosave to localStorage
   useEffect(() => {
-    if (step >= 1 && step <= 7) {
+    if (step >= 1 && step <= 14) {
       try {
         localStorage.setItem(VET_DRAFT_STORAGE_KEY, JSON.stringify({
           step,
@@ -108,14 +109,14 @@ export default function VetQuestionnaire({
 
   // Suspense progress timer
   useEffect(() => {
-    if (step === 8) {
+    if (step === 15) {
       soundEngine.playSuccess();
       const interval = setInterval(() => {
         setSuspenseProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
             setTimeout(() => {
-              setStep(9);
+              setStep(16);
             }, 600);
             return 100;
           }
@@ -260,9 +261,9 @@ export default function VetQuestionnaire({
           );
           return false;
         }
-        if (!answers.phoneContact?.trim() || answers.phoneContact.trim().length < 8) {
+        if (!answers.phoneContact?.trim() || !isValidAlgerianPhone(answers.phoneContact)) {
           triggerShake(
-            isRtl ? 'يرجى إدخال رقم هاتف مهني صحيح.' : 'Veuillez indiquer un numéro de téléphone professionnel valide.'
+            isRtl ? 'يرجى إدخال رقم هاتف مهني صحيح (05/06/07/021/041/.. أو +213).' : 'Veuillez indiquer un numéro de téléphone professionnel valide (fixe ou mobile DZ).'
           );
           return false;
         }
@@ -1023,16 +1024,37 @@ export default function VetQuestionnaire({
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1.5">
-                  {isRtl ? "رقم الهاتف المهني للعيادة *" : "Numéro de téléphone professionnel du cabinet *"}
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-slate-300">
+                    {isRtl ? "رقم الهاتف المهني للعيادة *" : "Numéro de téléphone professionnel du cabinet *"}
+                  </label>
+                  {answers.phoneContact && (
+                    isValidAlgerianPhone(answers.phoneContact) ? (
+                      <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        {isRtl ? 'رقم صحيح' : 'Valide'}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-rose-400 font-semibold flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {isRtl ? 'غير مطابق' : 'Invalide'}
+                      </span>
+                    )
+                  )}
+                </div>
                 <input
                   type="tel"
                   required
                   placeholder={isRtl ? "مثال: 021 60 12 34 أو 0550 12 34 56" : "Ex: 021 60 12 34 ou 0550 12 34 56"}
                   value={answers.phoneContact}
                   onChange={e => setAnswers({ ...answers, phoneContact: e.target.value })}
-                  className="w-full p-3.5 rounded-2xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-sm font-mono focus:outline-none focus:border-emerald-400"
+                  className={`w-full p-3.5 rounded-2xl bg-slate-900 border text-white placeholder-slate-500 text-sm font-mono focus:outline-none transition-all ${
+                    answers.phoneContact
+                      ? isValidAlgerianPhone(answers.phoneContact)
+                        ? 'border-emerald-500/50 focus:border-emerald-400'
+                        : 'border-rose-500/60 focus:border-rose-400'
+                      : 'border-white/10 focus:border-emerald-400'
+                  }`}
                 />
               </div>
 

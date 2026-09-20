@@ -13,7 +13,10 @@ interface MarketplaceSectionProps {
 }
 
 export default function MarketplaceSection({ currentLang, onGoHome }: MarketplaceSectionProps) {
-  const t = translations[currentLang];
+  const t = translations[currentLang] || translations.fr;
+  const isRtl = currentLang === 'ar';
+  const isEn = currentLang === 'en';
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [preorderModalItem, setPreorderModalItem] = useState<MarketplaceItem | null>(null);
@@ -21,11 +24,11 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
   const [preorderSuccess, setPreorderSuccess] = useState<string | null>(null);
 
   const categories = [
-    { id: 'all', label: 'Tout voir' },
-    { id: 'nutrition', label: '🥩 Nutrition & Croquettes' },
-    { id: 'antiparasitaire', label: '🛡️ Antiparasitaires DZ' },
-    { id: 'accessoire', label: '🎒 Transport & Confort' },
-    { id: 'hygiene', label: '✨ Hygiène & Litières' }
+    { id: 'all', label: t.marketCatAll },
+    { id: 'nutrition', label: t.marketCatNutrition },
+    { id: 'antiparasitaire', label: t.marketCatAntiparasitic },
+    { id: 'accessoire', label: t.marketCatAccessories },
+    { id: 'hygiene', label: t.marketCatHygiene }
   ];
 
   const filteredItems = INITIAL_MARKETPLACE_ITEMS.filter(item => {
@@ -40,14 +43,20 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
     e.preventDefault();
     if (!notificationEmailOrPhone.trim()) return;
 
-    setPreorderSuccess(`Votre demande d’alerte pour « ${preorderModalItem?.name} » est bien enregistrée !`);
+    setPreorderSuccess(
+      isRtl
+        ? `تم تسجيل طلب التنبيه والحجز لـ « ${preorderModalItem?.name} » بنجاح !`
+        : isEn
+        ? `Pre-order notification confirmed for “${preorderModalItem?.name}”!`
+        : `Votre demande d’alerte pour « ${preorderModalItem?.name} » est bien enregistrée !`
+    );
     setPreorderModalItem(null);
     setNotificationEmailOrPhone('');
     setTimeout(() => setPreorderSuccess(null), 5000);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in duration-300">
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in duration-300 ${isRtl ? 'text-right' : 'text-left'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       
       {/* Header */}
       <div className="mb-8">
@@ -55,7 +64,7 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
           onClick={onGoHome}
           className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-400 hover:text-white mb-3 cursor-pointer"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
           <span>{t.btnBack}</span>
         </button>
 
@@ -63,20 +72,20 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold mb-2">
               <ShoppingBag className="w-3.5 h-3.5 animate-bounce" />
-              <span>Boutique Animalerie Officielle & Nouveautés · Algérie 🇩🇿</span>
+              <span>{t.marketBadge}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              Marketplace & Produits Vétérinaires
+              {t.marketTitle}
             </h1>
             <p className="text-slate-300 text-xs sm:text-sm mt-2 max-w-2xl">
-              Alimentation certifiée, antiparasitaires aux normes algériennes et accessoires livrés directement chez vous ou en retrait clinique dans les 58 Wilayas.
+              {t.marketDesc}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs font-bold text-slate-300">
               <Truck className="w-4 h-4 text-cyan-400" />
-              <span>Livraison 58 Wilayas</span>
+              <span>{t.marketDelivery58}</span>
             </div>
           </div>
         </div>
@@ -126,7 +135,7 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
                 
                 {item.badge && (
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-lg">
+                  <span className={`absolute top-3 ${isRtl ? 'right-3' : 'left-3'} px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-lg`}>
                     {item.badge}
                   </span>
                 )}
@@ -169,7 +178,7 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
                 className="w-full py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white font-bold text-xs transition-all border border-emerald-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
-                <span>Commander / Réserver</span>
+                <span>{t.marketBtnPreorder}</span>
               </button>
             </div>
 
@@ -182,13 +191,13 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
         <div className="max-w-2xl mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Feuille de Route & Nouveautés en Préparation</span>
+            <span>{t.marketUpcomingBadge}</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-black text-white">
-            Les Prochains Services DiaVet en Algérie
+            {t.marketUpcomingTitle}
           </h2>
           <p className="text-slate-300 text-xs sm:text-sm mt-2">
-            Voici les nouveaux services en cours de finalisation avec les professionnels conventionnés. Inscrivez-vous pour bénéficier d'un accès anticipé réservé aux porteurs du Pass VIP.
+            {t.marketUpcomingDesc}
           </p>
         </div>
 
@@ -214,9 +223,9 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
               </div>
 
               <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-medium">Lancement prévu : <strong>{srv.availableDate}</strong></span>
+                <span className="text-slate-400 font-medium">{t.marketUpcomingPlannedDate} <strong>{srv.availableDate}</strong></span>
                 <span className="text-cyan-400 font-bold flex items-center gap-1">
-                  Inclus dans le Pass VIP ✓
+                  {t.marketUpcomingVipIncluded}
                 </span>
               </div>
             </div>
@@ -228,16 +237,16 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
       {preorderModalItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in">
           <div className="max-w-md w-full rounded-3xl bg-slate-900 border border-emerald-500/40 p-6 sm:p-8 shadow-2xl relative text-left">
-            <h3 className="text-xl font-black text-white mb-1">Pré-commander / Réserver</h3>
+            <h3 className="text-xl font-black text-white mb-1">{t.marketModalPreorderTitle}</h3>
             <p className="text-xs text-slate-400 mb-4">{preorderModalItem.name} — <strong className="text-emerald-400">{preorderModalItem.priceDzd} DZD</strong></p>
 
             <form onSubmit={handleNotifyMe} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1">Votre Numéro Téléphone DZ ou Email *</label>
+                <label className="text-xs font-bold text-slate-300 block mb-1">{t.marketModalContactLabel}</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: 0550 12 34 56 ou contact@email.com"
+                  placeholder={t.marketModalContactPlaceholder}
                   value={notificationEmailOrPhone}
                   onChange={e => setNotificationEmailOrPhone(e.target.value)}
                   className="w-full p-3 rounded-xl bg-slate-950 border border-white/10 text-white text-xs"
@@ -245,22 +254,22 @@ export default function MarketplaceSection({ currentLang, onGoHome }: Marketplac
               </div>
 
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                Notre équipe logistique vous contactera par SMS / WhatsApp dès validation de la disponibilité dans votre Wilaya.
+                {t.marketModalInfo}
               </p>
 
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setPreorderModalItem(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
                 >
-                  Annuler
+                  {t.marketModalBtnCancel}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg cursor-pointer"
                 >
-                  Confirmer ma réservation
+                  {t.marketModalBtnConfirm}
                 </button>
               </div>
             </form>

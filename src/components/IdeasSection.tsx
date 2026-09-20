@@ -148,17 +148,13 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold mb-2">
               <Lightbulb className="w-3.5 h-3.5" />
-              <span>{isRtl ? "صندوق الأفكار والآراء · مجتمع الجزائر 🇩🇿" : isEn ? "Community Ideas & Feedback · Algeria 🇩🇿" : "Boîte à Idées & Avis de la Communauté · Algérie 🇩🇿"}</span>
+              <span>{t.ideasBadge}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              {isRtl ? "شارك برأيك وفكرتك لبناء DiaVet" : isEn ? "Share Ideas & Shape DiaVet" : "Donnez votre Avis & Façonnez DiaVet"}
+              {t.ideasTitle}
             </h1>
             <p className="text-slate-300 text-xs sm:text-sm mt-2 max-w-2xl">
-              {isRtl 
-                ? "صوتكم يحدد مباشرة خريطة التطوير. شاركنا أفكارك، قيّم تجربتك وصوت للميزات الأكثر إلحاحاً وأهمية في الجزائر."
-                : isEn
-                ? "Your voice drives our product roadmap. Propose features, submit reviews, and vote for the most impactful veterinary tools across Algeria."
-                : "Votre voix compte directement dans notre feuille de route. Proposez des idées, donnez votre note et votez pour les fonctionnalités qui vous semblent prioritaires pour l'Algérie."}
+              {t.ideasDesc}
             </p>
           </div>
 
@@ -167,7 +163,7 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
             className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer self-start md:self-auto"
           >
             <Lightbulb className="w-4 h-4" />
-            <span>{isSubmitOpen ? (isRtl ? "إغلاق النموذج" : isEn ? "Close form" : "Fermer le formulaire") : (isRtl ? "💡 شارك فكرة أو رأياً جديداً" : isEn ? "💡 Submit an idea or feedback" : "💡 Proposer une idée ou un avis")}</span>
+            <span>{isSubmitOpen ? t.ideasBtnCloseForm : t.ideasBtnOpenForm}</span>
           </button>
         </div>
       </div>
@@ -184,10 +180,10 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
       {isSubmitOpen && (
         <div className="mb-10 p-6 sm:p-8 rounded-3xl bg-slate-950/90 border-2 border-amber-500/40 shadow-2xl backdrop-blur-xl animate-in fade-in duration-200">
           <h3 className="text-xl font-black text-white mb-1">
-            {isRtl ? "مشاركة اقتراح، فكرة أو تقييم" : isEn ? "Submit a Suggestion or Review" : "Partager une Suggestion ou un Avis"}
+            {t.ideasFormTitle}
           </h3>
           <p className="text-xs text-slate-400 mb-6">
-            {isRtl ? "ستظهر فكرتك لمطوري المنصة ومجتمع المربين والأطباء في الجزائر." : isEn ? "Visible to DiaVet developers and the Algerian veterinary community." : "Visible par l'équipe de développement et la communauté DiaVet."}
+            {t.ideasFormSubtitle}
           </p>
 
           {formError && (
@@ -201,38 +197,38 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1">
-                  {isRtl ? "صفتك *" : isEn ? "Your role *" : "Votre rôle *"}
+                  {t.ideasFormRole}
                 </label>
                 <select
                   value={formRole}
                   onChange={e => setFormRole(e.target.value as any)}
                   className="w-full p-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-xs cursor-pointer"
                 >
-                  <option value="owner">{isRtl ? "مربي / صاحب حيوان" : isEn ? "Pet Owner" : "Propriétaire d'animal"}</option>
-                  <option value="vet">{isRtl ? "دكتور بيطري ممارس" : isEn ? "Licensed Veterinarian" : "Docteur Vétérinaire"}</option>
-                  <option value="lover">{isRtl ? "متطوع / محب للحيوانات" : isEn ? "Volunteer / Animal Lover" : "Bénévole / Passionné"}</option>
+                  <option value="owner">{t.ideasFormRoleOwner}</option>
+                  <option value="vet">{t.ideasFormRoleVet}</option>
+                  <option value="lover">{t.ideasFormRoleLover}</option>
                 </select>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1">
-                  {isRtl ? "نوع المساهمة *" : isEn ? "Submission Type *" : "Type de message *"}
+                  {t.ideasFormType}
                 </label>
                 <select
                   value={formType}
                   onChange={e => setFormType(e.target.value as any)}
                   className="w-full p-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-xs cursor-pointer"
                 >
-                  <option value="idea">{isRtl ? "💡 فكرة ميزة جديدة" : isEn ? "💡 Feature Idea" : "💡 Idée de fonctionnalité"}</option>
-                  <option value="suggestion">{isRtl ? "✨ مقترح تحسين" : isEn ? "✨ Improvement" : "✨ Suggestion d'amélioration"}</option>
-                  <option value="review">{isRtl ? "⭐ تقييم ورأي عام" : isEn ? "⭐ Community Review" : "⭐ Avis général sur DiaVet"}</option>
-                  <option value="feature_request">{isRtl ? "🔧 طلب ميزة طبية" : isEn ? "🔧 Clinical Request" : "🔧 Demande clinique"}</option>
+                  <option value="idea">{t.ideasFormTypeIdea}</option>
+                  <option value="suggestion">{t.ideasFormTypeSuggestion}</option>
+                  <option value="review">{t.ideasFormTypeReview}</option>
+                  <option value="feature_request">{t.ideasFormTypeClinical}</option>
                 </select>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1">
-                  {isRtl ? "التقييم العام" : isEn ? "Overall Rating" : "Note globale"}
+                  {t.ideasFormRating}
                 </label>
                 <div className="flex items-center gap-1 p-2 bg-slate-900 rounded-xl border border-white/10">
                   {[1, 2, 3, 4, 5].map(star => (
@@ -253,12 +249,12 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1">
-                  {isRtl ? "الاسم أو اللقب المستعار *" : isEn ? "Your Name or Alias *" : "Votre Nom ou Pseudo *"}
+                  {t.ideasFormAuthor}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder={isRtl ? "مثال: د. أمينة، كريم ع..." : isEn ? "E.g., Dr. Sarah, Karim M..." : "Ex: Dr. Sarah, Karim M..."}
+                  placeholder={t.ideasFormAuthorPlaceholder}
                   value={formAuthor}
                   onChange={e => setFormAuthor(e.target.value)}
                   className="w-full p-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-xs"
@@ -267,7 +263,7 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
 
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1">
-                  {isRtl ? "الولاية *" : isEn ? "Wilaya *" : "Wilaya *"}
+                  {t.ideasFormWilaya}
                 </label>
                 <select
                   value={formWilaya}
@@ -283,12 +279,12 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
 
             <div>
               <label className="text-xs font-bold text-slate-300 block mb-1">
-                {isRtl ? "عنوان الفكرة أو المقترح *" : isEn ? "Proposal Title *" : "Titre de votre proposition *"}
+                {t.ideasFormIdeaTitle}
               </label>
               <input
                 type="text"
                 required
-                placeholder={isRtl ? "مثال: تذكير جرعات التلقيح عبر واتساب..." : isEn ? "E.g., WhatsApp vaccination reminder..." : "Ex: Ajouter le rappel des vaccins rage par WhatsApp..."}
+                placeholder={t.ideasFormIdeaTitlePlaceholder}
                 value={formTitle}
                 onChange={e => setFormTitle(e.target.value)}
                 className="w-full p-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-xs"
@@ -297,12 +293,12 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
 
             <div>
               <label className="text-xs font-bold text-slate-300 block mb-1">
-                {isRtl ? "تفاصيل الفكرة وماذا تريد إضافته بالتحديد *" : isEn ? "Details & Explanation *" : "Détails de votre idée ou avis *"}
+                {t.ideasFormMessage}
               </label>
               <textarea
                 required
                 rows={3}
-                placeholder={isRtl ? "اشرح بالتفصيل كيف ستساعد هذه الميزة الأطباء أو المربين في الجزائر..." : isEn ? "Explain why this feature would be helpful for veterinarians or pet owners in Algeria..." : "Expliquez en détail pourquoi cette fonctionnalité serait utile pour les vétérinaires ou propriétaires en Algérie..."}
+                placeholder={t.ideasFormMessagePlaceholder}
                 value={formMessage}
                 onChange={e => setFormMessage(e.target.value)}
                 className="w-full p-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-xs"
@@ -315,14 +311,14 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
                 onClick={() => setIsSubmitOpen(false)}
                 className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
               >
-                {isRtl ? "إلغاء" : isEn ? "Cancel" : "Annuler"}
+                {t.adoptFormBtnCancel || "Annuler"}
               </button>
               <button
                 type="submit"
                 className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg flex items-center gap-2 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
-                <span>{isRtl ? "نشر الفكرة في المجتمع 🚀" : isEn ? "Publish Idea 🚀" : "Publier mon idée"}</span>
+                <span>{t.ideasFormBtnSubmit}</span>
               </button>
             </div>
           </form>
@@ -332,10 +328,10 @@ export default function IdeasSection({ currentLang, onGoHome }: IdeasSectionProp
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar">
         {[
-          { id: 'all', label: isRtl ? 'جميع الاقتراحات' : isEn ? 'All Suggestions' : 'Toutes les suggestions' },
-          { id: 'idea', label: isRtl ? '💡 أفكار مستقبلية' : isEn ? '💡 Future Ideas' : '💡 Idées d’avenir' },
-          { id: 'review', label: isRtl ? '⭐ آراء وتقييمات' : isEn ? '⭐ Reviews & Ratings' : '⭐ Avis & Retours' },
-          { id: 'suggestion', label: isRtl ? '✨ مقترحات تحسين' : isEn ? '✨ Improvements' : '✨ Améliorations' }
+          { id: 'all', label: t.ideasFilterAll },
+          { id: 'idea', label: t.ideasFilterFeatures },
+          { id: 'review', label: t.ideasFilterReviews },
+          { id: 'suggestion', label: t.ideasFilterClinical }
         ].map(cat => (
           <button
             key={cat.id}

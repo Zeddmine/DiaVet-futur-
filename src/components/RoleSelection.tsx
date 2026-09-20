@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { Language } from '../types';
 import { translations } from '../data/translations';
 import { ArrowRight, ChevronLeft, Sparkles } from 'lucide-react';
@@ -19,19 +20,66 @@ export default function RoleSelection({
 }: RoleSelectionProps) {
   const t = translations[currentLang];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.05,
+      },
+    },
+    exit: {
+      opacity: 0,
+      transition: {
+        staggerChildren: 0.05,
+        staggerDirection: -1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 16, filter: 'blur(2px)' },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: {
+        duration: 0.38,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: -12,
+      scale: 0.98,
+      filter: 'blur(2px)',
+      transition: {
+        duration: 0.18,
+        ease: [0.4, 0, 0.2, 1],
+      },
+    },
+  };
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-16"
+    >
       {/* Back button */}
-      <button
+      <motion.button
+        variants={itemVariants}
         onClick={onBack}
         className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-white mb-8 transition-colors cursor-pointer"
       >
         <ChevronLeft className="w-4 h-4" />
         <span>{t.btnBack}</span>
-      </button>
+      </motion.button>
 
       {/* Heading */}
-      <div className="text-center sm:text-left mb-10">
+      <motion.div variants={itemVariants} className="text-center sm:text-left mb-10">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold mb-3">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Profil & Orientation</span>
@@ -42,16 +90,19 @@ export default function RoleSelection({
         <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-xl">
           {t.roleSubtitle}
         </p>
-      </div>
+      </motion.div>
 
       {/* Role Cards List */}
       <div className="space-y-6">
         
         {/* Card 1: Propriétaire */}
-        <div
+        <motion.div
+          variants={itemVariants}
+          whileHover={{ scale: 1.015, y: -2 }}
+          whileTap={{ scale: 0.985 }}
           id="select-role-owner-btn"
           onClick={onSelectOwner}
-          className="group relative rounded-3xl p-6 sm:p-8 border border-cyan-500/30 bg-slate-950/80 hover:bg-slate-900/90 dark:bg-slate-950/80 light:bg-white light:border-cyan-200 backdrop-blur-xl transition-all duration-300 shadow-xl hover:shadow-cyan-500/20 hover:border-cyan-400 cursor-pointer active:scale-98 flex flex-col sm:flex-row items-center gap-6"
+          className="group relative rounded-3xl p-6 sm:p-8 border border-cyan-500/30 bg-slate-950/80 hover:bg-slate-900/90 dark:bg-slate-950/80 light:bg-white light:border-cyan-200 backdrop-blur-xl transition-all duration-300 shadow-xl hover:shadow-cyan-500/20 hover:border-cyan-400 cursor-pointer flex flex-col sm:flex-row items-center gap-6"
         >
           {/* Avatar / Photo Thumbnail */}
           <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-lg">
@@ -80,14 +131,17 @@ export default function RoleSelection({
           <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-all shrink-0">
             <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 2: Vétérinaire (Uniquement visible si praticien ou avant choix initial) */}
         {userRole !== 'owner' && (
-          <div
+          <motion.div
+            variants={itemVariants}
+            whileHover={{ scale: 1.015, y: -2 }}
+            whileTap={{ scale: 0.985 }}
             id="select-role-vet-btn"
             onClick={onSelectVet}
-            className="group relative rounded-3xl p-6 sm:p-8 border border-emerald-500/30 bg-slate-950/80 hover:bg-slate-900/90 dark:bg-slate-950/80 light:bg-white light:border-emerald-200 backdrop-blur-xl transition-all duration-300 shadow-xl hover:shadow-emerald-500/20 hover:border-emerald-400 cursor-pointer active:scale-98 flex flex-col sm:flex-row items-center gap-6"
+            className="group relative rounded-3xl p-6 sm:p-8 border border-emerald-500/30 bg-slate-950/80 hover:bg-slate-900/90 dark:bg-slate-950/80 light:bg-white light:border-emerald-200 backdrop-blur-xl transition-all duration-300 shadow-xl hover:shadow-emerald-500/20 hover:border-emerald-400 cursor-pointer flex flex-col sm:flex-row items-center gap-6"
           >
             {/* Avatar / Photo Thumbnail */}
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-lg">
@@ -116,10 +170,10 @@ export default function RoleSelection({
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all shrink-0">
               <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
             </div>
-          </div>
+          </motion.div>
         )}
 
       </div>
-    </div>
+    </motion.div>
   );
 }

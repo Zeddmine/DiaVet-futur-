@@ -1,7 +1,21 @@
 import { StrictMode, Component, ReactNode, ErrorInfo } from 'react';
 import { createRoot } from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
 import App from './App.tsx';
+import { LanguageProvider } from './context/LanguageContext.tsx';
+import { LoadingProvider } from './context/LoadingContext.tsx';
 import './index.css';
+
+// Register PWA service worker automatically
+registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    console.log('Nouvelle version DiaVet PWA disponible');
+  },
+  onOfflineReady() {
+    console.log('DiaVet PWA prêt pour utilisation hors-ligne');
+  },
+});
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -92,7 +106,11 @@ class GlobalErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySta
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <GlobalErrorBoundary>
-      <App />
+      <LanguageProvider>
+        <LoadingProvider>
+          <App />
+        </LoadingProvider>
+      </LanguageProvider>
     </GlobalErrorBoundary>
   </StrictMode>,
 );

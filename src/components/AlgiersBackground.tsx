@@ -124,7 +124,7 @@ export default function AlgiersBackground({ theme }: AlgiersBackgroundProps) {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none touch-none" style={{ contain: 'strict' }} aria-hidden="true">
       {/* Background Image: Panoramic Bay of Algiers */}
       <img
         src={algiersBayUrl}
@@ -135,7 +135,7 @@ export default function AlgiersBackground({ theme }: AlgiersBackgroundProps) {
             (e.currentTarget as HTMLImageElement).src = algiersBackupUrl;
           }
         }}
-        className={`w-full h-full object-cover object-center scale-105 animate-slow-pan transition-all duration-1000 ${
+        className={`w-full h-full object-cover object-center transition-all duration-700 ${
           theme === 'dark'
             ? 'opacity-40 filter brightness-90 contrast-125 saturate-125'
             : 'opacity-20 filter brightness-95 contrast-110 saturate-110'
@@ -147,13 +147,21 @@ export default function AlgiersBackground({ theme }: AlgiersBackgroundProps) {
         className={`absolute inset-0 transition-colors duration-500 ${
           theme === 'dark'
             ? 'bg-gradient-to-b from-[#020617]/90 via-[#020617]/75 to-[#020617]/95'
-            : 'bg-gradient-to-b from-slate-900/90 via-slate-950/80 to-slate-950/95'
+            : 'bg-gradient-to-b from-slate-100/90 via-slate-50/80 to-slate-100/95'
         }`}
       />
 
       {/* Modern Mesh Aura & Glow Layers */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(0,180,255,0.2),rgba(255,255,255,0))]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_120%,rgba(16,185,129,0.15),rgba(255,255,255,0))]" />
+      <div className={`absolute inset-0 transition-opacity duration-500 ${
+        theme === 'dark'
+          ? 'bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(0,180,255,0.2),rgba(255,255,255,0))]'
+          : 'bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(6,182,212,0.15),rgba(255,255,255,0))]'
+      }`} />
+      <div className={`absolute inset-0 transition-opacity duration-500 ${
+        theme === 'dark'
+          ? 'bg-[radial-gradient(ellipse_60%_60%_at_50%_120%,rgba(16,185,129,0.15),rgba(255,255,255,0))]'
+          : 'bg-[radial-gradient(ellipse_60%_60%_at_50%_120%,rgba(16,185,129,0.12),rgba(255,255,255,0))]'
+      }`} />
 
       {/* Ambient Pulsing Orbs */}
       <div 
@@ -180,7 +188,11 @@ export default function AlgiersBackground({ theme }: AlgiersBackgroundProps) {
 
       {/* High-tech Subtle Grid Overlay */}
       <div 
-        className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-60"
+        className={`absolute inset-0 bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-60 ${
+          theme === 'dark'
+            ? 'bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]'
+            : 'bg-[linear-gradient(to_right,#0000000a_1px,transparent_1px),linear-gradient(to_bottom,#0000000a_1px,transparent_1px)]'
+        }`}
       />
     </div>
   );

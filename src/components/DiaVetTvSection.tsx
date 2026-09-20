@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Video, Clock, AlertTriangle, Hammer, Lock, ChevronRight
 } from 'lucide-react';
@@ -133,7 +134,13 @@ export default function DiaVetTvSection({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-8" dir={isRtl ? 'rtl' : 'ltr'}>
+    <motion.div 
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-8" 
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       {/* Header Banner With In-Development Banner */}
       <div className="relative rounded-3xl overflow-hidden p-6 sm:p-10 border-2 border-amber-500/40 bg-gradient-to-br from-slate-900 via-slate-950 to-amber-950/30 shadow-2xl mb-8">
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -274,69 +281,80 @@ export default function DiaVetTvSection({
       </div>
 
       {/* IN-DEVELOPMENT MODAL WHEN CLICKING ANY VIDEO */}
-      {selectedDevVideo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-200">
-          <div 
-            className="w-full max-w-md p-6 sm:p-8 bg-slate-900 border-2 border-amber-500/50 rounded-3xl shadow-2xl shadow-amber-950/60 text-slate-100 relative"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {selectedDevVideo && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md"
           >
-            {/* Header Icon */}
-            <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 mx-auto mb-4 text-2xl font-black">
-              <Hammer className="w-8 h-8 animate-bounce" />
-            </div>
-
-            <div className="text-center space-y-2 mb-6">
-              <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black border border-amber-500/40 uppercase">
-                {isRtl ? "ميزة قيد التطوير البرمجي" : isEn ? "Module Under Active Development" : "Fonctionnalité en développement"}
-              </span>
-              <h3 className="text-xl font-black text-white pt-1">
-                {selectedDevVideo.title}
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed pt-1">
-                {isRtl
-                  ? "قسم الفيديوهات وقناة DiaVet TV قيد التطوير البرمجي حالياً. لا يوجد وصول أو تشغيل مباشر للمقاطع في الوقت الراهن."
-                  : isEn
-                  ? "DiaVet TV video player is currently undergoing development. Direct playback will be unlocked upon studio release."
-                  : "Le lecteur de vidéos et les tutoriels DiaVet TV sont actuellement en cours de développement. Aucun accès ni lecture n'est disponible pour le moment."}
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 text-xs text-slate-300 mb-6 space-y-1.5">
-              <div className="flex items-center justify-between text-slate-400">
-                <span>{isRtl ? "الطبيب المشرف :" : isEn ? "Practitioner author:" : "Praticien auteur :"}</span>
-                <span className="text-white font-bold">{selectedDevVideo.vetAuthor}</span>
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 8 }}
+              transition={{ duration: 0.25 }}
+              className="w-full max-w-md p-6 sm:p-8 bg-slate-900 border-2 border-amber-500/50 rounded-3xl shadow-2xl shadow-amber-950/60 text-slate-100 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header Icon */}
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 mx-auto mb-4 text-2xl font-black">
+                <Hammer className="w-8 h-8 animate-bounce" />
               </div>
-              <div className="flex items-center justify-between text-slate-400">
-                <span>{isRtl ? "الحالة البرمجية :" : isEn ? "Technical status:" : "Statut technique :"}</span>
-                <span className="text-amber-400 font-bold">{isRtl ? "قيد الإنجاز ⏳" : isEn ? "In progress ⏳" : "En cours de développement ⏳"}</span>
-              </div>
-            </div>
 
-            <div className="space-y-2.5">
-              {onOpenDirectory && (
+              <div className="text-center space-y-2 mb-6">
+                <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black border border-amber-500/40 uppercase">
+                  {isRtl ? "ميزة قيد التطوير البرمجي" : isEn ? "Module Under Active Development" : "Fonctionnalité en développement"}
+                </span>
+                <h3 className="text-xl font-black text-white pt-1">
+                  {selectedDevVideo.title}
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed pt-1">
+                  {isRtl
+                    ? "قسم الفيديوهات وقناة DiaVet TV قيد التطوير البرمجي حالياً. لا يوجد وصول أو تشغيل مباشر للمقاطع في الوقت الراهن."
+                    : isEn
+                    ? "DiaVet TV video player is currently undergoing development. Direct playback will be unlocked upon studio release."
+                    : "Le lecteur de vidéos et les tutoriels DiaVet TV sont actuellement en cours de développement. Aucun accès ni lecture n'est disponible pour le moment."}
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 text-xs text-slate-300 mb-6 space-y-1.5">
+                <div className="flex items-center justify-between text-slate-400">
+                  <span>{isRtl ? "الطبيب المشرف :" : isEn ? "Practitioner author:" : "Praticien auteur :"}</span>
+                  <span className="text-white font-bold">{selectedDevVideo.vetAuthor}</span>
+                </div>
+                <div className="flex items-center justify-between text-slate-400">
+                  <span>{isRtl ? "الحالة البرمجية :" : isEn ? "Technical status:" : "Statut technique :"}</span>
+                  <span className="text-amber-400 font-bold">{isRtl ? "قيد الإنجاز ⏳" : isEn ? "In progress ⏳" : "En cours de développement ⏳"}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                {onOpenDirectory && (
+                  <button
+                    onClick={() => {
+                      soundEngine.playSuccess();
+                      onOpenDirectory();
+                      setSelectedDevVideo(null);
+                    }}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-transform hover:scale-[1.02]"
+                  >
+                    <span>{isRtl ? "تصفح دليل العيادات والأطباء" : isEn ? "Explore Algerian Vet Directory" : "Consulter l'annuaire des vétérinaires"}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
+
                 <button
-                  onClick={() => {
-                    soundEngine.playSuccess();
-                    onOpenDirectory();
-                    setSelectedDevVideo(null);
-                  }}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-transform hover:scale-[1.02]"
+                  onClick={() => setSelectedDevVideo(null)}
+                  className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer transition-colors"
                 >
-                  <span>{isRtl ? "تصفح دليل العيادات والأطباء" : isEn ? "Explore Algerian Vet Directory" : "Consulter l'annuaire des vétérinaires"}</span>
-                  <ChevronRight className="w-4 h-4" />
+                  {isRtl ? "إغلاق" : isEn ? "Close" : "Fermer"}
                 </button>
-              )}
-
-              <button
-                onClick={() => setSelectedDevVideo(null)}
-                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer transition-colors"
-              >
-                {isRtl ? "إغلاق" : isEn ? "Close" : "Fermer"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
