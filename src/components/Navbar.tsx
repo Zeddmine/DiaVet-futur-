@@ -7,7 +7,7 @@ import {
   Menu, X, Sun, Moon, Smartphone, Monitor, Instagram, 
   Award, Heart, ShoppingBag, Lightbulb, 
   FileEdit, Lock, Stethoscope, Cloud,
-  Video, FileSpreadsheet, User, Sparkles, LogOut
+  Video, FileSpreadsheet, User, Sparkles, LogOut, Languages
 } from 'lucide-react';
 import { soundEngine } from '../utils/soundEngine';
 import DiaVetLogo from './DiaVetLogo';
@@ -468,6 +468,43 @@ export default function Navbar({
       {mobileMenuOpen && (
         <div className="xl:hidden border-t border-white/10 bg-slate-950/98 backdrop-blur-2xl px-4 py-5 space-y-3 animate-in slide-in-from-top duration-200 max-h-[85vh] overflow-y-auto" dir={isRtl ? 'rtl' : 'ltr'}>
           
+          {/* Mobile Language Switcher (FR / AR / EN) */}
+          <div className="p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/20 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Languages className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{isRtl ? "تغيير اللغة" : currentLang === 'en' ? "Change Language" : "Changer la langue"}</span>
+              </span>
+              <span className="text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
+                {currentLang === 'ar' ? 'العربية' : currentLang === 'en' ? 'English' : 'Français'}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { code: 'fr' as Language, flag: '🇫🇷', label: 'Français' },
+                { code: 'ar' as Language, flag: '🇩🇿', label: 'العربية' },
+                { code: 'en' as Language, flag: '🇬🇧', label: 'English' },
+              ].map(({ code, flag, label }) => (
+                <button
+                  key={code}
+                  id={`mobile-drawer-lang-${code}`}
+                  onClick={() => {
+                    soundEngine.playCyberClick();
+                    onSelectLang(code);
+                  }}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer ${
+                    currentLang === code
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white border-cyan-300 shadow-md shadow-cyan-500/30 ring-1 ring-cyan-400'
+                      : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-white/10'
+                  }`}
+                >
+                  <span className="text-base">{flag}</span>
+                  <span className="text-[11px]">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Mobile Auth Banner: Connected or Disconnected */}
           {!isRegistered ? (
             <div className="p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/70 to-blue-950/70 border border-cyan-500/40 space-y-2">

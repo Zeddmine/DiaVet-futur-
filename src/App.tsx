@@ -201,9 +201,15 @@ export default function App() {
     if (currentLang === 'ar') {
       root.setAttribute('dir', 'rtl');
       root.setAttribute('lang', 'ar');
+      document.title = "DiaVet Algérie — المنصة الوطنية الموحدة للصحة الحيوانية 🇩🇿";
+    } else if (currentLang === 'en') {
+      root.setAttribute('dir', 'ltr');
+      root.setAttribute('lang', 'en');
+      document.title = "DiaVet Algeria — Unified Animal Health Platform 🇩🇿";
     } else {
       root.setAttribute('dir', 'ltr');
-      root.setAttribute('lang', currentLang);
+      root.setAttribute('lang', 'fr');
+      document.title = "DiaVet Algérie — La Plateforme Unifiée de Santé Animale 🇩🇿";
     }
 
     try {

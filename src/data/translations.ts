@@ -659,3 +659,23 @@ export const translations: Record<Language, Record<string, string>> = {
     successBtnVet: "الدخول إلى استبيان التطوير السريري 🩺"
   }
 };
+
+/**
+ * Safe translation accessor that guarantees non-undefined fallback to French
+ */
+export function getTranslations(lang: Language = 'fr'): Record<string, string> {
+  const selected = translations[lang] || translations.fr;
+  return new Proxy(selected, {
+    get(target, prop: string) {
+      if (typeof prop === 'string') {
+        if (prop in target && target[prop]) {
+          return target[prop];
+        }
+        if (prop in translations.fr && translations.fr[prop]) {
+          return translations.fr[prop];
+        }
+      }
+      return '';
+    }
+  });
+}
