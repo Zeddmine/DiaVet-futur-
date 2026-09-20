@@ -35,6 +35,7 @@ interface NavbarProps {
   onOpenExcel?: () => void;
   onLockedFeatureClick?: (featureName: string) => void;
   onResetRegistration?: () => void;
+  onOpenProfile?: () => void;
   onOpenContact?: () => void;
   onOpenDriveSync?: () => void;
   isRegistered?: boolean;
@@ -60,6 +61,7 @@ export default function Navbar({
   onOpenExcel,
   onLockedFeatureClick,
   onResetRegistration,
+  onOpenProfile,
   onOpenContact,
   onOpenDriveSync,
   isRegistered = false,
@@ -770,16 +772,17 @@ export default function Navbar({
               <Instagram className="w-4 h-4" />
             </a>
 
-            {onResetRegistration && (
+            {onOpenProfile && (
               <button
                 onClick={() => {
                   soundEngine.playCyberClick();
                   setMobileMenuOpen(false);
-                  onResetRegistration();
+                  onOpenProfile();
                 }}
-                className="text-left py-2 px-3 rounded-xl border border-dashed border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer"
+                className="w-full text-left py-2.5 px-3.5 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 text-xs font-bold flex items-center justify-between transition-colors cursor-pointer"
               >
-                <span>{isAr ? "🔄 إعادة التسجيل / تغيير الحساب" : isEn ? "🔄 Re-register / Change Account" : "🔄 Nouvelle Inscription / Changer de profil"}</span>
+                <span>{isAr ? "👤 الملف الشخصي (عرض وتعديل)" : isEn ? "👤 My Profile (View & Edit)" : "👤 Mon Profil DiaVet (Consulter & Modifier)"}</span>
+                <User className="w-4 h-4 text-cyan-300" />
               </button>
             )}
           </nav>

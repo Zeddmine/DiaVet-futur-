@@ -30,6 +30,7 @@ import DriveSyncModal from './components/DriveSyncModal';
 import ExcelLeadsModal from './components/ExcelLeadsModal';
 import DiaVetTvSection from './components/DiaVetTvSection';
 import WhatsAppSupportButton from './components/WhatsAppSupportButton';
+import ProfileEditModal from './components/ProfileEditModal';
 import { recordRegistrationLead } from './services/adminDb';
 import { translations } from './data/translations';
 import { useLanguage } from './context/LanguageContext';
@@ -113,6 +114,8 @@ export default function App() {
       return true;
     }
   });
+
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
 
   // Questionnaire completion status - unlocks adoption, marketplace, ideas, etc.
   const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState<boolean>(() => {
@@ -1067,6 +1070,7 @@ export default function App() {
         }}
         onOpenContact={() => setShowContactModal(true)}
         onOpenDriveSync={() => setShowDriveSyncModal(true)}
+        onOpenProfile={() => setShowProfileModal(true)}
         onResetRegistration={handleLogout}
         isRegistered={isRegistered}
         onOpenAuth={() => setShowAuthModal(true)}
@@ -1181,6 +1185,18 @@ export default function App() {
       <WhatsAppSupportButton
         currentLang={currentLang}
       />
+
+      {/* PROFILE EDIT & AUTO-INVOICING MODAL */}
+      {showProfileModal && (
+        <ProfileEditModal
+          currentLang={currentLang}
+          userProfile={userProfile}
+          onSaveProfile={(updated) => {
+            setUserProfile(prev => ({ ...prev, ...updated }));
+          }}
+          onClose={() => setShowProfileModal(false)}
+        />
+      )}
 
       {/* AUTHENTICATION & OFFICIAL VERIFICATION GATEWAY MODAL */}
       {showAuthModal && (
