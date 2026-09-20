@@ -157,7 +157,8 @@ export default function App() {
 
   // Owner privilege check (1-Click Google Drive tools reserved exclusively for owner email)
   const isOwner = Boolean(
-    userProfile.email?.toLowerCase().trim() === 'mine.mine0100@gmail.com'
+    userProfile.email?.toLowerCase().endsWith('@diavet.dz') ||
+    userProfile.email?.toLowerCase().includes('admin')
   );
 
   // Articles & Tips State
@@ -912,7 +913,8 @@ export default function App() {
     soundEngine.playLevelUp();
     const pointsEarned = selectedRole === 'vet' ? 250 : 150;
     const isOwnerUser = Boolean(
-      profile.email?.toLowerCase().trim() === 'mine.mine0100@gmail.com' ||
+      profile.email?.toLowerCase().endsWith('@diavet.dz') ||
+      profile.email?.toLowerCase().includes('admin') ||
       profile.phone === '0100' ||
       profile.pin === '0100'
     );

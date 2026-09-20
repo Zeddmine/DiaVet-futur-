@@ -21,8 +21,8 @@ export const db: Firestore = firebaseConfigJson.firestoreDatabaseId
   ? getFirestore(app, firebaseConfigJson.firestoreDatabaseId)
   : getFirestore(app);
 
-export const DIAVET_OFFICIAL_EMAIL = 'contact@diavet.com';
-export const OWNER_TARGET_EMAIL = 'mine.mine0100@gmail.com';
+export const DIAVET_OFFICIAL_EMAIL = 'contact@diavet.dz';
+export const OWNER_TARGET_EMAIL = 'admin@diavet.dz';
 
 export interface FirestoreSubmissionData {
   id?: string;
@@ -93,7 +93,7 @@ export async function sendContactMessageToFirestore(msg: Omit<ContactMessageData
     console.warn('[Firestore] Contact message local fallback:', err);
   }
 
-  // Generate Mailto URL for instant email client delivery to mine.mine0100@gmail.com
+  // Generate Mailto URL for instant email client delivery
   const subjectEncoded = encodeURIComponent(`[DiaVet Official Contact] ${msg.subject || 'Nouveau message DiaVet'}`);
   const bodyEncoded = encodeURIComponent(
     `Nouveau message reçu pour DiaVet Algérie\n` +

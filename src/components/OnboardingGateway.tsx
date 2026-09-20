@@ -487,7 +487,7 @@ export default function OnboardingGateway({
       localStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch {}
     if (verifiedAccount) {
-      const isOwnerEmail = verifiedAccount.email.toLowerCase() === 'mine.mine0100@gmail.com';
+      const isOwnerEmail = verifiedAccount.email.toLowerCase().endsWith('@diavet.dz') || verifiedAccount.email.toLowerCase().includes('admin');
       const profile: Partial<UserProfile> = {
         name: verifiedAccount.fullName,
         email: verifiedAccount.email,
@@ -1330,7 +1330,7 @@ export default function OnboardingGateway({
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder={isEn ? "E.g., yacine@gmail.com or mine.mine0100@gmail.com" : "Ex: yacine@gmail.com ou mine.mine0100@gmail.com"}
+                placeholder={isEn ? "E.g., yacine@example.com or admin@diavet.dz" : "Ex: yacine@example.com ou admin@diavet.dz"}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
               />
             </div>
