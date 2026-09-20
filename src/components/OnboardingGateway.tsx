@@ -318,18 +318,15 @@ export default function OnboardingGateway({
 
     // Strict Unique Email Enforcement
     if (isEmailAlreadyRegistered(trimmedEmail)) {
-      const existingAccount = findAccountByEmail(trimmedEmail);
-      if (existingAccount && existingAccount.isEmailVerified) {
-        setError(
-          isRtl
-            ? `عنوان البريد الإلكتروني (${trimmedEmail}) مسجل بالفعل على منصة DiaVet. يمكن استخدام كل بريد إلكتروني مرة واحدة فقط. يرجى تسجيل الدخول.`
-            : isEn
-            ? `The email address (${trimmedEmail}) is already registered on DiaVet. Each email address can only be used once. Please log in.`
-            : `L'adresse e-mail (${trimmedEmail}) est déjà enregistrée sur DiaVet. Chaque adresse e-mail ne peut être utilisée qu'une seule fois. Veuillez vous connecter.`
-        );
-        soundEngine.playError();
-        return;
-      }
+      setError(
+        isRtl
+          ? `عنوان البريد الإلكتروني (${trimmedEmail}) مسجل بالفعل على منصة DiaVet. يمكن استخدام كل بريد إلكتروني مرة واحدة فقط. يرجى تسجيل الدخول.`
+          : isEn
+          ? `The email address (${trimmedEmail}) is already registered on DiaVet. Each email address can only be used once. Please log in.`
+          : `L'adresse e-mail (${trimmedEmail}) est déjà enregistrée sur DiaVet. Chaque adresse e-mail ne peut être utilisée qu'une seule fois. Veuillez vous connecter.`
+      );
+      soundEngine.playError();
+      return;
     }
 
     setIsSubmitting(true);

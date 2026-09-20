@@ -76,13 +76,48 @@ export function saveRegisteredAccounts(accounts: RegisteredAccount[]): void {
 }
 
 /**
- * Strict check if an email is already registered in the platform
+ * Global key for registered email tracking
+ */
+const GLOBAL_EMAILS_KEY = 'diavet_registered_emails_list';
+
+export function registerEmailInGlobalList(email: string): void {
+  if (!email) return;
+  const normalized = email.trim().toLowerCase();
+  try {
+    const raw = localStorage.getItem(GLOBAL_EMAILS_KEY);
+    const list: string[] = raw ? JSON.parse(raw) : [];
+    if (!list.includes(normalized)) {
+      list.push(normalized);
+      localStorage.setItem(GLOBAL_EMAILS_KEY, JSON.stringify(list));
+    }
+  } catch {}
+}
+
+/**
+ * Strict check if an email is already registered anywhere in the platform
  */
 export function isEmailAlreadyRegistered(email: string): boolean {
   if (!email || !email.trim()) return false;
   const normalized = email.trim().toLowerCase();
+
+  // 1. Check registered accounts
   const accounts = getRegisteredAccounts();
-  return accounts.some(acc => acc.email.toLowerCase() === normalized);
+  if (accounts.some(acc => acc.email.toLowerCase() === normalized)) {
+    return true;
+  }
+
+  // 2. Check global email list
+  try {
+    const raw = localStorage.getItem(GLOBAL_EMAILS_KEY);
+    if (raw) {
+      const list: string[] = JSON.parse(raw);
+      if (Array.isArray(list) && list.map(e => e.toLowerCase()).includes(normalized)) {
+        return true;
+      }
+    }
+  } catch {}
+
+  return false;
 }
 
 /**
@@ -236,6 +271,7 @@ export function verifyEmailCode(
   }
 
   saveRegisteredAccounts(accounts);
+  registerEmailInGlobalList(normalized);
 
   // Clear pending verification
   try {
