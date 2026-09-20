@@ -67,9 +67,9 @@ export default function DriveSyncModal({ isOpen, onClose }: DriveSyncModalProps)
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto">
       <div 
-        className="w-full max-w-lg bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/50 relative overflow-hidden"
+        className="w-full max-w-lg max-h-[92vh] overflow-y-auto bg-slate-900 border border-cyan-500/30 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl shadow-cyan-950/50 relative my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Glow Effects */}

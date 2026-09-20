@@ -121,7 +121,7 @@ export default function GiftRewardCelebrationModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.82, y: 25 }}
           transition={{ type: "spring", duration: 0.55, bounce: 0.3 }}
-          className={`relative w-full max-w-xl rounded-3xl bg-slate-950 border-2 border-amber-400/60 p-5 sm:p-7 shadow-2xl overflow-hidden my-auto ${
+          className={`relative w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl bg-slate-950 border-2 border-amber-400/60 p-5 sm:p-7 shadow-2xl my-auto ${
             isRtl ? 'text-right' : 'text-left'
           }`}
           dir={isRtl ? 'rtl' : 'ltr'}

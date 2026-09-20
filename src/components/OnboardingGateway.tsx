@@ -347,8 +347,8 @@ export default function OnboardingGateway({
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-3 sm:p-6 md:p-8 ${isRtl ? 'text-right' : 'text-left'}`} dir={isRtl ? 'rtl' : 'ltr'}>
-      <div className="relative w-full max-w-xl max-h-[94vh] overflow-y-auto rounded-3xl bg-slate-950/95 border-2 border-cyan-500/40 shadow-2xl shadow-cyan-500/20 backdrop-blur-2xl p-5 sm:p-8 text-slate-100">
+    <div className={`w-full flex items-center justify-center p-2 sm:p-4 ${isRtl ? 'text-right' : 'text-left'}`} dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl sm:rounded-3xl bg-slate-950/95 border border-cyan-500/40 sm:border-2 shadow-2xl shadow-cyan-500/20 backdrop-blur-2xl p-4 sm:p-7 text-slate-100">
         
         {/* Glow ambient decorations */}
         <div className="absolute -top-24 -left-24 w-60 h-60 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -618,21 +618,21 @@ export default function OnboardingGateway({
               <label className="block text-xs font-bold text-slate-300 mb-2">
                 {isRtl ? "نوع العضوية المطلوبة :" : "Votre profil d'inscription :"}
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     soundEngine.playCyberClick();
                     setRole('owner');
                   }}
-                  className={`p-3 rounded-2xl border-2 transition-all flex items-center gap-3 cursor-pointer text-left ${
+                  className={`p-2.5 sm:p-3 rounded-2xl border-2 transition-all flex items-center gap-2.5 sm:gap-3 cursor-pointer text-left ${
                     role === 'owner'
                       ? 'bg-rose-500/20 border-rose-400 text-white shadow-lg shadow-rose-500/20'
                       : 'bg-slate-900/60 border-white/10 text-slate-400 hover:border-rose-400/40'
                   }`}
                 >
-                  <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
-                    <Heart className="w-5 h-5 fill-rose-500/30" />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-rose-500/30" />
                   </div>
                   <div>
                     <div className="text-xs font-black text-white">{isRtl ? "مربي حيوان أليف" : "Propriétaire"}</div>
@@ -646,18 +646,18 @@ export default function OnboardingGateway({
                     soundEngine.playCyberClick();
                     setRole('vet');
                   }}
-                  className={`p-3 rounded-2xl border-2 transition-all flex items-center gap-3 cursor-pointer text-left ${
+                  className={`p-2.5 sm:p-3 rounded-2xl border-2 transition-all flex items-center gap-2.5 sm:gap-3 cursor-pointer text-left ${
                     role === 'vet'
                       ? 'bg-emerald-500/20 border-emerald-400 text-white shadow-lg shadow-emerald-500/20'
                       : 'bg-slate-900/60 border-white/10 text-slate-400 hover:border-emerald-400/40'
                   }`}
                 >
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                    <Stethoscope className="w-5 h-5" />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                    <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div>
                     <div className="text-xs font-black text-white flex items-center gap-1">
-                      <span>{isRtl ? "طبيب بيطري" : "Docteur Vétérinaire"}</span>
+                      <span>{isRtl ? "طبيب بيطري" : "Vétérinaire"}</span>
                       <span className="text-[9px] px-1 py-0.2 bg-emerald-400 text-slate-950 font-black rounded">PRO</span>
                     </div>
                     <div className="text-[10px] text-slate-400">{isRtl ? "عيادة، صيدلية..." : "Cabinet & Réseau"}</div>

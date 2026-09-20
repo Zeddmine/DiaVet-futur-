@@ -56,15 +56,15 @@ export default function Footer({ currentLang, userRole = 'owner', onNavigate, on
                 <span>@dia__vet</span>
               </a>
 
-              <a
-                href="https://wa.me/213550000000?text=Bonjour%20DiaVet%20Alg%C3%A9rie%20%F0%9F%87%A9%F0%9F%87%BF%20Je%20vous%20contacte%20depuis%20la%20plateforme"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all hover:scale-105 cursor-pointer"
+              <div
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold"
               >
-                <MessageCircle className="w-4 h-4 text-emerald-400" />
-                <span>WhatsApp (Waa) DZ</span>
-              </a>
+                <MessageCircle className="w-4 h-4 text-amber-400" />
+                <span>WhatsApp DZ</span>
+                <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded uppercase">
+                  {isRtl ? 'قيد التطوير' : 'En dev'}
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center gap-3 text-xs text-emerald-400 font-semibold pt-1">
