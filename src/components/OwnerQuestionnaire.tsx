@@ -25,6 +25,8 @@ interface OwnerQuestionnaireProps {
   onNavigateToScreen?: (screen: any) => void;
 }
 
+const OWNER_DRAFT_STORAGE_KEY = 'diavet_owner_questionnaire_draft_v1';
+
 export default function OwnerQuestionnaire({
   currentLang,
   userProfile,
@@ -37,47 +39,80 @@ export default function OwnerQuestionnaire({
   const t = translations[currentLang] || translations.fr;
   const isRtl = currentLang === 'ar';
 
+  // Load saved draft if available
+  const getSavedOwnerDraft = () => {
+    try {
+      const raw = localStorage.getItem(OWNER_DRAFT_STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  };
+
+  const savedDraft = getSavedOwnerDraft();
+
   // STEP STATE: 0=Intro, 1..10=Questions, 11=Suspense calculation, 12=VIP Pass
-  const [step, setStep] = useState<number>(0);
+  const [step, setStep] = useState<number>(() => {
+    if (savedDraft?.step && savedDraft.step > 0 && savedDraft.step <= 10) {
+      return savedDraft.step;
+    }
+    return 0;
+  });
   const totalSteps = 10;
 
   // Selected preview photo index for showcase
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<{ [key: string]: number }>({});
 
   // ANSWERS STATE
-  const [answers, setAnswers] = useState<OwnerAnswers>({
-    animalTypes: [],
-    petName: userProfile?.petName || '',
-    petBreed: userProfile?.petBreed || '',
-    petAge: '',
-    petWeight: '',
-    petSex: userProfile?.petSex === 'male' ? (isRtl ? 'ذكر' : 'Mâle') : userProfile?.petSex === 'female' ? (isRtl ? 'أنثى' : 'Femelle') : '',
-    isVaccinated: '',
-    rabiesVaccinated: '',
-    dewormingFrequency: '',
-    isNeutered: '',
-    dietType: '',
-    feedingSource: '',
-    previousSurgeries: '',
-    antiParasiteTreatment: '',
-    behaviorTraits: [],
-    playTimeDaily: '',
-    emergencyExperience: '',
-    hasFirstAidKit: '',
-    visitFrequency: '',
-    mainChallenges: [],
-    annualBudgetDzd: '',
-    wilaya: userProfile?.wilaya || '16 - Alger',
-    commune: userProfile?.commune || '',
-    expectedFeatures: [],
-    ownerName: userProfile?.name || userProfile?.fullName || '',
-    ownerPhone: userProfile?.phone || '',
-    userSuggestions: '',
-    catLifestyle: '',
-    catFivFelvTested: '',
-    dogSize: '',
-    dogLeishmaniaProtection: ''
-  });
+  const [answers, setAnswers] = useState<OwnerAnswers>(() => ({
+    animalTypes: savedDraft?.answers?.animalTypes || [],
+    petName: savedDraft?.answers?.petName || userProfile?.petName || '',
+    petBreed: savedDraft?.answers?.petBreed || userProfile?.petBreed || '',
+    petAge: savedDraft?.answers?.petAge || '',
+    petWeight: savedDraft?.answers?.petWeight || '',
+    petSex: savedDraft?.answers?.petSex || (userProfile?.petSex === 'male' ? (isRtl ? 'ذكر' : 'Mâle') : userProfile?.petSex === 'female' ? (isRtl ? 'أنثى' : 'Femelle') : ''),
+    isVaccinated: savedDraft?.answers?.isVaccinated || '',
+    rabiesVaccinated: savedDraft?.answers?.rabiesVaccinated || '',
+    dewormingFrequency: savedDraft?.answers?.dewormingFrequency || '',
+    isNeutered: savedDraft?.answers?.isNeutered || '',
+    dietType: savedDraft?.answers?.dietType || '',
+    feedingSource: savedDraft?.answers?.feedingSource || '',
+    previousSurgeries: savedDraft?.answers?.previousSurgeries || '',
+    antiParasiteTreatment: savedDraft?.answers?.antiParasiteTreatment || '',
+    behaviorTraits: savedDraft?.answers?.behaviorTraits || [],
+    playTimeDaily: savedDraft?.answers?.playTimeDaily || '',
+    emergencyExperience: savedDraft?.answers?.emergencyExperience || '',
+    hasFirstAidKit: savedDraft?.answers?.hasFirstAidKit || '',
+    visitFrequency: savedDraft?.answers?.visitFrequency || '',
+    mainChallenges: savedDraft?.answers?.mainChallenges || [],
+    annualBudgetDzd: savedDraft?.answers?.annualBudgetDzd || '',
+    wilaya: savedDraft?.answers?.wilaya || userProfile?.wilaya || '16 - Alger',
+    commune: savedDraft?.answers?.commune || userProfile?.commune || '',
+    expectedFeatures: savedDraft?.answers?.expectedFeatures || [],
+    ownerName: savedDraft?.answers?.ownerName || userProfile?.name || userProfile?.fullName || '',
+    ownerPhone: savedDraft?.answers?.ownerPhone || userProfile?.phone || '',
+    userSuggestions: savedDraft?.answers?.userSuggestions || '',
+    catLifestyle: savedDraft?.answers?.catLifestyle || '',
+    catFivFelvTested: savedDraft?.answers?.catFivFelvTested || '',
+    dogSize: savedDraft?.answers?.dogSize || '',
+    dogLeishmaniaProtection: savedDraft?.answers?.dogLeishmaniaProtection || ''
+  }));
+
+  // Autosave answers & step to localStorage
+  useEffect(() => {
+    if (step >= 1 && step <= 10) {
+      try {
+        localStorage.setItem(OWNER_DRAFT_STORAGE_KEY, JSON.stringify({
+          step,
+          answers,
+          updatedAt: new Date().toISOString()
+        }));
+      } catch (e) {
+        console.warn('Failed to autosave owner questionnaire', e);
+      }
+    }
+  }, [step, answers]);
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isShaking, setIsShaking] = useState<boolean>(false);

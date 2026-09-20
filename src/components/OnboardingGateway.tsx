@@ -4,7 +4,8 @@ import {
   ShieldCheck, Heart, Stethoscope, MapPin, 
   ArrowRight, CheckCircle2, ChevronRight, 
   Lock, Mail, Building, KeyRound, AlertCircle, Award, Check,
-  LogIn, UserPlus, Phone, Shield, Sparkles, RefreshCw, Copy, ExternalLink
+  LogIn, UserPlus, Phone, Shield, Sparkles, RefreshCw, Copy, ExternalLink,
+  Save, RotateCcw
 } from 'lucide-react';
 import { ALGERIAN_WILAYAS } from '../data/mockData';
 import { Language, UserProfile } from '../types';
@@ -20,6 +21,37 @@ import {
   getPendingVerification,
   RegisteredAccount
 } from '../services/accountService';
+
+const DRAFT_STORAGE_KEY = 'diavet_onboarding_form_draft_v1';
+
+interface FormDraftData {
+  authMode?: 'register' | 'verification' | 'login';
+  role?: 'owner' | 'vet';
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  wilaya?: string;
+  commune?: string;
+  password?: string;
+  petName?: string;
+  petType?: string;
+  petBreed?: string;
+  clinicName?: string;
+  orderNumber?: string;
+  verificationCode?: string;
+  dispatchedCode?: string | null;
+  savedAt?: string;
+}
+
+const getStoredDraft = (): FormDraftData | null => {
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
 
 interface OnboardingGatewayProps {
   currentLang?: Language;
@@ -38,34 +70,40 @@ export default function OnboardingGateway({
   const isRtl = currentLang === 'ar';
   const isEn = currentLang === 'en';
 
-  // Mode: 'register' (Form) | 'verification' (Code Email) | 'login' (Connexion)
-  const [authMode, setAuthMode] = useState<'register' | 'verification' | 'login'>('register');
-  const [role, setRole] = useState<'owner' | 'vet'>('owner');
+  const initialDraft = getStoredDraft();
 
-  // Registration Fields
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [wilaya, setWilaya] = useState('16 - Alger');
-  const [commune, setCommune] = useState('');
-  const [password, setPassword] = useState('');
+  // Mode: 'register' (Form) | 'verification' (Code Email) | 'login' (Connexion)
+  const [authMode, setAuthMode] = useState<'register' | 'verification' | 'login'>(initialDraft?.authMode || 'register');
+  const [role, setRole] = useState<'owner' | 'vet'>(initialDraft?.role || 'owner');
+
+  // Registration Fields with autosave initial values
+  const [fullName, setFullName] = useState(initialDraft?.fullName || '');
+  const [email, setEmail] = useState(initialDraft?.email || '');
+  const [phone, setPhone] = useState(initialDraft?.phone || '');
+  const [wilaya, setWilaya] = useState(initialDraft?.wilaya || '16 - Alger');
+  const [commune, setCommune] = useState(initialDraft?.commune || '');
+  const [password, setPassword] = useState(initialDraft?.password || '');
 
   // Role specific fields
-  const [petName, setPetName] = useState('');
-  const [petType, setPetType] = useState('Chat');
-  const [petBreed, setPetBreed] = useState('');
-  const [clinicName, setClinicName] = useState('');
-  const [orderNumber, setOrderNumber] = useState('');
+  const [petName, setPetName] = useState(initialDraft?.petName || '');
+  const [petType, setPetType] = useState(initialDraft?.petType || 'Chat');
+  const [petBreed, setPetBreed] = useState(initialDraft?.petBreed || '');
+  const [clinicName, setClinicName] = useState(initialDraft?.clinicName || '');
+  const [orderNumber, setOrderNumber] = useState(initialDraft?.orderNumber || '');
 
   // Duplicate email detection state
   const [emailDuplicateError, setEmailDuplicateError] = useState<string | null>(null);
 
   // Email verification state
-  const [verificationCode, setVerificationCode] = useState('');
-  const [dispatchedCode, setDispatchedCode] = useState<string | null>(null);
+  const [verificationCode, setVerificationCode] = useState(initialDraft?.verificationCode || '');
+  const [dispatchedCode, setDispatchedCode] = useState<string | null>(initialDraft?.dispatchedCode || null);
   const [resendCountdown, setResendCountdown] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // Autosave indicators
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(Boolean(initialDraft && (initialDraft.fullName || initialDraft.email || initialDraft.phone)));
+  const [lastSavedTimestamp, setLastSavedTimestamp] = useState<string | null>(initialDraft?.savedAt ? new Date(initialDraft.savedAt).toLocaleTimeString() : null);
 
   // Login Fields
   const [loginEmail, setLoginEmail] = useState('');
@@ -76,6 +114,77 @@ export default function OnboardingGateway({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [verifiedAccount, setVerifiedAccount] = useState<RegisteredAccount | null>(null);
+
+  // Continuous Autosave effect to localStorage
+  useEffect(() => {
+    const hasData = Boolean(
+      fullName.trim() || 
+      email.trim() || 
+      phone.trim() || 
+      petName.trim() || 
+      clinicName.trim() || 
+      commune.trim() || 
+      password.trim() || 
+      verificationCode.trim()
+    );
+
+    if (hasData) {
+      const now = new Date();
+      const draft: FormDraftData = {
+        authMode,
+        role,
+        fullName,
+        email,
+        phone,
+        wilaya,
+        commune,
+        password,
+        petName,
+        petType,
+        petBreed,
+        clinicName,
+        orderNumber,
+        verificationCode,
+        dispatchedCode,
+        savedAt: now.toISOString()
+      };
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        setLastSavedTimestamp(now.toLocaleTimeString(isRtl ? 'ar-DZ' : isEn ? 'en-US' : 'fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      } catch (err) {
+        console.warn('Autosave to localStorage failed:', err);
+      }
+    }
+  }, [
+    authMode, role, fullName, email, phone, wilaya, commune, 
+    password, petName, petType, petBreed, clinicName, orderNumber, 
+    verificationCode, dispatchedCode, isRtl, isEn
+  ]);
+
+  // Clear draft helper
+  const handleClearDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {}
+    setFullName('');
+    setEmail('');
+    setPhone('');
+    setWilaya('16 - Alger');
+    setCommune('');
+    setPassword('');
+    setPetName('');
+    setPetType('Chat');
+    setPetBreed('');
+    setClinicName('');
+    setOrderNumber('');
+    setVerificationCode('');
+    setDispatchedCode(null);
+    setHasRestoredDraft(false);
+    setLastSavedTimestamp(null);
+    setError(null);
+    setEmailDuplicateError(null);
+    soundEngine.playPop();
+  };
 
   // Live check for existing account suggestion
   const checkDuplicateEmail = (emailValue: string) => {
@@ -237,6 +346,9 @@ export default function OnboardingGateway({
     }
 
     // SUCCESS: Account verified!
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {}
     soundEngine.playLevelUp();
     setVerifiedAccount(result.account);
     setIsSubmitting(false);
@@ -323,6 +435,9 @@ export default function OnboardingGateway({
     }
 
     // Verified account -> Log in!
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {}
     soundEngine.playLevelUp();
     setVerifiedAccount(account);
     setTimeout(() => {
@@ -333,6 +448,9 @@ export default function OnboardingGateway({
 
   // Proceed into Main App
   const handleProceedToApp = () => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {}
     if (verifiedAccount) {
       const isOwnerEmail = verifiedAccount.email.toLowerCase() === 'mine.mine0100@gmail.com';
       const profile: Partial<UserProfile> = {
@@ -448,6 +566,60 @@ export default function OnboardingGateway({
               </button>
             )}
           </div>
+        </div>
+
+        {/* Restored Draft Banner */}
+        <AnimatePresence>
+          {hasRestoredDraft && authMode === 'register' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, mb: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              className="relative z-10 p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between gap-2 shadow-lg shadow-emerald-950/40"
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded-lg bg-emerald-500/20 text-emerald-400">
+                  <Save className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold text-white block">
+                    {isRtl ? "💾 تم استرجاع مسودتك السابقة تلقائياً" : isEn ? "💾 Your previous draft has been restored" : "💾 Vos saisies précédentes ont été restaurées"}
+                  </span>
+                  <span className="text-[11px] text-emerald-300/80">
+                    {lastSavedTimestamp ? (isRtl ? `آخر حفظ: ${lastSavedTimestamp}` : isEn ? `Last saved: ${lastSavedTimestamp}` : `Sauvegardé à ${lastSavedTimestamp}`) : (isRtl ? "بياناتك محفوظة بأمان على جهازك" : isEn ? "Your data is safely kept locally" : "Vos données sont gardées en mémoire locale")}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleClearDraft}
+                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] border border-white/15 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                title={isRtl ? "مسح المسودة والبدء من جديد" : isEn ? "Clear draft and start fresh" : "Effacer le formulaire"}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>{isRtl ? "مسح المسودة" : isEn ? "Reset" : "Effacer"}</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Live Auto-Save Indicator */}
+        <div className="relative z-10 flex items-center justify-between text-[11px] text-slate-400 mb-3 px-1">
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="text-emerald-400 font-medium">
+              {isRtl ? "حفظ تلقائي للمعلومات مفعّل" : isEn ? "Auto-save active" : "Sauvegarde automatique active"}
+            </span>
+          </div>
+          {lastSavedTimestamp && (
+            <span className="text-slate-400 text-[10px] font-mono">
+              {isRtl ? `آخر تحديث: ${lastSavedTimestamp}` : isEn ? `Saved ${lastSavedTimestamp}` : `Enregistré ${lastSavedTimestamp}`}
+            </span>
+          )}
         </div>
 
         {/* Navigation Tabs : Inscription Réelle vs Connexion */}

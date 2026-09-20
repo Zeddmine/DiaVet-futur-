@@ -21,6 +21,8 @@ interface VetQuestionnaireProps {
   onPreviewPortal: () => void;
 }
 
+const VET_DRAFT_STORAGE_KEY = 'diavet_vet_questionnaire_draft_v1';
+
 export default function VetQuestionnaire({
   currentLang,
   userProfile,
@@ -31,26 +33,58 @@ export default function VetQuestionnaire({
   const t = translations[currentLang] || translations.fr;
   const isRtl = currentLang === 'ar';
 
-  const [step, setStep] = useState<number>(0);
+  const getSavedVetDraft = () => {
+    try {
+      const raw = localStorage.getItem(VET_DRAFT_STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  };
+
+  const savedDraft = getSavedVetDraft();
+
+  const [step, setStep] = useState<number>(() => {
+    if (savedDraft?.step && savedDraft.step > 0 && savedDraft.step <= 7) {
+      return savedDraft.step;
+    }
+    return 0;
+  });
   const totalSteps = 7;
 
   // ANSWERS STATE: Synchronized with userProfile to avoid repeating questions
-  const [answers, setAnswers] = useState<VetAnswers>({
-    practiceType: '',
-    clinicName: userProfile?.clinicName || '',
-    vetFullName: userProfile?.name || '',
-    specialties: [],
-    availableEquipment: [],
-    dailyPatientsCount: '',
-    emergencyService: '',
-    currentTool: '',
-    majorChallengesDz: [],
-    desiredFeatures: [],
-    wilaya: userProfile?.wilaya || '16 - Alger',
-    commune: userProfile?.commune || '',
-    phoneContact: userProfile?.phone || '',
-    userSuggestions: ''
-  });
+  const [answers, setAnswers] = useState<VetAnswers>(() => ({
+    practiceType: savedDraft?.answers?.practiceType || '',
+    clinicName: savedDraft?.answers?.clinicName || userProfile?.clinicName || '',
+    vetFullName: savedDraft?.answers?.vetFullName || userProfile?.name || '',
+    specialties: savedDraft?.answers?.specialties || [],
+    availableEquipment: savedDraft?.answers?.availableEquipment || [],
+    dailyPatientsCount: savedDraft?.answers?.dailyPatientsCount || '',
+    emergencyService: savedDraft?.answers?.emergencyService || '',
+    currentTool: savedDraft?.answers?.currentTool || '',
+    majorChallengesDz: savedDraft?.answers?.majorChallengesDz || [],
+    desiredFeatures: savedDraft?.answers?.desiredFeatures || [],
+    wilaya: savedDraft?.answers?.wilaya || userProfile?.wilaya || '16 - Alger',
+    commune: savedDraft?.answers?.commune || userProfile?.commune || '',
+    phoneContact: savedDraft?.answers?.phoneContact || userProfile?.phone || '',
+    userSuggestions: savedDraft?.answers?.userSuggestions || ''
+  }));
+
+  // Autosave to localStorage
+  useEffect(() => {
+    if (step >= 1 && step <= 7) {
+      try {
+        localStorage.setItem(VET_DRAFT_STORAGE_KEY, JSON.stringify({
+          step,
+          answers,
+          updatedAt: new Date().toISOString()
+        }));
+      } catch (e) {
+        console.warn('Failed to autosave vet questionnaire', e);
+      }
+    }
+  }, [step, answers]);
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isShaking, setIsShaking] = useState<boolean>(false);
