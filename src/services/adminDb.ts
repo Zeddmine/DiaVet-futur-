@@ -287,7 +287,7 @@ export function exportLeadsToExcel(leads: AdminLead[]): void {
   document.body.removeChild(link);
 }
 
-export function exportLeadsToCsv(leads: AdminLead[]): void {
+export function formatLeadsAsCsv(leads: AdminLead[]): string {
   const headers = [
     'ID',
     'Rôle',
@@ -320,7 +320,11 @@ export function exportLeadsToCsv(leads: AdminLead[]): void {
     `"${l.submittedAt}"`
   ]);
 
-  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  return '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+}
+
+export function exportLeadsToCsv(leads: AdminLead[]): void {
+  const csvContent = formatLeadsAsCsv(leads);
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');

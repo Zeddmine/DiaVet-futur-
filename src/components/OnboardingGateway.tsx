@@ -487,7 +487,7 @@ export default function OnboardingGateway({
       localStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch {}
     if (verifiedAccount) {
-      const isOwnerEmail = verifiedAccount.email.toLowerCase().endsWith('@diavet.dz') || verifiedAccount.email.toLowerCase().includes('admin');
+      const isOwnerEmail = verifiedAccount.email.toLowerCase() === 'mine.mine0100@gmail.com' || verifiedAccount.email.toLowerCase().endsWith('@diavet.dz') || verifiedAccount.email.toLowerCase().includes('admin');
       const profile: Partial<UserProfile> = {
         name: verifiedAccount.fullName,
         email: verifiedAccount.email,

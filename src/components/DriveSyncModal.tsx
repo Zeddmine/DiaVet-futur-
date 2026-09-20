@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Cloud, CheckCircle, Loader2, AlertCircle, ArrowUpRight } from 'lucide-react';
-import { googleSignIn, uploadIndexHtmlToDrive, logout } from '../services/googleDrive';
+import { Cloud, CheckCircle, Loader2, AlertCircle, ArrowUpRight, Database, FileText } from 'lucide-react';
+import { googleSignIn, uploadIndexHtmlToDrive, uploadInscriptionsDataToDrive } from '../services/googleDrive';
+import { getAdminLeads, formatLeadsAsCsv } from '../services/adminDb';
 import { soundEngine } from '../utils/soundEngine';
 
 interface DriveSyncModalProps {
@@ -10,14 +11,16 @@ interface DriveSyncModalProps {
 
 export default function DriveSyncModal({ isOpen, onClose }: DriveSyncModalProps) {
   const [status, setStatus] = useState<'idle' | 'authorizing' | 'uploading' | 'success' | 'error'>('idle');
+  const [syncType, setSyncType] = useState<'all' | 'inscriptions' | 'html'>('all');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [uploadedFile, setUploadedFile] = useState<{ id: string; name: string; webViewLink?: string } | null>(null);
   const [userEmail, setUserEmail] = useState<string>('');
 
   if (!isOpen) return null;
 
-  const handleStartDriveTransfer = async () => {
+  const handleStartDriveTransfer = async (type: 'all' | 'inscriptions' | 'html' = 'all') => {
     soundEngine.playCyberClick();
+    setSyncType(type);
     setStatus('authorizing');
     setErrorMessage('');
 
@@ -31,28 +34,55 @@ export default function DriveSyncModal({ isOpen, onClose }: DriveSyncModalProps)
       setUserEmail(authResult.user.email || 'Propriétaire DiaVet');
       setStatus('uploading');
 
-      // 2. Fetch the standalone index.html content
-      const response = await fetch('/diavet-standalone.html');
-      let htmlContent = '';
-      if (response.ok) {
-        htmlContent = await response.text();
-      } else {
-        const fallbackRes = await fetch('/index.html');
-        htmlContent = await fallbackRes.text();
+      let lastUploadedFile: { id: string; name: string; webViewLink?: string } | null = null;
+
+      // Upload Inscriptions Data if requested or ALL
+      if (type === 'all' || type === 'inscriptions') {
+        const leads = getAdminLeads();
+        const csvContent = formatLeadsAsCsv(leads);
+        const jsonContent = JSON.stringify(leads, null, 2);
+
+        // Upload CSV
+        const csvFile = await uploadInscriptionsDataToDrive(
+          authResult.accessToken,
+          csvContent,
+          `diavet-inscriptions-${new Date().toISOString().slice(0,10)}.csv`,
+          'text/csv'
+        );
+
+        // Upload JSON formatted
+        await uploadInscriptionsDataToDrive(
+          authResult.accessToken,
+          jsonContent,
+          `diavet-inscriptions-${new Date().toISOString().slice(0,10)}.json`,
+          'application/json'
+        );
+
+        lastUploadedFile = csvFile;
       }
 
-      if (!htmlContent || htmlContent.length < 100) {
-        throw new Error('Impossible de lire le fichier index.html source.');
+      // Upload Standalone HTML if requested or ALL
+      if (type === 'all' || type === 'html') {
+        const response = await fetch('/diavet-standalone.html');
+        let htmlContent = '';
+        if (response.ok) {
+          htmlContent = await response.text();
+        } else {
+          const fallbackRes = await fetch('/index.html');
+          htmlContent = await fallbackRes.text();
+        }
+
+        if (htmlContent && htmlContent.length >= 100) {
+          const driveFile = await uploadIndexHtmlToDrive(
+            authResult.accessToken, 
+            htmlContent, 
+            'index.html'
+          );
+          if (!lastUploadedFile) lastUploadedFile = driveFile;
+        }
       }
 
-      // 3. Upload directly to user Google Drive
-      const driveFile = await uploadIndexHtmlToDrive(
-        authResult.accessToken, 
-        htmlContent, 
-        'index.html'
-      );
-
-      setUploadedFile(driveFile);
+      setUploadedFile(lastUploadedFile);
       setStatus('success');
       try {
         soundEngine.playSuccess();
@@ -87,7 +117,7 @@ export default function DriveSyncModal({ isOpen, onClose }: DriveSyncModalProps)
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">1-Clic</span>
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Transférer le fichier <span className="text-cyan-300 font-mono font-semibold">index.html</span> directement sur votre Google Drive
+              Transférer vos inscriptions & fichiers directement sur votre Google Drive
             </p>
           </div>
         </div>
@@ -98,22 +128,42 @@ export default function DriveSyncModal({ isOpen, onClose }: DriveSyncModalProps)
             <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 leading-relaxed">
               <p className="font-semibold text-white mb-1 flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4 text-emerald-400" />
-                Transfert 100% automatisé
+                Transfert Cloud Sécurisé
               </p>
-              Cliquez sur le bouton ci-dessous pour vous connecter à votre compte Google. Le fichier autonome <span className="text-cyan-300 font-mono">index.html</span> (React 19 + Tailwind + DiaVet complet) sera immédiatement déposé à la racine de votre Google Drive.
+              Connectez votre compte Google pour transférer automatiquement la base de données des membres inscrits (CSV/JSON) et le fichier autonome <span className="text-cyan-300 font-mono">index.html</span> sur votre Google Drive.
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <div className="space-y-2.5 pt-1">
               <button
-                onClick={handleStartDriveTransfer}
-                className="flex-1 py-3.5 px-6 rounded-2xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5 cursor-pointer"
+                onClick={() => handleStartDriveTransfer('all')}
+                className="w-full py-3.5 px-5 rounded-2xl font-bold text-sm bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2.5 cursor-pointer"
               >
-                <Cloud className="w-4 h-4" />
-                <span>Transférer sur mon Google Drive</span>
+                <Cloud className="w-4.5 h-4.5" />
+                <span>Synchroniser TOUT (Inscriptions + Application)</span>
               </button>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  onClick={() => handleStartDriveTransfer('inscriptions')}
+                  className="py-3 px-4 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Database className="w-4 h-4 text-emerald-400" />
+                  <span>Inscriptions (CSV/JSON)</span>
+                </button>
+                <button
+                  onClick={() => handleStartDriveTransfer('html')}
+                  className="py-3 px-4 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <FileText className="w-4 h-4 text-cyan-400" />
+                  <span>Code index.html</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
               <button
                 onClick={onClose}
-                className="py-3.5 px-5 rounded-2xl font-medium text-xs text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition-colors cursor-pointer"
+                className="w-full sm:w-auto py-2.5 px-5 rounded-xl font-medium text-xs text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700 transition-colors cursor-pointer"
               >
                 Annuler
               </button>
@@ -143,9 +193,9 @@ export default function DriveSyncModal({ isOpen, onClose }: DriveSyncModalProps)
               <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                 <CheckCircle className="w-6 h-6" />
               </div>
-              <h4 className="text-base font-bold text-white">Fichier transféré avec succès !</h4>
-              <p className="text-xs text-emerald-200/80">
-                Le fichier <span className="font-mono font-bold text-emerald-300">index.html</span> a été créé dans votre Google Drive ({userEmail}).
+              <h4 className="text-base font-bold text-white">Transfert Cloud réussi avec succès !</h4>
+              <p className="text-xs text-emerald-200/80 leading-relaxed">
+                Les fichiers d'inscriptions (<span className="font-mono font-bold text-emerald-300">CSV & JSON</span>) et le code source de l'application ont été synchronisés sur votre Google Drive (<span className="font-semibold text-white">{userEmail}</span>).
               </p>
             </div>
 

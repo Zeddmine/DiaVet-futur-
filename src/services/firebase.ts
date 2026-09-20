@@ -22,7 +22,7 @@ export const db: Firestore = firebaseConfigJson.firestoreDatabaseId
   : getFirestore(app);
 
 export const DIAVET_OFFICIAL_EMAIL = 'contact@diavet.dz';
-export const OWNER_TARGET_EMAIL = 'admin@diavet.dz';
+export const OWNER_TARGET_EMAIL = 'mine.mine0100@gmail.com';
 
 export interface FirestoreSubmissionData {
   id?: string;

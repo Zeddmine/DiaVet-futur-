@@ -114,3 +114,51 @@ export async function uploadIndexHtmlToDrive(
   const result = await response.json();
   return result;
 }
+
+/**
+ * Upload Inscriptions / Leads Data directly to Google Drive
+ */
+export async function uploadInscriptionsDataToDrive(
+  token: string, 
+  dataContent: string, 
+  fileName: string = 'diavet-inscriptions-registrations.txt',
+  mimeType: string = 'text/plain'
+): Promise<{ id: string; name: string; webViewLink?: string }> {
+  const metadata = {
+    name: fileName,
+    mimeType: mimeType
+  };
+
+  const boundary = '-------314159265358979323846';
+  const delimiter = `\r\n--${boundary}\r\n`;
+  const closeDelimiter = `\r\n--${boundary}--`;
+
+  const multipartRequestBody =
+    delimiter +
+    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+    JSON.stringify(metadata) +
+    delimiter +
+    `Content-Type: ${mimeType}\r\n\r\n` +
+    dataContent +
+    closeDelimiter;
+
+  const response = await fetch(
+    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': `multipart/related; boundary=${boundary}`
+      },
+      body: multipartRequestBody
+    }
+  );
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Google Drive API error (${response.status}): ${errText}`);
+  }
+
+  const result = await response.json();
+  return result;
+}
