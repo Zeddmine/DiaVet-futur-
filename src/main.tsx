@@ -6,16 +6,20 @@ import { LanguageProvider } from './context/LanguageContext.tsx';
 import { LoadingProvider } from './context/LoadingContext.tsx';
 import './index.css';
 
-// Register PWA service worker automatically
-registerSW({
-  immediate: true,
-  onNeedRefresh() {
-    console.log('Nouvelle version DiaVet PWA disponible');
-  },
-  onOfflineReady() {
-    console.log('DiaVet PWA prêt pour utilisation hors-ligne');
-  },
-});
+// Register PWA service worker safely
+try {
+  registerSW({
+    immediate: true,
+    onNeedRefresh() {
+      console.log('Nouvelle version DiaVet PWA disponible');
+    },
+    onOfflineReady() {
+      console.log('DiaVet PWA prêt pour utilisation hors-ligne');
+    },
+  });
+} catch (pwaErr) {
+  console.warn('PWA registration skipped or constrained:', pwaErr);
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;

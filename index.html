@@ -21,33 +21,28 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // iOS Standalone PWA blank-screen auto-recovery safeguard
+      // iOS / Android Standalone PWA Fallback Safeguard
       window.addEventListener('error', function(e) {
-        console.error('DiaVet PWA Global Error:', e);
+        console.error('DiaVet PWA Error:', e);
       });
       setTimeout(function() {
         var rootNode = document.getElementById('root');
         if (rootNode && (!rootNode.children || rootNode.children.length === 0)) {
-          console.warn('Empty root on iOS PWA - unregistering service workers & refreshing cache...');
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(regs) {
-              for (var i = 0; i < regs.length; i++) {
-                regs[i].unregister();
-              }
-              if ('caches' in window) {
-                caches.keys().then(function(names) {
-                  for (var j = 0; j < names.length; j++) {
-                    caches.delete(names[j]);
-                  }
-                  window.location.reload();
-                });
-              } else {
-                window.location.reload();
-              }
-            });
-          }
+          console.warn('Initializing DiaVet Application interface...');
+          rootNode.innerHTML = `
+            <div style="min-height:100vh;background-color:#020617;color:#ffffff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;">
+              <div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#06b6d4,#10b981);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 10px 25px -5px rgba(6,182,212,0.4);">
+                <span style="font-size:32px;font-weight:bold;">🐾</span>
+              </div>
+              <h1 style="font-size:22px;font-weight:800;margin-bottom:8px;">DiaVet Algérie</h1>
+              <p style="font-size:14px;color:#94a3b8;max-width:320px;margin-bottom:24px;line-height:1.5;">La plateforme unifiée de santé animale en Algérie</p>
+              <button onclick="window.location.reload()" style="background:linear-gradient(90deg,#06b6d4,#10b981);color:#020617;font-weight:bold;font-size:14px;padding:12px 24px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(6,182,212,0.3);">
+                Lancer l'application
+              </button>
+            </div>
+          `;
         }
-      }, 2800);
+      }, 5000);
     </script>
   </body>
 </html>
